@@ -386,11 +386,14 @@
 
         if (dir === 'up') {
             player.y--;
+            if (player.y < 0) player.y = 0;
+
             if (lanes.length - (13 - player.y) < 15) {
                 let type = Math.random() > 0.5 ? 'road' : 'grass';
                 lanes.push(new Lane(lanes.length, type));
             }
         }
+
         if (dir === 'down' && player.y < 13) player.y++;
         if (dir === 'left' && player.x > 0) player.x--;
         if (dir === 'right' && player.x < gridX - 1) player.x++;
@@ -416,22 +419,22 @@
     document.getElementById('btn-right').addEventListener('touchstart', e => { e.preventDefault(); movePlayer('right'); });
 
     function checkCollisions() {
-        let currentLaneIndex = 13 - player.y;
-        let currentLane = lanes[currentLaneIndex];
+        const currentLaneIndex = 13 - player.y;
+        const currentLane = lanes[currentLaneIndex];
 
-        if (currentLane && currentLane.type === 'road') {
-            let playerLeft = player.x * stepX;
-            let playerRight = playerLeft + stepX;
+        if (!currentLane || currentLane.type !== 'road') return;
 
-            for (let i = 0; i < currentLane.obstacles.length; i++) {
-                let obs = currentLane.obstacles[i];
-                let obsLeft = obs.x;
-                let obsRight = obs.x + obs.width;
+        const playerLeft = player.x * stepX;
+        const playerRight = playerLeft + stepX;
 
-                if (playerRight > obsLeft + 5 && playerLeft < obsRight - 5) {
-                    gameOver();
-                    return;
-                }
+        for (let i = 0; i < currentLane.obstacles.length; i++) {
+            const obs = currentLane.obstacles[i];
+            const obsLeft = obs.x;
+            const obsRight = obs.x + obs.width;
+
+            if (playerRight > obsLeft + 5 && playerLeft < obsRight - 5) {
+                gameOver();
+                return;
             }
         }
     }
@@ -448,7 +451,7 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let i = 0; i < lanes.length; i++) {
-            let renderYPos = (13 - i) * stepY;
+            const renderYPos = (13 - i) * stepY;
             if (renderYPos > -stepY && renderYPos < canvas.height + stepY) {
                 lanes[i].update();
                 lanes[i].draw(renderYPos);
