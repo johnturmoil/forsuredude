@@ -20,6 +20,10 @@
     "ID": "wordle/index.html"
   },
   {
+    "DisplayName": "Tetris",
+    "ID": "tetris/index.html"
+  },
+  {
     "DisplayName": "Crossy Roads",
     "ID": "crossyroads/index.html"
   }
