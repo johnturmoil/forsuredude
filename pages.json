@@ -1,8 +1,26 @@
 [
-  "blackjack",
-  "imposters.html",
-  "guessnumber.html",
-  "spaceraiders.html",
-  "wordle.html",
-  "crossyroads.html"
+  {
+    "DisplayName": "Blackjack",
+    "ID": "blackjack/index.html"
+  },
+  {
+    "DisplayName": "Imposters",
+    "ID": "imposters/index.html"
+  },
+  {
+    "DisplayName": "Guess Number",
+    "ID": "guessnumber/index.html"
+  },
+  {
+    "DisplayName": "Space Raiders",
+    "ID": "spaceraiders/index.html"
+  },
+  {
+    "DisplayName": "Wordle",
+    "ID": "wordle/index.html"
+  },
+  {
+    "DisplayName": "Crossy Roads",
+    "ID": "crossyroads/index.html"
+  }
 ]
