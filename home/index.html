@@ -1,113 +1,415 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Games Hub</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games Hub</title>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-body{
-    font-family:Arial,sans-serif;
-    background:#0f172a;
-    color:white;
-    min-height:100vh;
-    padding:40px;
-}
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-h1{
-    text-align:center;
-    margin-bottom:30px;
-    font-size:2.5rem;
-}
+    :root {
+      --bg: #050505;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.45);
+      --subtle: rgba(255,255,255,0.18);
+    }
 
-#games{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:15px;
-    max-width:1200px;
-    margin:auto;
-}
+    html { scroll-behavior: smooth; }
 
-.game-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-decoration:none;
-    color:white;
-    background:#2563eb;
-    border-radius:12px;
-    min-height:70px;
-    font-size:1.1rem;
-    transition:.2s;
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
 
-.game-btn:hover{
-    background:#1d4ed8;
-    transform:translateY(-3px);
-}
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-.loading{
-    text-align:center;
-    font-size:1.2rem;
-}
-</style>
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 80px 2rem 3rem;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 0 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.055) 0%, transparent 70%);
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      animation: pulseGlow 6s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.2s forwards;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0.6;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4.5rem, 12vw, 9rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.35s forwards;
+    }
+
+    .hero-title .ghost {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(255,255,255,0.2);
+    }
+
+    .hero-desc {
+      margin: 1.5rem auto 0;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 480px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.5s forwards;
+    }
+
+    .section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 0 5rem;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--subtle);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      line-height: 1;
+      letter-spacing: 0.03em;
+    }
+
+    .section-sub {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .game-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.4rem 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.25s, background 0.25s, transform 0.2s;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .game-card:hover {
+      border-color: var(--border-hover);
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-3px);
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.04), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .game-card:hover::before { opacity: 1; }
+
+    .game-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .game-arrow {
+      color: rgba(255,255,255,0.55);
+      font-size: 1.1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .loading, .error {
+      text-align: center;
+      color: var(--muted);
+      padding: 2rem;
+      grid-column: 1 / -1;
+    }
+
+    .error {
+      color: #f87171;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .footer-right {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: var(--subtle);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page { padding: 70px 1.25rem 2rem; }
+      .games-grid { grid-template-columns: 1fr; }
+      footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<h1>🎮 Games Hub</h1>
+<svg id="starfield" xmlns="http://www.w3.org/2000/svg"></svg>
 
-<div id="games">
-    <div class="loading">Loading games...</div>
+<div class="page">
+  <section class="hero">
+    <div class="hero-glow"></div>
+
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Games Hub
+    </div>
+
+    <h1 class="hero-title">
+      <span>Moon</span>
+      <span class="ghost">Games</span>
+    </h1>
+
+    <p class="hero-desc">
+      Select a game to launch instantly from the hub.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="section-header">
+      <p class="section-label">Available Games</p>
+      <h2 class="section-title">Choose a Title</h2>
+      <p class="section-sub">Loaded from pages.json using DisplayName and ID.</p>
+    </div>
+
+    <div id="games" class="games-grid">
+      <div class="loading">Loading games...</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Moon Scripts</div>
+    <div class="footer-right">2026 Moon Scripts. All rights reserved.</div>
+  </footer>
 </div>
 
 <script>
-async function loadGames() {
+  const svg = document.getElementById('starfield');
+  const W = window.innerWidth;
+  const H = Math.max(document.body.scrollHeight, 1600);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+
+  for (let i = 0; i < 160; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const r = Math.random() * 1.0 + 0.15;
+    const op = Math.random() * 0.4 + 0.06;
+    const dur = (Math.random() * 5 + 2).toFixed(1);
+    const del = (Math.random() * 8).toFixed(1);
+
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x);
+    c.setAttribute('cy', y);
+    c.setAttribute('r', r);
+    c.setAttribute('fill', 'white');
+    c.setAttribute('opacity', op);
+
+    const a = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+    a.setAttribute('attributeName', 'opacity');
+    a.setAttribute('values', `${op};${(op * 0.12).toFixed(3)};${op}`);
+    a.setAttribute('dur', dur + 's');
+    a.setAttribute('begin', del + 's');
+    a.setAttribute('repeatCount', 'indefinite');
+
+    c.appendChild(a);
+    svg.appendChild(c);
+  }
+
+  async function loadGames() {
     const container = document.getElementById("games");
 
     try {
-        const response = await fetch("../pages.json");
+      const response = await fetch("../pages.json");
+      if (!response.ok) throw new Error("Could not load pages.json");
 
-        if (!response.ok) {
-            throw new Error("Could not load pages.json");
-        }
+      const files = await response.json();
+      container.innerHTML = "";
 
-        const files = await response.json();
+      files
+        .slice()
+        .sort((a, b) => (a.DisplayName || "").localeCompare(b.DisplayName || ""))
+        .forEach(item => {
+          const name = item.DisplayName || item.ID || "Untitled";
+          const id = item.ID || "#";
 
-        container.innerHTML = "";
+          const button = document.createElement("a");
+          button.className = "game-card";
+          button.href = "../pages/" + id;
 
-        files.sort().forEach(file => {
-            const button = document.createElement("a");
+          const label = document.createElement("span");
+          label.className = "game-name";
+          label.textContent = name;
 
-            button.href = "../pages/" + file;
-            button.className = "game-btn";
+          const arrow = document.createElement("span");
+          arrow.className = "game-arrow";
+          arrow.textContent = "↗";
 
-            const name = file
-                .replace(".html", "")
-                .replace(/[-_]/g, " ")
-                .replace(/\b\w/g, c => c.toUpperCase());
-
-            button.textContent = name;
-
-            container.appendChild(button);
+          button.appendChild(label);
+          button.appendChild(arrow);
+          container.appendChild(button);
         });
 
+      if (!files.length) {
+        container.innerHTML = '<div class="loading">No games found.</div>';
+      }
     } catch (error) {
-        container.innerHTML = `
-            <div style="color:#f87171;text-align:center;">
-                Failed to load pages.json
-            </div>
-        `;
-        console.error(error);
+      container.innerHTML = '<div class="error">Failed to load pages.json</div>';
+      console.error(error);
     }
-}
+  }
 
-loadGames();
+  loadGames();
 </script>
 
 </body>
