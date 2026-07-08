@@ -218,9 +218,18 @@
 
     .game-arrow {
       color: rgba(255,255,255,0.55);
-      font-size: 1.1rem;
       position: relative;
       z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .game-arrow svg {
+      width: 18px;
+      height: 18px;
+      display: block;
     }
 
     .loading, .error {
@@ -393,7 +402,11 @@
 
           const arrow = document.createElement("span");
           arrow.className = "game-arrow";
-          arrow.textContent = "↗";
+          arrow.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path fill="currentColor" fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8" />
+            </svg>
+          `;
 
           button.appendChild(label);
           button.appendChild(arrow);
