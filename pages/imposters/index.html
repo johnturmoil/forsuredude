@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imposter Game</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --accent: #ff3e3e;
+            --text: #ffffff;
+            --text-muted: #a0a0aa;
+            --success: #3eff8b;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .screen {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            display: none;
+        }
+        .screen.active { display: block; }
+        h1, h2 { margin-top: 0; color: var(--accent); }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #333;
+            background: #252529;
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .name-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-style: italic;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .checkbox-group input { width: 20px; height: 20px; }
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button.secondary { background: #444; }
+        button.next-btn { background: var(--success); color: #121214; }
+        .scroll-box {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 5px;
+        }
+        .role-box {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 30px 0;
+            padding: 20px;
+            background: #252529;
+            border-radius: 8px;
+            min-height: 60px;
+        }
+        .imposter-text { color: #ff3e3e; }
+        .civilian-text { color: #3eff8b; }
+        .hint-text {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: MAIN HOME -->
+    <div id="screen-main" class="screen active">
+        <h1>Imposters</h1>
+        <div class="input-group">
+            <label>Total Players</label>
+            <input type="number" id="setup-players" value="4" min="3">
+        </div>
+        <div class="input-group">
+            <label>Number of Imposters</label>
+            <input type="number" id="setup-imposters" value="1" min="1">
+        </div>
+        <button onclick="goToNames()">Edit Player Names</button>
+        <button onclick="startGame()">Play</button>
+    </div>
+
+    <!-- SCREEN 2: PLAYER NAMES & SETTINGS -->
+    <div id="screen-names" class="screen">
+        <h2>Game Settings</h2>
+        <div class="checkbox-group">
+            <input type="checkbox" id="setting-hint" checked>
+            <label for="setting-hint">Give Imposter a single-word hint</label>
+        </div>
+        <h3>Player Names</h3>
+        <div class="scroll-box" id="names-container"></div>
+        <button onclick="saveNames()">Save & Return</button>
+    </div>
+
+    <!-- SCREEN 3: PLAYER TURN -->
+    <div id="screen-turn" class="screen">
+        <h2 id="turn-player-name">Player Name</h2>
+        <p id="turn-instructions">Pass the device to this person. Press the button below to see your secret role.</p>
+        <button id="reveal-btn" onclick="revealRole()">Reveal Secret Role</button>
+        
+        <div id="role-display" class="role-box" style="display:none;">
+            <div id="role-title"></div>
+            <div id="role-word"></div>
+            <div id="role-hint" class="hint-text"></div>
+        </div>
+        
+        <button id="next-player-btn" class="next-btn" style="display:none;" onclick="advanceTurn()">Next Player</button>
+    </div>
+
+    <!-- SCREEN 4: RESULTS -->
+    <div id="screen-results" class="screen">
+        <h2>Game Over!</h2>
+        <p>All players have seen their roles. Discuss, vote, and find the threat.</p>
+        <button onclick="revealResults()">Reveal Game Truths</button>
+        <div id="results-display" class="role-box" style="display:none; text-align:left; font-size:16px;"></div>
+        <button class="secondary" onclick="resetGame()">Play Again</button>
+    </div>
+
+    <script>
+        // Massive database with subtle, single-word hints that challenge the imposter
+        const wordDatabase = [
+    ["Apple", "Cider"], ["Banana", "Yellow"], ["Orange", "Juice"], ["Strawberry", "Red"],
+    ["Watermelon", "Seed"], ["Pizza", "Slice"], ["Burger", "Meat"], ["Sushi", "Fish"],
+    ["Pasta", "Bowl"], ["Taco", "Meat"], ["Coffee", "Mug"], ["Tea", "Cup"],
+    ["Chocolate", "Bar"], ["Ice Cream", "Cold"], ["Bread", "Loaf"], ["Cheese", "Yellow"],
+    ["Dog", "Pet"], ["Cat", "Fur"], ["Lion", "Wild"], ["Elephant", "Grey"],
+    ["Monkey", "Wild"], ["Dolphin", "Water"], ["Eagle", "Bird"], ["Shark", "Water"],
+    ["Snake", "Wild"], ["Frog", "Green"], ["Football", "Ball"], ["Basketball", "Ball"],
+    ["Tennis", "Ball"], ["Golf", "Ball"], ["Baseball", "Ball"], ["Swimming", "Water"],
+    ["Running", "Shoes"], ["Cycling", "Wheel"], ["Chess", "Game"], ["Guitar", "Wood"],
+    ["Piano", "Music"], ["Drums", "Loud"], ["Violin", "Wood"], ["Microphone", "Sound"],
+    ["Laptop", "Tech"], ["Smartphone", "Tech"], ["Television", "Media"], ["Camera", "Photo"],
+    ["Headphones", "Sound"], ["Clock", "Number"], ["Calendar", "Number"], ["Book", "Word"],
+    ["Newspaper", "Word"], ["Pen", "Write"], ["Desk", "Wood"], ["Chair", "Legs"],
+    ["Bed", "Room"], ["Sofa", "Room"], ["Mirror", "Wall"], ["Window", "Glass"],
+    ["Door", "Wall"], ["Key", "Metal"], ["Car", "Road"], ["Bicycle", "Road"],
+    ["Airplane", "Travel"], ["Train", "Travel"], ["Ship", "Water"], ["Subway", "City"],
+    ["Helicopter", "Travel"], ["Rocket", "Science"], ["Doctor", "Job"], ["Nurse", "Job"],
+    ["Teacher", "Job"], ["Student", "Youth"], ["Chef", "Job"], ["Pilot", "Job"],
+    ["Firefighter", "Job"], ["Police Officer", "Job"], ["Actor", "Job"], ["Singer", "Job"],
+    ["House", "Live"], ["Apartment", "Live"], ["Castle", "Old"], ["Hotel", "Stay"],
+    ["Hospital", "Care"], ["Museum", "Visit"], ["Cinema", "Watch"], ["Restaurant", "Eat"],
+    ["Tree", "Green"], ["Flower", "Plant"], ["Grass", "Green"], ["Mountain", "High"],
+    ["River", "Water"], ["Lake", "Water"], ["Desert", "Dry"], ["Forest", "Green"],
+    ["Sun", "Bright"], ["Moon", "Night"], ["Star", "Night"], ["Cloud", "White"],
+    ["Snow", "White"], ["Wind", "Air"], ["Fire", "Hot"], ["Ice", "Solid"],
+    ["Gold", "Shiny"], ["Silver", "Shiny"], ["Diamond", "Shiny"], ["Iron", "Heavy"],
+    ["Shirt", "Cloth"], ["Pants", "Cloth"], ["Shoes", "Foot"], ["Hat", "Head"],
+    ["Jacket", "Warm"], ["Dress", "Cloth"], ["Ring", "Metal"], ["Watch", "Metal"],
+    ["Backpack", "Bag"], ["Wallet", "Pocket"], ["Umbrella", "Rain"], ["Glasses", "Face"],
+    ["Hammer", "Tool"], ["Screwdriver", "Tool"], ["Scissors", "Tool"], ["Tape", "Sticky"],
+    ["Paint", "Colour"], ["Clay", "Soft"], ["Glue", "Sticky"], ["Rope", "Cord"]
+];
+
+
+        let gameConfig = {
+            totalPlayers: 4,
+            imposterCount: 1,
+            giveHint: true,
+            playerNames: ["Player 1", "Player 2", "Player 3", "Player 4"]
+        };
+
+        let gameSession = {
+            chosenWord: "",
+            chosenHint: "",
+            playerData: [],
+            currentTurnIndex: 0
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goToNames() {
+            const count = parseInt(document.getElementById('setup-players').value) || 4;
+            const container = document.getElementById('names-container');
+            container.innerHTML = '';
+            
+            while(gameConfig.playerNames.length < count) {
+                gameConfig.playerNames.push(`Player ${gameConfig.playerNames.length + 1}`);
+            }
+
+            for(let i = 0; i < count; i++) {
+                const div = document.createElement('div');
+                div.className = 'input-group';
+                div.innerHTML = `
+                    <input type="text" class="name-input" data-index="${i}" 
+                           placeholder="${gameConfig.playerNames[i]}" 
+                           value="${gameConfig.playerNames[i]}">
+                `;
+                container.appendChild(div);
+            }
+            showScreen('screen-names');
+        }
+
+        function saveNames() {
+            const inputs = document.querySelectorAll('.name-input');
+            inputs.forEach(input => {
+                const idx = parseInt(input.getAttribute('data-index'));
+                if(input.value.trim() !== "") {
+                    gameConfig.playerNames[idx] = input.value.trim();
+                }
+            });
+            gameConfig.totalPlayers = inputs.length;
+            document.getElementById('setup-players').value = gameConfig.totalPlayers;
+            showScreen('screen-main');
+        }
+
+        function startGame() {
+            gameConfig.totalPlayers = parseInt(document.getElementById('setup-players').value) || 4;
+            gameConfig.imposterCount = parseInt(document.getElementById('setup-imposters').value) || 1;
+            gameConfig.giveHint = document.getElementById('setting-hint').checked;
+
+            if (gameConfig.imposterCount >= gameConfig.totalPlayers) {
+                alert("Imposters must be less than the total number of players.");
+                return;
+            }
+
+            while(gameConfig.playerNames.length < gameConfig.totalPlayers) {
+                gameConfig.playerNames.push(`Player ${gameConfig.playerNames.length + 1}`);
+            }
+
+            const wordPair = wordDatabase[Math.floor(Math.random() * wordDatabase.length)];
+            gameSession.chosenWord = wordPair[0];
+            gameSession.chosenHint = wordPair[1];
+
+            gameSession.playerData = [];
+            for(let i = 0; i < gameConfig.totalPlayers; i++) {
+                gameSession.playerData.push({
+                    name: gameConfig.playerNames[i],
+                    isImposter: false
+                });
+            }
+
+            let assignedImposters = 0;
+            while(assignedImposters < gameConfig.imposterCount) {
+                const randIdx = Math.floor(Math.random() * gameConfig.totalPlayers);
+                if(!gameSession.playerData[randIdx].isImposter) {
+                    gameSession.playerData[randIdx].isImposter = true;
+                    assignedImposters++;
+                }
+            }
+
+            gameSession.playerData.sort(() => Math.random() - 0.5);
+            gameSession.currentTurnIndex = 0;
+            setupTurnPage();
+        }
+
+        function setupTurnPage() {
+            document.getElementById('role-display').style.display = 'none';
+            document.getElementById('next-player-btn').style.display = 'none';
+            document.getElementById('reveal-btn').style.display = 'block';
+            document.getElementById('turn-instructions').style.display = 'block';
+            
+            const currentPlayer = gameSession.playerData[gameSession.currentTurnIndex];
+            document.getElementById('turn-player-name').innerText = currentPlayer.name;
+            showScreen('screen-turn');
+        }
+
+        function revealRole() {
+            const currentPlayer = gameSession.playerData[gameSession.currentTurnIndex];
+            const roleTitle = document.getElementById('role-title');
+            const roleWord = document.getElementById('role-word');
+            const roleHint = document.getElementById('role-hint');
+
+            document.getElementById('reveal-btn').style.display = 'none';
+            document.getElementById('turn-instructions').style.display = 'none';
+            document.getElementById('role-display').style.display = 'block';
+
+            if(currentPlayer.isImposter) {
+                roleTitle.innerHTML = `<span class="imposter-text">YOU ARE THE IMPOSTER</span>`;
+                roleWord.innerText = "Word: ???";
+                roleHint.innerHTML = gameConfig.giveHint ? `Hint Word: <strong>${gameSession.chosenHint}</strong>` : "";
+            } else {
+                roleTitle.innerHTML = `<span class="civilian-text">YOU ARE CIVILIAN</span>`;
+                roleWord.innerHTML = `Secret Word: <strong>${gameSession.chosenWord}</strong>`;
+                roleHint.innerText = "";
+            }
+
+            document.getElementById('next-player-btn').style.display = 'block';
+        }
+
+        function advanceTurn() {
+            gameSession.currentTurnIndex++;
+            if(gameSession.currentTurnIndex < gameSession.playerData.length) {
+                setupTurnPage();
+            } else {
+                showScreen('screen-results');
+            }
+        }
+
+        function revealResults() {
+            const display = document.getElementById('results-display');
+            display.style.display = 'block';
+
+            let impostersList = gameSession.playerData
+                .filter(p => p.isImposter)
+                .map(p => p.name)
+                .join(', ');
+
+            display.innerHTML = `
+                <p><strong>Secret Word:</strong> ${gameSession.chosenWord}</p>
+                <p><strong>Hint Word:</strong> ${gameSession.chosenHint}</p>
+                <p class="imposter-text"><strong>The Imposter(s):</strong> ${impostersList}</p>
+            `;
+        }
+
+        function resetGame() {
+            document.getElementById('results-display').style.display = 'none';
+            showScreen('screen-main');
+        }
+    </script>
+</body>
+</html>
