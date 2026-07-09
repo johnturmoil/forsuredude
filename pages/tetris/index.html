@@ -158,13 +158,6 @@
             }
         }
 
-        @media (min-width: 701px) {
-            .controls-container {
-                grid-template-columns: 74px;
-                grid-template-rows: 64px 64px 64px 64px;
-            }
-        }
-
         @media (max-width: 700px) {
             .game-container {
                 flex-direction: column;
@@ -371,25 +364,30 @@
             }
         }
 
-        function rotate(matrix) {
-            for (let y = 0; y < matrix.length; ++y) {
-                for (let x = 0; x < y; ++x) {
-                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+        function rotateMatrix(matrix) {
+            const rows = matrix.length;
+            const cols = matrix[0].length;
+            const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    rotated[x][rows - 1 - y] = matrix[y][x];
                 }
             }
-            matrix.forEach(row => row.reverse());
+            return rotated;
         }
 
         function playerRotate() {
             if (gameOver) return;
             const pos = player.pos.x;
+            const rotated = rotateMatrix(player.matrix);
+            player.matrix = rotated;
+
             let offset = 1;
-            rotate(player.matrix);
             while (collide(arena, player)) {
                 player.pos.x += offset;
                 offset = -(offset + (offset > 0 ? 1 : -1));
-                if (offset > player.matrix[0].length) {
-                    rotate(player.matrix);
+                if (offset > rotated[0].length) {
+                    player.matrix = rotateMatrix(rotateMatrix(rotateMatrix(rotated)));
                     player.pos.x = pos;
                     draw();
                     return;
