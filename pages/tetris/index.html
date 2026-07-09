@@ -20,6 +20,7 @@
             padding: 0;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -58,6 +59,7 @@
             background: #000;
             border: 2px solid #331111;
             display: block;
+            touch-action: none;
         }
 
         .sidebar {
@@ -107,34 +109,38 @@
         }
 
         .controls-container {
-            display: grid;
-            grid-template-columns: repeat(3, 70px);
-            grid-template-rows: repeat(2, 60px);
-            gap: 10px;
-            margin-top: 20px;
+            display: none;
+            grid-template-columns: repeat(3, 74px);
+            grid-template-rows: repeat(2, 64px);
+            gap: 12px;
+            margin-top: 18px;
             width: 100%;
-            max-width: 240px;
+            max-width: 260px;
             justify-content: center;
+            touch-action: none;
         }
 
         .btn {
             background: #261010;
             border: 2px solid var(--primary-red);
             color: var(--primary-red);
-            border-radius: 10px;
-            font-size: 1.5rem;
+            border-radius: 12px;
+            font-size: 1.6rem;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn:active {
             background: var(--primary-red);
             color: #000;
             box-shadow: 0 0 15px var(--neon-glow);
+            transform: scale(0.96);
         }
 
         .btn-rotate { grid-column: 2; grid-row: 1; }
@@ -142,9 +148,9 @@
         .btn-down { grid-column: 2; grid-row: 2; }
         .btn-right { grid-column: 3; grid-row: 2; }
 
-        @media (min-width: 768px) {
+        @media (pointer: coarse) {
             .controls-container {
-                display: none;
+                display: grid;
             }
         }
 
@@ -158,8 +164,13 @@
                 width: 100%;
                 gap: 10px;
             }
-            .stat-box { margin-bottom: 0; flex: 1; }
-            h1 { font-size: 1.5rem; }
+            .stat-box {
+                margin-bottom: 0;
+                flex: 1;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -183,7 +194,7 @@
         </div>
     </div>
 
-    <div class="controls-container">
+    <div class="controls-container" aria-label="Mobile controls">
         <button class="btn btn-rotate" id="ctrl-rotate">↻</button>
         <button class="btn btn-left" id="ctrl-left">←</button>
         <button class="btn btn-down" id="ctrl-down">↓</button>
@@ -198,28 +209,6 @@
         const startButton = document.getElementById('start-btn');
 
         context.scale(20, 20);
-
-        const SHAPES = [
-            [],
-            [[1, 1, 1, 1]],
-            [[1, 1, 1], [0, 1, 0]],
-            [[1, 1, 1], [1, 0, 0]],
-            [[1, 1, 1], [0, 0, 1]],
-            [[1, 1], [1, 1]],
-            [[1, 1, 0], [0, 1, 1]],
-            [[0, 1, 1], [1, 1, 0]]
-        ];
-
-        const COLORS = [
-            null,
-            '#ff0000',
-            '#cc0000',
-            '#ff4d4d',
-            '#990000',
-            '#ff3333',
-            '#800000',
-            '#ff6666'
-        ];
 
         let arena = createMatrix(12, 24);
         let player = {
@@ -243,9 +232,8 @@
         function draw() {
             context.fillStyle = '#000';
             context.fillRect(0, 0, canvas.width, canvas.height);
-
             drawMatrix(arena, { x: 0, y: 0 });
-            if (!gameOver) drawMatrix(player.matrix, player.pos);
+            if (!gameOver && player.matrix) drawMatrix(player.matrix, player.pos);
         }
 
         function drawMatrix(matrix, offset) {
@@ -307,6 +295,7 @@
             if (collide(arena, player)) {
                 player.pos.x -= dir;
             }
+            draw();
         }
 
         function createPiece(type) {
@@ -358,6 +347,7 @@
                     return;
                 }
             }
+            draw();
         }
 
         function arenaSweep() {
@@ -387,56 +377,89 @@
             const deltaTime = time - lastTime;
             lastTime = time;
             dropCounter += deltaTime;
+
             if (dropCounter > dropInterval) {
                 playerDrop();
             }
+
             draw();
             requestAnimationFrame(update);
         }
 
         function resetGame() {
-            arena.forEach(row => row.fill(0));
+            arena = createMatrix(12, 24);
             player.score = 0;
             player.lines = 0;
             gameOver = false;
+            dropCounter = 0;
             updateScore();
             playerReset();
             lastTime = performance.now();
+            draw();
             update();
+            startButton.innerText = "Reset";
         }
 
+        const SHAPES = [
+            [],
+            [[1, 1, 1, 1]],
+            [[1, 1, 1], [0, 1, 0]],
+            [[1, 1, 1], [1, 0, 0]],
+            [[1, 1, 1], [0, 0, 1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 0], [0, 1, 1]],
+            [[0, 1, 1], [1, 1, 0]]
+        ];
+
+        const COLORS = [
+            null,
+            '#ff0000',
+            '#cc0000',
+            '#ff4d4d',
+            '#990000',
+            '#ff3333',
+            '#800000',
+            '#ff6666'
+        ];
+
         document.addEventListener('keydown', event => {
-            if (event.key === 'ArrowLeft') playerMove(-1);
-            if (event.key === 'ArrowRight') playerMove(1);
-            if (event.key === 'ArrowDown') playerDrop();
-            if (event.key === 'ArrowUp') playerRotate();
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                playerMove(-1);
+            }
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                playerMove(1);
+            }
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                playerDrop();
+            }
+            if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                playerRotate();
+            }
         });
 
-        document.getElementById('ctrl-left').addEventListener('touchstart', e => {
-            e.preventDefault();
-            playerMove(-1);
-        });
-        document.getElementById('ctrl-right').addEventListener('touchstart', e => {
-            e.preventDefault();
-            playerMove(1);
-        });
-        document.getElementById('ctrl-down').addEventListener('touchstart', e => {
-            e.preventDefault();
-            playerDrop();
-        });
-        document.getElementById('ctrl-rotate').addEventListener('touchstart', e => {
-            e.preventDefault();
-            playerRotate();
-        });
+        function bindMobileButton(id, action) {
+            const btn = document.getElementById(id);
 
-        document.getElementById('ctrl-left').addEventListener('click', () => playerMove(-1));
-        document.getElementById('ctrl-right').addEventListener('click', () => playerMove(1));
-        document.getElementById('ctrl-down').addEventListener('click', () => playerDrop());
-        document.getElementById('ctrl-rotate').addEventListener('click', () => playerRotate());
+            btn.addEventListener('pointerdown', e => {
+                e.preventDefault();
+                action();
+                if (btn.setPointerCapture) {
+                    btn.setPointerCapture(e.pointerId);
+                }
+            });
+        }
+
+        bindMobileButton('ctrl-left', () => playerMove(-1));
+        bindMobileButton('ctrl-right', () => playerMove(1));
+        bindMobileButton('ctrl-down', () => playerDrop());
+        bindMobileButton('ctrl-rotate', () => playerRotate());
 
         startButton.addEventListener('click', () => {
             resetGame();
-            startButton.innerText = "Reset";
         });
 
         draw();
