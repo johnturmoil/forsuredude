@@ -210,6 +210,17 @@
 
         context.scale(20, 20);
 
+        const COLORS = [
+            null,
+            '#ff0000',
+            '#cc0000',
+            '#ff4d4d',
+            '#990000',
+            '#ff3333',
+            '#800000',
+            '#ff6666'
+        ];
+
         let arena = createMatrix(12, 24);
         let player = {
             pos: { x: 0, y: 0 },
@@ -276,17 +287,33 @@
             return false;
         }
 
+        function lockPiece() {
+            merge(arena, player);
+            playerReset();
+            arenaSweep();
+            updateScore();
+            dropCounter = 0;
+        }
+
         function playerDrop() {
             if (gameOver) return;
             player.pos.y++;
             if (collide(arena, player)) {
                 player.pos.y--;
-                merge(arena, player);
-                playerReset();
-                arenaSweep();
-                updateScore();
+                lockPiece();
             }
             dropCounter = 0;
+            draw();
+        }
+
+        function playerHardDrop() {
+            if (gameOver) return;
+            while (!collide(arena, player)) {
+                player.pos.y++;
+            }
+            player.pos.y--;
+            lockPiece();
+            draw();
         }
 
         function playerMove(dir) {
@@ -344,6 +371,7 @@
                 if (offset > player.matrix[0].length) {
                     rotate(player.matrix);
                     player.pos.x = pos;
+                    draw();
                     return;
                 }
             }
@@ -400,28 +428,6 @@
             startButton.innerText = "Reset";
         }
 
-        const SHAPES = [
-            [],
-            [[1, 1, 1, 1]],
-            [[1, 1, 1], [0, 1, 0]],
-            [[1, 1, 1], [1, 0, 0]],
-            [[1, 1, 1], [0, 0, 1]],
-            [[1, 1], [1, 1]],
-            [[1, 1, 0], [0, 1, 1]],
-            [[0, 1, 1], [1, 1, 0]]
-        ];
-
-        const COLORS = [
-            null,
-            '#ff0000',
-            '#cc0000',
-            '#ff4d4d',
-            '#990000',
-            '#ff3333',
-            '#800000',
-            '#ff6666'
-        ];
-
         document.addEventListener('keydown', event => {
             if (event.key === 'ArrowLeft') {
                 event.preventDefault();
@@ -433,7 +439,7 @@
             }
             if (event.key === 'ArrowDown') {
                 event.preventDefault();
-                playerDrop();
+                playerHardDrop();
             }
             if (event.key === 'ArrowUp') {
                 event.preventDefault();
@@ -443,7 +449,6 @@
 
         function bindMobileButton(id, action) {
             const btn = document.getElementById(id);
-
             btn.addEventListener('pointerdown', e => {
                 e.preventDefault();
                 action();
@@ -455,12 +460,10 @@
 
         bindMobileButton('ctrl-left', () => playerMove(-1));
         bindMobileButton('ctrl-right', () => playerMove(1));
-        bindMobileButton('ctrl-down', () => playerDrop());
+        bindMobileButton('ctrl-down', () => playerHardDrop());
         bindMobileButton('ctrl-rotate', () => playerRotate());
 
-        startButton.addEventListener('click', () => {
-            resetGame();
-        });
+        startButton.addEventListener('click', resetGame);
 
         draw();
     </script>
