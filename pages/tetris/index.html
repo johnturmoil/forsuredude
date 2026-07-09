@@ -119,8 +119,8 @@
 
         .controls-container {
             display: none;
-            grid-template-columns: repeat(1, 74px);
-            grid-template-rows: repeat(3, 64px);
+            grid-template-columns: 74px;
+            grid-template-rows: repeat(4, 64px);
             gap: 12px;
             justify-content: center;
             align-content: center;
@@ -132,7 +132,7 @@
             border: 2px solid var(--primary-red);
             color: var(--primary-red);
             border-radius: 12px;
-            font-size: 1.6rem;
+            font-size: 1.1rem;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -155,6 +155,13 @@
         @media (pointer: coarse) {
             .controls-container {
                 display: grid;
+            }
+        }
+
+        @media (min-width: 701px) {
+            .controls-container {
+                grid-template-columns: 74px;
+                grid-template-rows: 64px 64px 64px 64px;
             }
         }
 
@@ -181,28 +188,14 @@
             }
 
             .controls-container {
-                grid-template-columns: repeat(3, 74px);
+                grid-template-columns: repeat(2, 74px);
                 grid-template-rows: repeat(2, 64px);
             }
 
-            .btn-rotate { grid-column: 2; grid-row: 1; }
-            .btn-left { grid-column: 1; grid-row: 2; }
-            .btn-down { grid-column: 2; grid-row: 2; }
-            .btn-right { grid-column: 3; grid-row: 2; }
-        }
-
-        @media (min-width: 701px) {
-            .controls-container {
-                grid-template-columns: 74px;
-                grid-template-rows: 64px 64px 64px;
-                margin-left: 4px;
-            }
-
-            .btn-rotate { display: none; }
-
-            .btn-left { grid-column: 1; grid-row: 1; }
+            .btn-rotate { grid-column: 1; grid-row: 1; }
+            .btn-left { grid-column: 2; grid-row: 1; }
             .btn-down { grid-column: 1; grid-row: 2; }
-            .btn-right { grid-column: 1; grid-row: 3; }
+            .btn-right { grid-column: 2; grid-row: 2; }
         }
 
         @media (max-width: 500px) {
@@ -220,9 +213,10 @@
             <canvas id="tetris" width="240" height="480"></canvas>
 
             <div class="controls-container" aria-label="Mobile controls">
-                <button class="btn" id="ctrl-left">←</button>
-                <button class="btn" id="ctrl-down">↓</button>
-                <button class="btn" id="ctrl-right">→</button>
+                <button class="btn btn-rotate" id="ctrl-rotate">Rotate</button>
+                <button class="btn btn-left" id="ctrl-left">←</button>
+                <button class="btn btn-down" id="ctrl-down">Drop</button>
+                <button class="btn btn-right" id="ctrl-right">→</button>
             </div>
         </div>
 
@@ -490,6 +484,7 @@
         bindMobileButton('ctrl-left', () => playerMove(-1));
         bindMobileButton('ctrl-right', () => playerMove(1));
         bindMobileButton('ctrl-down', () => playerHardDrop());
+        bindMobileButton('ctrl-rotate', () => playerRotate());
 
         startButton.addEventListener('click', resetGame);
 
