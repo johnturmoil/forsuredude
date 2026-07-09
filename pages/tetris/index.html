@@ -34,6 +34,7 @@
             min-height: 100vh;
             overflow: hidden;
             touch-action: none;
+            padding: 16px;
         }
 
         h1 {
@@ -47,12 +48,20 @@
         .game-container {
             display: flex;
             flex-direction: row;
-            gap: 20px;
+            align-items: stretch;
+            gap: 16px;
             background: var(--panel-bg);
             padding: 15px;
             border-radius: 10px;
             border: 2px solid var(--primary-red);
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            align-items: flex-start;
         }
 
         canvas {
@@ -110,13 +119,11 @@
 
         .controls-container {
             display: none;
-            grid-template-columns: repeat(3, 74px);
-            grid-template-rows: repeat(2, 64px);
+            grid-template-columns: repeat(1, 74px);
+            grid-template-rows: repeat(3, 64px);
             gap: 12px;
-            margin-top: 18px;
-            width: 100%;
-            max-width: 260px;
             justify-content: center;
+            align-content: center;
             touch-action: none;
         }
 
@@ -134,6 +141,8 @@
             box-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            width: 74px;
+            height: 64px;
         }
 
         .btn:active {
@@ -143,31 +152,60 @@
             transform: scale(0.96);
         }
 
-        .btn-rotate { grid-column: 2; grid-row: 1; }
-        .btn-left { grid-column: 1; grid-row: 2; }
-        .btn-down { grid-column: 2; grid-row: 2; }
-        .btn-right { grid-column: 3; grid-row: 2; }
-
         @media (pointer: coarse) {
             .controls-container {
                 display: grid;
             }
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 700px) {
             .game-container {
                 flex-direction: column;
                 align-items: center;
             }
+
+            .game-area {
+                flex-direction: column;
+                align-items: center;
+            }
+
             .sidebar {
                 flex-direction: row;
                 width: 100%;
                 gap: 10px;
             }
+
             .stat-box {
                 margin-bottom: 0;
                 flex: 1;
             }
+
+            .controls-container {
+                grid-template-columns: repeat(3, 74px);
+                grid-template-rows: repeat(2, 64px);
+            }
+
+            .btn-rotate { grid-column: 2; grid-row: 1; }
+            .btn-left { grid-column: 1; grid-row: 2; }
+            .btn-down { grid-column: 2; grid-row: 2; }
+            .btn-right { grid-column: 3; grid-row: 2; }
+        }
+
+        @media (min-width: 701px) {
+            .controls-container {
+                grid-template-columns: 74px;
+                grid-template-rows: 64px 64px 64px;
+                margin-left: 4px;
+            }
+
+            .btn-rotate { display: none; }
+
+            .btn-left { grid-column: 1; grid-row: 1; }
+            .btn-down { grid-column: 1; grid-row: 2; }
+            .btn-right { grid-column: 1; grid-row: 3; }
+        }
+
+        @media (max-width: 500px) {
             h1 {
                 font-size: 1.5rem;
             }
@@ -178,7 +216,16 @@
     <h1>TETRIS</h1>
 
     <div class="game-container">
-        <canvas id="tetris" width="240" height="480"></canvas>
+        <div class="game-area">
+            <canvas id="tetris" width="240" height="480"></canvas>
+
+            <div class="controls-container" aria-label="Mobile controls">
+                <button class="btn" id="ctrl-left">←</button>
+                <button class="btn" id="ctrl-down">↓</button>
+                <button class="btn" id="ctrl-right">→</button>
+            </div>
+        </div>
+
         <div class="sidebar">
             <div>
                 <div class="stat-box">
@@ -192,13 +239,6 @@
             </div>
             <button id="start-btn">Start</button>
         </div>
-    </div>
-
-    <div class="controls-container" aria-label="Mobile controls">
-        <button class="btn btn-rotate" id="ctrl-rotate">↻</button>
-        <button class="btn btn-left" id="ctrl-left">←</button>
-        <button class="btn btn-down" id="ctrl-down">↓</button>
-        <button class="btn btn-right" id="ctrl-right">→</button>
     </div>
 
     <script>
@@ -276,10 +316,7 @@
             const o = player.pos;
             for (let y = 0; y < m.length; ++y) {
                 for (let x = 0; x < m[y].length; ++x) {
-                    if (
-                        m[y][x] !== 0 &&
-                        (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0
-                    ) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
                         return true;
                     }
                 }
@@ -293,17 +330,6 @@
             arenaSweep();
             updateScore();
             dropCounter = 0;
-        }
-
-        function playerDrop() {
-            if (gameOver) return;
-            player.pos.y++;
-            if (collide(arena, player)) {
-                player.pos.y--;
-                lockPiece();
-            }
-            dropCounter = 0;
-            draw();
         }
 
         function playerHardDrop() {
@@ -382,9 +408,7 @@
             let rowCount = 1;
             outer: for (let y = arena.length - 1; y > 0; --y) {
                 for (let x = 0; x < arena[y].length; ++x) {
-                    if (arena[y][x] === 0) {
-                        continue outer;
-                    }
+                    if (arena[y][x] === 0) continue outer;
                 }
                 const row = arena.splice(y, 1)[0].fill(0);
                 arena.unshift(row);
@@ -407,7 +431,12 @@
             dropCounter += deltaTime;
 
             if (dropCounter > dropInterval) {
-                playerDrop();
+                player.pos.y++;
+                if (collide(arena, player)) {
+                    player.pos.y--;
+                    lockPiece();
+                }
+                dropCounter = 0;
             }
 
             draw();
@@ -461,7 +490,6 @@
         bindMobileButton('ctrl-left', () => playerMove(-1));
         bindMobileButton('ctrl-right', () => playerMove(1));
         bindMobileButton('ctrl-down', () => playerHardDrop());
-        bindMobileButton('ctrl-rotate', () => playerRotate());
 
         startButton.addEventListener('click', resetGame);
 
