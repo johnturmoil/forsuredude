@@ -1,60 +1,374 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Crossy Road</title>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="icon" href="./favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Wordle Variant</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 { margin: 10px 0; text-align: center; }
+        
+        /* Screen Containers */
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            background-color: #1e1e1f;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        .hidden { display: none !important; }
 
-  <script src="https://kit.fontawesome.com/622afd0c30.js"></script>
+        /* Menu UI Elements */
+        .menu-section {
+            width: 100%;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button, select, input {
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #3a3a3c;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #4e4e50; }
+        button.active { background-color: #a82323; } /* Buttons stay Red */
+        
+        /* Action Buttons */
+        .btn-main {
+            background-color: #a82323; /* Start button stays Red */
+            width: 100%;
+            font-size: 18px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .btn-main:hover { background-color: #c0392b; }
+        .btn-secondary { background-color: #787c7e; }
 
+        input[type="text"], input[type="password"] {
+            background-color: #272729;
+            border: 1px solid #3a3a3c;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        
+        /* Labels & Warnings */
+        label { font-size: 14px; color: #b59f3b; font-weight: bold; }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 11px;
+            margin-top: 2px;
+            display: block;
+            min-height: 15px;
+        }
+
+        /* Gameplay Grid */
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin: 20px 0;
+        }
+        .row { display: flex; gap: 5px; }
+        .tile {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #3a3a3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-sizing: border-box;
+        }
+        .tile.correct { background-color: #538d4e; border-color: #538d4e; } /* FIXED: Right letters turn Green */
+        .tile.present { background-color: #b59f3b; border-color: #b59f3b; }
+        .tile.absent { background-color: #3a3a3c; border-color: #3a3a3c; }
+
+        /* Gameplay Input Zone */
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+        }
+        .input-row { display: flex; gap: 10px; width: 100%; }
+        .input-row input { flex-grow: 1; }
+        
+        #reveal-zone {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #f1c40f;
+            min-height: 25px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<div id="counter">0</div>
-    
-<div id="controls">
-  <div>
-    <button id="forward">
-      <svg width="30" height="30" viewBox="0 0 10 10">
-        <g transform="rotate(0, 5,5)">
-          <path d="M5,4 L7,6 L3,6 L5,4" />
-        </g>
-      </svg>
-    </button>
-    <button id="left">
-      <svg width="30" height="30" viewBox="0 0 10 10">
-        <g transform="rotate(-90, 5,5)">
-          <path d="M5,4 L7,6 L3,6 L5,4" />
-        </g>
-      </svg>
-    </button>
-    <button id="backward">
-      <svg width="30" height="30" viewBox="0 0 10 10">
-        <g transform="rotate(180, 5,5)">
-          <path d="M5,4 L7,6 L3,6 L5,4" />
-        </g>
-      </svg>
-    </button>
-    <button id="right">
-      <svg width="30" height="30" viewBox="0 0 10 10">
-        <g transform="rotate(90, 5,5)">
-          <path d="M5,4 L7,6 L3,6 L5,4" />
-        </g>
-      </svg>
-    </button>
-  </div>
-</div>
 
-<div id="end">
-  <button id="retry">Retry</button>
-</div>
+    <!-- SCREEN 1: START MENU & SETTINGS -->
+    <div id="menu-screen" class="screen">
+        <h1>Wordle Game</h1>
+        
+        <!-- 1. Mode Options -->
+        <div class="menu-section">
+            <label>Select Game Mode:</label>
+            <div class="mode-buttons">
+                <button id="btn-solo" class="active" style="flex:1;" onclick="setMode('solo')">Solo Mode</button>
+                <button id="btn-duo" style="flex:1;" onclick="setMode('duo')">Duo Mode</button>
+            </div>
+        </div>
 
-<div class= "credits">
-  Made with <i class="fas fa-heart"></i> & 🐓
-</div>
+        <!-- 2. Length Settings -->
+        <div class="menu-section">
+            <label for="length-select">Word Length:</label>
+            <select id="length-select" onchange="updateLengthSetting()">
+                <option value="4">4 Letters</option>
+                <option value="5" selected>5 Letters</option>
+                <option value="6">6 Letters</option>
+                <option value="7">7 Letters</option>
+            </select>
+        </div>
 
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/99/three.min.js'></script>
-  <script  src="./script.js"></script>
+        <!-- 3. Dynamic Duo Input Configuration -->
+        <div id="duo-setup-section" class="menu-section hidden">
+            <label for="duo-word-input">Set Secret Word (Duo Mode):</label>
+            <input type="password" id="duo-word-input" placeholder="Enter word secretly...">
+            <span id="duo-error" class="error-msg"></span>
+        </div>
 
+        <!-- 4. Launch Trigger -->
+        <button class="btn-main" onclick="handleStartGame()">Start Game</button>
+    </div>
+
+
+    <!-- SCREEN 2: GAMEPLAY BOARD -->
+    <div id="game-screen" class="screen hidden">
+        <h2 id="game-title-mode">Solo Playing</h2>
+        
+        <!-- Grid Dynamic Output -->
+        <div id="game-grid" class="grid"></div>
+
+        <!-- Action Input Zone -->
+        <div class="input-area">
+            <div class="input-row">
+                <input type="text" id="guess-input" placeholder="Type guess..." autocomplete="off">
+                <button id="btn-submit" class="active" onclick="submitGuess()">Guess</button> 
+            </div>
+            <span id="validation-msg" class="error-msg"></span>
+        </div>
+
+        <!-- Bottom Controls Split Menu -->
+        <div class="input-row" style="margin-top: 15px;">
+            <button id="btn-reveal" class="btn-secondary" style="flex: 1;" onclick="revealWord()">Reveal Word</button>
+            <button class="btn-secondary" style="flex: 1;" onclick="returnToMenu()">Main Menu</button>
+        </div>
+
+        <!-- Win/Loss Dynamic Message Output Banner -->
+        <div id="reveal-zone"></div>
+    </div>
+
+    <script>
+        const wordBank = {
+            4: ["acid", "area", "army", "band", "base", "bear", "bird", "blow", "blue", "boat", "body", "bold", "bone", "book", "boss", "burn", "bush", "cake", "call", "camp", "card", "care", "case", "cast", "cave", "chat", "chef", "city", "clan", "claw", "clay", "clip", "club", "clue", "coal", "coat", "code", "coin", "cold", "cone"],
+            5: ["about", "above", "actor", "acute", "admit", "adopt", "adult", "after", "again", "agent", "agree", "ahead", "alarm", "album", "alert", "alike", "alive", "allow", "alone", "along", "alter", "among", "anger", "angle", "angry", "apart", "apple", "arena", "argue", "arise", "array", "arrow", "aside", "asset", "audio", "audit", "avoid", "award", "aware", "awful", "bacon", "badge", "baker", "ballot", "beach", "beard", "beast", "begin", "bench", "black"],
+            6: ["action", "advice", "afford", "afraid", "agency", "agenda", "almost", "always", "amount", "animal", "annual", "answer", "anyone", "appeal", "appear", "around", "arrest", "arrive", "artist", "aspect", "assent", "assert", "assess", "assign", "assist", "assume", "assure", "attack", "attend", "autumn", "avenue", "backed", "backup", "balance", "banana", "barley", "barrel", "basket", "battle", "beauty"],
+            7: ["ability", "absence", "academy", "account", "accused", "achieve", "acquire", "address", "advance", "adverse", "advised", "adviser", "against", "airline", "airport", "alcohol", "alleged", "already", "analyst", "ancient", "another", "anxiety", "anybody", "anyways", "applied", "arrange", "arrival", "article", "assault", "assumed"]
+        };
+
+        let currentMode = 'solo';
+        let targetWord = '';
+        let wordLength = 5;
+        let attempts = 0;
+        const maxAttempts = 6;
+        let gameActive = false;
+
+        const guessInput = document.getElementById('guess-input');
+        const validationMsg = document.getElementById('validation-msg');
+        const grid = document.getElementById('game-grid');
+        const btnReveal = document.getElementById('btn-reveal');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        guessInput.addEventListener('input', () => {
+            const val = guessInput.value.trim();
+            if (val.length === 0) {
+                validationMsg.textContent = "";
+            } else if (val.length < wordLength) {
+                validationMsg.textContent = "Invalid: too short";
+            } else if (val.length > wordLength) {
+                validationMsg.textContent = "Invalid: too long";
+            } else {
+                validationMsg.textContent = "";
+            }
+        });
+
+        guessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitGuess();
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-solo').classList.toggle('active', mode === 'solo');
+            document.getElementById('btn-duo').classList.toggle('active', mode === 'duo');
+            document.getElementById('duo-setup-section').classList.toggle('hidden', mode !== 'duo');
+            document.getElementById('duo-error').textContent = "";
+        }
+
+        function updateLengthSetting() {
+            wordLength = parseInt(document.getElementById('length-select').value);
+            document.getElementById('duo-error').textContent = "";
+        }
+
+        function handleStartGame() {
+            if (currentMode === 'solo') {
+                const list = wordBank[wordLength];
+                targetWord = list[Math.floor(Math.random() * list.length)];
+            } else {
+                const inputField = document.getElementById('duo-word-input');
+                const word = inputField.value.trim().toLowerCase();
+                const errorSpan = document.getElementById('duo-error');
+
+                if (word.length !== wordLength) {
+                    errorSpan.textContent = `Error: Word must be exactly ${wordLength} letters long!`;
+                    return;
+                }
+                if (!/^[a-zA-Z]+$/.test(word)) {
+                    errorSpan.textContent = "Error: Word must contain alphabetical letters only!";
+                    return;
+                }
+                
+                targetWord = word;
+                errorSpan.textContent = "";
+                inputField.value = ""; 
+            }
+
+            switchToGameScreen();
+        }
+
+        function switchToGameScreen() {
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('game-title-mode').textContent = currentMode === 'solo' ? "Solo Mode" : "Duo Mode";
+            
+            gameActive = true;
+            attempts = 0;
+            guessInput.disabled = false;
+            guessInput.value = "";
+            btnSubmit.disabled = false;
+            btnReveal.disabled = false;
+            validationMsg.textContent = "";
+            document.getElementById('reveal-zone').textContent = "";
+
+            buildGridElements();
+            guessInput.focus();
+        }
+
+        function buildGridElements() {
+            grid.innerHTML = '';
+            for (let i = 0; i < maxAttempts; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < wordLength; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    row.appendChild(tile);
+                }
+                grid.appendChild(row);
+            }
+        }
+
+        function submitGuess() {
+            if (!gameActive) return;
+
+            const guess = guessInput.value.trim().toLowerCase();
+            if (guess.length !== wordLength) return;
+
+            const row = grid.children[attempts];
+            const targetLetters = targetWord.split('');
+            const guessLetters = guess.split('');
+            const states = Array(wordLength).fill('absent');
+
+            // Pass One: Target Green matches
+            for (let i = 0; i < wordLength; i++) {
+                if (guessLetters[i] === targetLetters[i]) {
+                    states[i] = 'correct';
+                    targetLetters[i] = null;
+                    guessLetters[i] = null;
+                }
+            }
+
+            // Pass Two: Target Yellow matches
+            for (let i = 0; i < wordLength; i++) {
+                if (guessLetters[i] !== null) {
+                    const index = targetLetters.indexOf(guessLetters[i]);
+                    if (index !== -1) {
+                        states[i] = 'present';
+                        targetLetters[index] = null;
+                    }
+                }
+            }
+
+            for (let i = 0; i < wordLength; i++) {
+                const tile = row.children[i];
+                tile.textContent = guess[i];
+                tile.classList.add(states[i]);
+            }
+
+            attempts++;
+            guessInput.value = "";
+            validationMsg.textContent = "";
+
+            if (guess === targetWord) {
+                document.getElementById('reveal-zone').textContent = "🎉 Congratulations! You guessed it!";
+                endGame();
+            } else if (attempts >= maxAttempts) {
+                document.getElementById('reveal-zone').textContent = `Game Over! The word was: ${targetWord.toUpperCase()}`;
+                endGame();
+            }
+        }
+
+        function revealWord() {
+            if (!targetWord) return;
+            document.getElementById('reveal-zone').textContent = `The hidden word is: ${targetWord.toUpperCase()}`;
+            endGame();
+        }
+
+        function endGame() {
+            gameActive = false;
+            guessInput.disabled = true;
+            btnSubmit.disabled = true;
+        }
+
+        function returnToMenu() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
