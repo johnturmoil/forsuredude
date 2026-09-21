@@ -26,5 +26,9 @@
   {
     "DisplayName": "Crossy Roads",
     "ID": "crossyroads/index.html"
+  },
+  {
+    "DisplayName": "Mines",
+    "ID": "mines/index.html"
   }
 ]
