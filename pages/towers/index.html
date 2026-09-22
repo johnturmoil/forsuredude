@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Towers Casino Game</title>
+
+    <style>
+        :root {
+            --bg-color: #1a1d24;
+            --card-color: #212631;
+            --accent-color: #00e676;
+            --danger-color: #ff3d00;
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+            --tile-active: #2f3646;
+            --tile-hover: #3b4456;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: row;
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            width: 800px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            padding: 25px;
+            width: 300px;
+            background-color: #1e222b;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 2px solid #161920;
+        }
+
+        .stat-box {
+            background-color: #161920;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .bet-input-wrapper {
+            display: flex;
+            background-color: #161920;
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .bet-input-wrapper input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px;
+            width: 100%;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .btn-sm {
+            background-color: var(--tile-active);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-sm:hover {
+            background-color: var(--tile-hover);
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+        }
+
+        .btn-main:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+
+        .btn-start {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+
+        .btn-cashout {
+            background-color: #ffb300;
+            color: #000;
+            display: none;
+        }
+
+        .btn-credit {
+            background-color: #00b0ff;
+            color: white;
+        }
+
+        .btn-main:disabled,
+        .btn-sm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .board-container {
+            flex-grow: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--card-color);
+        }
+
+        .tower {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            opacity: 0.4;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .row.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .row.completed {
+            opacity: 0.7;
+        }
+
+        .tile {
+            flex: 1;
+            height: 45px;
+            background-color: var(--tile-active);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.15rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .row.active .tile:hover {
+            background-color: var(--tile-hover);
+            transform: translateY(-1px);
+        }
+
+        .tile.hit-safe {
+            background-color: var(--accent-color) !important;
+            color: black;
+            cursor: default;
+        }
+
+        .tile.hit-bomb {
+            background-color: var(--danger-color) !important;
+            color: white;
+            cursor: default;
+        }
+
+        .tile.reveal-bomb {
+            background-color: #3a2222;
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .row-multiplier {
+            width: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background-color: #161920;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 24px;
+        }
+
+        .status-success {
+            color: var(--accent-color);
+        }
+
+        .status-error {
+            color: var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .game-container {
+                flex-direction: column-reverse;
+                width: 100%;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-top: 2px solid #161920;
+            }
+
+            .board-container {
+                padding: 25px 15px;
+                min-height: 450px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <aside class="sidebar">
+            <div class="stat-box">
+                <div class="stat-label">Balance</div>
+                <div class="stat-value" id="balance-display">1000.00</div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="bet-input">
+                    Bet Amount
+                </label>
+
+                <div class="bet-input-wrapper">
+                    <input
+                        type="number"
+                        id="bet-input"
+                        value="10"
+                        min="1"
+                        step="0.01"
+                    >
+
+                    <button class="btn-sm" id="btn-max" type="button">
+                        MAX
+                    </button>
+                </div>
+            </div>
+
+            <button
+                class="btn-main btn-start"
+                id="btn-action"
+                type="button"
+            >
+                START GAME
+            </button>
+
+            <button
+                class="btn-main btn-cashout"
+                id="btn-cashout"
+                type="button"
+            >
+                CASH OUT (0.00)
+            </button>
+
+            <button
+                class="btn-main btn-credit"
+                id="btn-add-funds"
+                type="button"
+            >
+                + 1000 CREDITS
+            </button>
+
+            <div class="stat-box next-payout-box">
+                <div class="stat-label">Next Payout</div>
+
+                <div
+                    id="next-payout"
+                    style="font-weight: bold; font-size: 1.2rem;"
+                >
+                    14.50
+                </div>
+            </div>
+        </aside>
+
+        <main class="board-container">
+            <div class="tower" id="tower-board"></div>
+
+            <div
+                class="status-message"
+                id="status-text"
+                aria-live="polite"
+            ></div>
+        </main>
+    </div>
+
+    <script>
+        "use strict";
+
+        const TOTAL_ROWS = 8;
+        const TILES_PER_ROW = 3;
+        const BOMBS_PER_ROW = 1;
+
+        const MULTIPLIERS = [
+            1.45,
+            2.18,
+            3.27,
+            4.91,
+            7.37,
+            11.05,
+            16.58,
+            24.87
+        ];
+
+        let balance = 1000.00;
+        let currentBet = 10.00;
+        let currentRow = 0;
+        let isGameActive = false;
+        let towerData = [];
+
+        const balanceDisplay =
+            document.getElementById("balance-display");
+
+        const betInput =
+            document.getElementById("bet-input");
+
+        const btnMax =
+            document.getElementById("btn-max");
+
+        const btnAction =
+            document.getElementById("btn-action");
+
+        const btnCashout =
+            document.getElementById("btn-cashout");
+
+        const btnAddFunds =
+            document.getElementById("btn-add-funds");
+
+        const towerBoard =
+            document.getElementById("tower-board");
+
+        const statusText =
+            document.getElementById("status-text");
+
+        const nextPayoutDisplay =
+            document.getElementById("next-payout");
+
+        function init() {
+            buildBoard();
+            updateUI();
+
+            btnMax.addEventListener("click", setMaxBet);
+            btnAction.addEventListener("click", handleMainAction);
+            btnCashout.addEventListener("click", cashOut);
+            btnAddFunds.addEventListener("click", addFreeCredits);
+            betInput.addEventListener("input", validateInput);
+        }
+
+        function buildBoard() {
+            towerBoard.innerHTML = "";
+
+            for (let rowIndex = 0; rowIndex < TOTAL_ROWS; rowIndex++) {
+                const rowElement = document.createElement("div");
+
+                rowElement.classList.add("row");
+                rowElement.dataset.rowIndex = rowIndex;
+
+                const multiplierElement =
+                    document.createElement("div");
+
+                multiplierElement.classList.add("row-multiplier");
+                multiplierElement.textContent =
+                    `${MULTIPLIERS[rowIndex]}x`;
+
+                rowElement.appendChild(multiplierElement);
+
+                for (
+                    let tileIndex = 0;
+                    tileIndex < TILES_PER_ROW;
+                    tileIndex++
+                ) {
+                    const tileElement =
+                        document.createElement("div");
+
+                    tileElement.classList.add("tile");
+                    tileElement.dataset.tileIndex = tileIndex;
+                    tileElement.setAttribute(
+                        "role",
+                        "button"
+                    );
+                    tileElement.setAttribute(
+                        "aria-label",
+                        `Row ${rowIndex + 1}, tile ${tileIndex + 1}`
+                    );
+
+                    tileElement.addEventListener("click", () => {
+                        handleTileClick(rowIndex, tileIndex);
+                    });
+
+                    rowElement.appendChild(tileElement);
+                }
+
+                towerBoard.appendChild(rowElement);
+            }
+        }
+
+        function generateTowerData() {
+            towerData = [];
+
+            for (let rowIndex = 0; rowIndex < TOTAL_ROWS; rowIndex++) {
+                const rowConfig =
+                    new Array(TILES_PER_ROW).fill(false);
+
+                let bombCount = 0;
+
+                while (bombCount < BOMBS_PER_ROW) {
+                    const randomIndex = Math.floor(
+                        Math.random() * TILES_PER_ROW
+                    );
+
+                    if (!rowConfig[randomIndex]) {
+                        rowConfig[randomIndex] = true;
+                        bombCount++;
+                    }
+                }
+
+                towerData.push(rowConfig);
+            }
+        }
+
+        function handleMainAction() {
+            if (!isGameActive) {
+                startGame();
+            }
+        }
+
+        function startGame() {
+            const betValue =
+                Number.parseFloat(betInput.value);
+
+            if (!Number.isFinite(betValue) || betValue <= 0) {
+                showStatus(
+                    "Please enter a valid bet amount.",
+                    "error"
+                );
+                return;
+            }
+
+            if (betValue > balance) {
+                showStatus(
+                    "Insufficient balance for this bet.",
+                    "error"
+                );
+                return;
+            }
+
+            balance -= betValue;
+            currentBet = betValue;
+            currentRow = 0;
+            isGameActive = true;
+
+            generateTowerData();
+            resetBoardVisuals();
+            setActiveRowVisuals();
+
+            showStatus(
+                "Game started! Choose a tile on Row 1.",
+                "success"
+            );
+
+            updateUI();
+        }
+
+        function handleTileClick(rowIndex, tileIndex) {
+            if (!isGameActive || rowIndex !== currentRow) {
+                return;
+            }
+
+            const isBomb =
+                towerData[rowIndex][tileIndex];
+
+            const activeRowElement =
+                document.querySelector(
+                    `[data-row-index="${rowIndex}"]`
+                );
+
+            const selectedTile =
+                activeRowElement.querySelector(
+                    `[data-tile-index="${tileIndex}"]`
+                );
+
+            if (isBomb) {
+                selectedTile.classList.add("hit-bomb");
+                selectedTile.textContent = "💣";
+
+                revealRowBombs(rowIndex);
+                gameOverLoss();
+                return;
+            }
+
+            selectedTile.classList.add("hit-safe");
+            selectedTile.textContent = "✔";
+
+            currentRow++;
+
+            if (currentRow === TOTAL_ROWS) {
+                cashOut();
+                return;
+            }
+
+            setActiveRowVisuals();
+
+            showStatus(
+                `Row ${currentRow} passed! ` +
+                "Keep climbing or cash out.",
+                "success"
+            );
+
+            updateUI();
+        }
+
+        function cashOut() {
+            if (!isGameActive || currentRow === 0) {
+                return;
+            }
+
+            const finalMultiplier =
+                MULTIPLIERS[currentRow - 1];
+
+            const winnings =
+                currentBet * finalMultiplier;
+
+            balance += winnings;
+
+            showStatus(
+                `Cashed out successfully! ` +
+                `Won ${winnings.toFixed(2)} credits.`,
+                "success"
+            );
+
+            endGameSession();
+        }
+
+        function gameOverLoss() {
+            showStatus(
+                "Boom! You hit a bomb. Better luck next time!",
+                "error"
+            );
+
+            endGameSession();
+        }
+
+        function endGameSession() {
+            isGameActive = false;
+
+            const rows =
+                document.querySelectorAll(".row");
+
+            rows.forEach(row => {
+                row.classList.remove("active");
+            });
+
+            updateUI();
+        }
+
+        function revealRowBombs(rowIndex) {
+            const rowElement =
+                document.querySelector(
+                    `[data-row-index="${rowIndex}"]`
+                );
+
+            const tiles =
+                rowElement.querySelectorAll(".tile");
+
+            towerData[rowIndex].forEach(
+                (isBomb, tileIndex) => {
+                    if (
+                        isBomb &&
+                        !tiles[tileIndex].classList.contains(
+                            "hit-bomb"
+                        )
+                    ) {
+                        tiles[tileIndex].classList.add(
+                            "reveal-bomb"
+                        );
+
+                        tiles[tileIndex].textContent = "💣";
+                    }
+                }
+            );
+        }
+
+        function setActiveRowVisuals() {
+            const rows =
+                document.querySelectorAll(".row");
+
+            rows.forEach((rowElement, rowIndex) => {
+                rowElement.classList.remove(
+                    "active",
+                    "completed"
+                );
+
+                if (rowIndex === currentRow) {
+                    rowElement.classList.add("active");
+                } else if (rowIndex < currentRow) {
+                    rowElement.classList.add("completed");
+                }
+            });
+        }
+
+        function resetBoardVisuals() {
+            const tiles =
+                document.querySelectorAll(".tile");
+
+            tiles.forEach(tile => {
+                tile.className = "tile";
+                tile.textContent = "";
+            });
+        }
+
+        function setMaxBet() {
+            if (isGameActive) {
+                return;
+            }
+
+            betInput.value = balance.toFixed(2);
+            updateUI();
+        }
+
+        function addFreeCredits() {
+            if (isGameActive) {
+                return;
+            }
+
+            balance += 1000.00;
+
+            showStatus(
+                "Added 1000 credits to your balance!",
+                "success"
+            );
+
+            updateUI();
+        }
+
+        function validateInput() {
+            let value =
+                Number.parseFloat(betInput.value);
+
+            if (!Number.isFinite(value)) {
+                value = 0;
+            }
+
+            if (value > balance) {
+                value = balance;
+            }
+
+            if (value < 0) {
+                value = 0;
+            }
+
+            betInput.value = value;
+            updateUI();
+        }
+
+        function updateUI() {
+            balanceDisplay.textContent =
+                balance.toFixed(2);
+
+            if (isGameActive) {
+                betInput.disabled = true;
+                btnMax.disabled = true;
+
+                btnAction.style.display = "none";
+                btnCashout.style.display = "block";
+
+                const currentMultiplier =
+                    currentRow > 0
+                        ? MULTIPLIERS[currentRow - 1]
+                        : 0;
+
+                const potentialWinnings =
+                    currentBet * currentMultiplier;
+
+                btnCashout.textContent =
+                    `CASH OUT (${potentialWinnings.toFixed(2)})`;
+
+                btnCashout.disabled = currentRow === 0;
+
+                if (currentRow < TOTAL_ROWS) {
+                    const nextMultiplier =
+                        MULTIPLIERS[currentRow];
+
+                    nextPayoutDisplay.textContent =
+                        (currentBet * nextMultiplier).toFixed(2);
+                } else {
+                    nextPayoutDisplay.textContent =
+                        potentialWinnings.toFixed(2);
+                }
+
+                return;
+            }
+
+            betInput.disabled = false;
+            btnMax.disabled = false;
+
+            btnAction.style.display = "block";
+            btnCashout.style.display = "none";
+
+            const initialBet =
+                Number.parseFloat(betInput.value) || 0;
+
+            nextPayoutDisplay.textContent =
+                (initialBet * MULTIPLIERS[0]).toFixed(2);
+        }
+
+        function showStatus(message, type) {
+            statusText.textContent = message;
+            statusText.className = "status-message";
+
+            if (type === "success") {
+                statusText.classList.add("status-success");
+            }
+
+            if (type === "error") {
+                statusText.classList.add("status-error");
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
