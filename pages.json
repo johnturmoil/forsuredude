@@ -34,5 +34,9 @@
   {
     "DisplayName": "Towers",
     "ID": "towers/index.html"
+  },
+  {
+    "DisplayName": "cool",
+    "ID": "cool/index.html"
   }
 ]
