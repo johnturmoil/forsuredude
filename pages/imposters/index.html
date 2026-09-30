@@ -5,115 +5,337 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Imposter Game</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
+
+        * { box-sizing: border-box; }
+
         :root {
-            --bg-color: #121214;
-            --card-bg: #1a1a1e;
-            --accent: #ff3e3e;
-            --text: #ffffff;
-            --text-muted: #a0a0aa;
-            --success: #3eff8b;
+            --bg: #050505;
+            --panel: rgba(12, 12, 12, .82);
+            --glass: rgba(255,255,255,.045);
+            --glass-hover: rgba(255,255,255,.075);
+            --border: rgba(255,255,255,.09);
+            --border-strong: rgba(255,255,255,.2);
+            --text: #fff;
+            --muted: rgba(255,255,255,.5);
+            --red: #ff8585;
+            --green: #7dffb2;
         }
+
+        html, body { min-height: 100%; }
+
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at 50% 5%, rgba(255,255,255,.07), transparent 35rem),
+                var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .38;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,.8) 0 1px, transparent 1.2px),
+                radial-gradient(circle, rgba(255,255,255,.35) 0 1px, transparent 1.2px);
+            background-size: 135px 135px, 225px 225px;
+            background-position: 15px 25px, 80px 95px;
+            mask-image: linear-gradient(to bottom, black, transparent 90%);
+        }
+
         .screen {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 500px;
+            position: relative;
+            z-index: 1;
+            width: min(100%, 700px);
+            padding: 34px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: var(--panel);
+            box-shadow: 0 30px 100px rgba(0,0,0,.58);
+            backdrop-filter: blur(18px);
             text-align: center;
             display: none;
         }
-        .screen.active { display: block; }
-        h1, h2 { margin-top: 0; color: var(--accent); }
+
+        .screen::before {
+            content: "";
+            position: absolute;
+            width: 430px;
+            height: 430px;
+            top: -230px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,.055), transparent 70%);
+            pointer-events: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: screenIn .35s ease both;
+        }
+
+        @keyframes screenIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .eyebrow {
+            position: relative;
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,.28);
+            font-size: .68rem;
+            font-weight: 500;
+            letter-spacing: .17em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 {
+            position: relative;
+            margin-top: 0;
+            color: var(--text);
+            font-family: 'Bebas Neue', sans-serif;
+            font-weight: 400;
+            letter-spacing: .04em;
+            line-height: .95;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            font-size: clamp(4.2rem, 12vw, 7rem);
+        }
+
+        h2 {
+            margin-bottom: 18px;
+            font-size: clamp(3rem, 9vw, 5rem);
+        }
+
+        h3 {
+            margin-bottom: 9px;
+            font-size: 2rem;
+        }
+
+        p {
+            position: relative;
+            color: var(--muted);
+            line-height: 1.65;
+            font-weight: 300;
+        }
+
+        #screen-main {
+            padding: 48px 34px;
+        }
+
+        #screen-main .input-group {
+            max-width: 460px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         .input-group {
-            margin-bottom: 20px;
+            position: relative;
+            margin-bottom: 17px;
             text-align: left;
         }
+
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 14px;
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 500;
+            letter-spacing: .07em;
+            text-transform: uppercase;
         }
-        input[type="number"], input[type="text"] {
+
+        input[type="number"],
+        input[type="text"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #333;
-            background: #252529;
-            color: white;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
+            height: 50px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            outline: none;
+            background: var(--glass);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: .95rem;
+            transition: .2s ease;
         }
-        .name-input::placeholder {
-            color: rgba(255, 255, 255, 0.2);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            font-style: italic;
+
+        input:focus {
+            border-color: var(--border-strong);
+            background: var(--glass-hover);
+            box-shadow: 0 0 0 4px rgba(255,255,255,.025);
         }
+
+        input::placeholder {
+            color: rgba(255,255,255,.25);
+            text-shadow: none;
+            font-style: normal;
+        }
+
+        button {
+            width: 100%;
+            min-height: 51px;
+            margin-top: 9px;
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--glass-hover);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: .9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,.1);
+            border-color: var(--border-strong);
+            box-shadow: 0 12px 28px rgba(0,0,0,.2);
+        }
+
+        button:active { transform: translateY(0); }
+
+        button.secondary {
+            background: transparent;
+            color: var(--muted);
+        }
+
+        button.secondary:hover { color: var(--text); }
+
+        button.next-btn {
+            border-color: rgba(125,255,178,.22);
+            background: rgba(125,255,178,.09);
+            color: var(--green);
+        }
+
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 11px;
+            margin: 8px 0 24px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--glass);
+            text-align: left;
         }
-        .checkbox-group input { width: 20px; height: 20px; }
-        button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: opacity 0.2s;
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: white;
+            flex: 0 0 auto;
         }
-        button:hover { opacity: 0.9; }
-        button.secondary { background: #444; }
-        button.next-btn { background: var(--success); color: #121214; }
+
+        .checkbox-group label {
+            margin: 0;
+            color: var(--text);
+            font-size: .84rem;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
         .scroll-box {
-            max-height: 300px;
+            max-height: 330px;
+            margin-bottom: 18px;
+            padding: 4px 7px 4px 0;
             overflow-y: auto;
-            margin-bottom: 20px;
-            padding-right: 5px;
         }
+
+        .scroll-box::-webkit-scrollbar { width: 5px; }
+        .scroll-box::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.12);
+            border-radius: 99px;
+        }
+
+        #names-container .input-group { margin-bottom: 10px; }
+
+        #turn-instructions {
+            max-width: 480px;
+            margin: 0 auto 22px;
+        }
+
         .role-box {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 30px 0;
-            padding: 20px;
-            background: #252529;
-            border-radius: 8px;
-            min-height: 60px;
+            position: relative;
+            min-height: 75px;
+            margin: 26px 0 18px;
+            padding: 28px 20px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--glass);
+            box-shadow: inset 0 1px rgba(255,255,255,.025);
+            font-size: 1.1rem;
         }
-        .imposter-text { color: #ff3e3e; }
-        .civilian-text { color: #3eff8b; }
+
+        #role-title {
+            margin-bottom: 14px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: .04em;
+        }
+
+        #role-word { font-size: 1.15rem; }
+
+        .imposter-text {
+            color: var(--red) !important;
+        }
+
+        .civilian-text {
+            color: var(--green) !important;
+        }
+
         .hint-text {
-            font-size: 18px;
-            color: var(--text-muted);
-            margin-top: 10px;
-            letter-spacing: 0.5px;
+            margin-top: 13px;
+            color: var(--muted);
+            font-size: .9rem;
+            letter-spacing: .02em;
+        }
+
+        #results-display {
+            text-align: left;
+            font-size: .9rem;
+        }
+
+        #results-display p { margin: 7px 0; }
+
+        #results-display strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .screen {
+                padding: 26px 17px;
+                border-radius: 20px;
+            }
+            #screen-main { padding: 38px 17px; }
+            h1 { font-size: 4.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1: MAIN HOME -->
     <div id="screen-main" class="screen active">
+        <span class="eyebrow">Moon Games • Social Deduction</span>
         <h1>Imposters</h1>
         <div class="input-group">
             <label>Total Players</label>
@@ -127,8 +349,8 @@
         <button onclick="startGame()">Play</button>
     </div>
 
-    <!-- SCREEN 2: PLAYER NAMES & SETTINGS -->
     <div id="screen-names" class="screen">
+        <span class="eyebrow">Game Setup</span>
         <h2>Game Settings</h2>
         <div class="checkbox-group">
             <input type="checkbox" id="setting-hint" checked>
@@ -139,66 +361,64 @@
         <button onclick="saveNames()">Save & Return</button>
     </div>
 
-    <!-- SCREEN 3: PLAYER TURN -->
     <div id="screen-turn" class="screen">
+        <span class="eyebrow">Private Turn</span>
         <h2 id="turn-player-name">Player Name</h2>
-        <p id="turn-instructions">Pass the device to this person. Press the button below to see your secret role.</p>
+        <p id="turn-instructions">Pass the device to this player. Make sure nobody else can see the screen, then reveal your secret role.</p>
         <button id="reveal-btn" onclick="revealRole()">Reveal Secret Role</button>
-        
+
         <div id="role-display" class="role-box" style="display:none;">
             <div id="role-title"></div>
             <div id="role-word"></div>
             <div id="role-hint" class="hint-text"></div>
         </div>
-        
+
         <button id="next-player-btn" class="next-btn" style="display:none;" onclick="advanceTurn()">Next Player</button>
     </div>
 
-    <!-- SCREEN 4: RESULTS -->
     <div id="screen-results" class="screen">
+        <span class="eyebrow">Round Complete</span>
         <h2>Game Over!</h2>
-        <p>All players have seen their roles. Discuss, vote, and find the threat.</p>
-        <button onclick="revealResults()">Reveal Game Truths</button>
+        <p>Everyone has seen their role. Pass the device around, discuss the clues, vote, and find the imposter.</p>
+        <button onclick="revealResults()">Reveal The Truth</button>
         <div id="results-display" class="role-box" style="display:none; text-align:left; font-size:16px;"></div>
         <button class="secondary" onclick="resetGame()">Play Again</button>
     </div>
 
     <script>
-        // Massive database with subtle, single-word hints that challenge the imposter
         const wordDatabase = [
-    ["Apple", "Cider"], ["Banana", "Yellow"], ["Orange", "Juice"], ["Strawberry", "Red"],
-    ["Watermelon", "Seed"], ["Pizza", "Slice"], ["Burger", "Meat"], ["Sushi", "Fish"],
-    ["Pasta", "Bowl"], ["Taco", "Meat"], ["Coffee", "Mug"], ["Tea", "Cup"],
-    ["Chocolate", "Bar"], ["Ice Cream", "Cold"], ["Bread", "Loaf"], ["Cheese", "Yellow"],
-    ["Dog", "Pet"], ["Cat", "Fur"], ["Lion", "Wild"], ["Elephant", "Grey"],
-    ["Monkey", "Wild"], ["Dolphin", "Water"], ["Eagle", "Bird"], ["Shark", "Water"],
-    ["Snake", "Wild"], ["Frog", "Green"], ["Football", "Ball"], ["Basketball", "Ball"],
-    ["Tennis", "Ball"], ["Golf", "Ball"], ["Baseball", "Ball"], ["Swimming", "Water"],
-    ["Running", "Shoes"], ["Cycling", "Wheel"], ["Chess", "Game"], ["Guitar", "Wood"],
-    ["Piano", "Music"], ["Drums", "Loud"], ["Violin", "Wood"], ["Microphone", "Sound"],
-    ["Laptop", "Tech"], ["Smartphone", "Tech"], ["Television", "Media"], ["Camera", "Photo"],
-    ["Headphones", "Sound"], ["Clock", "Number"], ["Calendar", "Number"], ["Book", "Word"],
-    ["Newspaper", "Word"], ["Pen", "Write"], ["Desk", "Wood"], ["Chair", "Legs"],
-    ["Bed", "Room"], ["Sofa", "Room"], ["Mirror", "Wall"], ["Window", "Glass"],
-    ["Door", "Wall"], ["Key", "Metal"], ["Car", "Road"], ["Bicycle", "Road"],
-    ["Airplane", "Travel"], ["Train", "Travel"], ["Ship", "Water"], ["Subway", "City"],
-    ["Helicopter", "Travel"], ["Rocket", "Science"], ["Doctor", "Job"], ["Nurse", "Job"],
-    ["Teacher", "Job"], ["Student", "Youth"], ["Chef", "Job"], ["Pilot", "Job"],
-    ["Firefighter", "Job"], ["Police Officer", "Job"], ["Actor", "Job"], ["Singer", "Job"],
-    ["House", "Live"], ["Apartment", "Live"], ["Castle", "Old"], ["Hotel", "Stay"],
-    ["Hospital", "Care"], ["Museum", "Visit"], ["Cinema", "Watch"], ["Restaurant", "Eat"],
-    ["Tree", "Green"], ["Flower", "Plant"], ["Grass", "Green"], ["Mountain", "High"],
-    ["River", "Water"], ["Lake", "Water"], ["Desert", "Dry"], ["Forest", "Green"],
-    ["Sun", "Bright"], ["Moon", "Night"], ["Star", "Night"], ["Cloud", "White"],
-    ["Snow", "White"], ["Wind", "Air"], ["Fire", "Hot"], ["Ice", "Solid"],
-    ["Gold", "Shiny"], ["Silver", "Shiny"], ["Diamond", "Shiny"], ["Iron", "Heavy"],
-    ["Shirt", "Cloth"], ["Pants", "Cloth"], ["Shoes", "Foot"], ["Hat", "Head"],
-    ["Jacket", "Warm"], ["Dress", "Cloth"], ["Ring", "Metal"], ["Watch", "Metal"],
-    ["Backpack", "Bag"], ["Wallet", "Pocket"], ["Umbrella", "Rain"], ["Glasses", "Face"],
-    ["Hammer", "Tool"], ["Screwdriver", "Tool"], ["Scissors", "Tool"], ["Tape", "Sticky"],
-    ["Paint", "Colour"], ["Clay", "Soft"], ["Glue", "Sticky"], ["Rope", "Cord"]
-];
-
+            ["Apple", "Cider"], ["Banana", "Yellow"], ["Orange", "Juice"], ["Strawberry", "Red"],
+            ["Watermelon", "Seed"], ["Pizza", "Slice"], ["Burger", "Meat"], ["Sushi", "Fish"],
+            ["Pasta", "Bowl"], ["Taco", "Meat"], ["Coffee", "Mug"], ["Tea", "Cup"],
+            ["Chocolate", "Bar"], ["Ice Cream", "Cold"], ["Bread", "Loaf"], ["Cheese", "Yellow"],
+            ["Dog", "Pet"], ["Cat", "Fur"], ["Lion", "Wild"], ["Elephant", "Grey"],
+            ["Monkey", "Wild"], ["Dolphin", "Water"], ["Eagle", "Bird"], ["Shark", "Water"],
+            ["Snake", "Wild"], ["Frog", "Green"], ["Football", "Ball"], ["Basketball", "Ball"],
+            ["Tennis", "Ball"], ["Golf", "Ball"], ["Baseball", "Ball"], ["Swimming", "Water"],
+            ["Running", "Shoes"], ["Cycling", "Wheel"], ["Chess", "Game"], ["Guitar", "Wood"],
+            ["Piano", "Music"], ["Drums", "Loud"], ["Violin", "Wood"], ["Microphone", "Sound"],
+            ["Laptop", "Tech"], ["Smartphone", "Tech"], ["Television", "Media"], ["Camera", "Photo"],
+            ["Headphones", "Sound"], ["Clock", "Number"], ["Calendar", "Number"], ["Book", "Word"],
+            ["Newspaper", "Word"], ["Pen", "Write"], ["Desk", "Wood"], ["Chair", "Legs"],
+            ["Bed", "Room"], ["Sofa", "Room"], ["Mirror", "Wall"], ["Window", "Glass"],
+            ["Door", "Wall"], ["Key", "Metal"], ["Car", "Road"], ["Bicycle", "Road"],
+            ["Airplane", "Travel"], ["Train", "Travel"], ["Ship", "Water"], ["Subway", "City"],
+            ["Helicopter", "Travel"], ["Rocket", "Science"], ["Doctor", "Job"], ["Nurse", "Job"],
+            ["Teacher", "Job"], ["Student", "Youth"], ["Chef", "Job"], ["Pilot", "Job"],
+            ["Firefighter", "Job"], ["Police Officer", "Job"], ["Actor", "Job"], ["Singer", "Job"],
+            ["House", "Live"], ["Apartment", "Live"], ["Castle", "Old"], ["Hotel", "Stay"],
+            ["Hospital", "Care"], ["Museum", "Visit"], ["Cinema", "Watch"], ["Restaurant", "Eat"],
+            ["Tree", "Green"], ["Flower", "Plant"], ["Grass", "Green"], ["Mountain", "High"],
+            ["River", "Water"], ["Lake", "Water"], ["Desert", "Dry"], ["Forest", "Green"],
+            ["Sun", "Bright"], ["Moon", "Night"], ["Star", "Night"], ["Cloud", "White"],
+            ["Snow", "White"], ["Wind", "Air"], ["Fire", "Hot"], ["Ice", "Solid"],
+            ["Gold", "Shiny"], ["Silver", "Shiny"], ["Diamond", "Shiny"], ["Iron", "Heavy"],
+            ["Shirt", "Cloth"], ["Pants", "Cloth"], ["Shoes", "Foot"], ["Hat", "Head"],
+            ["Jacket", "Warm"], ["Dress", "Cloth"], ["Ring", "Metal"], ["Watch", "Metal"],
+            ["Backpack", "Bag"], ["Wallet", "Pocket"], ["Umbrella", "Rain"], ["Glasses", "Face"],
+            ["Hammer", "Tool"], ["Screwdriver", "Tool"], ["Scissors", "Tool"], ["Tape", "Sticky"],
+            ["Paint", "Colour"], ["Clay", "Soft"], ["Glue", "Sticky"], ["Rope", "Cord"]
+        ];
 
         let gameConfig = {
             totalPlayers: 4,
@@ -223,17 +443,17 @@
             const count = parseInt(document.getElementById('setup-players').value) || 4;
             const container = document.getElementById('names-container');
             container.innerHTML = '';
-            
-            while(gameConfig.playerNames.length < count) {
+
+            while (gameConfig.playerNames.length < count) {
                 gameConfig.playerNames.push(`Player ${gameConfig.playerNames.length + 1}`);
             }
 
-            for(let i = 0; i < count; i++) {
+            for (let i = 0; i < count; i++) {
                 const div = document.createElement('div');
                 div.className = 'input-group';
                 div.innerHTML = `
-                    <input type="text" class="name-input" data-index="${i}" 
-                           placeholder="${gameConfig.playerNames[i]}" 
+                    <input type="text" class="name-input" data-index="${i}"
+                           placeholder="${gameConfig.playerNames[i]}"
                            value="${gameConfig.playerNames[i]}">
                 `;
                 container.appendChild(div);
@@ -245,7 +465,7 @@
             const inputs = document.querySelectorAll('.name-input');
             inputs.forEach(input => {
                 const idx = parseInt(input.getAttribute('data-index'));
-                if(input.value.trim() !== "") {
+                if (input.value.trim() !== "") {
                     gameConfig.playerNames[idx] = input.value.trim();
                 }
             });
@@ -259,12 +479,17 @@
             gameConfig.imposterCount = parseInt(document.getElementById('setup-imposters').value) || 1;
             gameConfig.giveHint = document.getElementById('setting-hint').checked;
 
-            if (gameConfig.imposterCount >= gameConfig.totalPlayers) {
-                alert("Imposters must be less than the total number of players.");
+            if (gameConfig.totalPlayers < 3) {
+                alert("You need at least 3 players.");
                 return;
             }
 
-            while(gameConfig.playerNames.length < gameConfig.totalPlayers) {
+            if (gameConfig.imposterCount < 1 || gameConfig.imposterCount >= gameConfig.totalPlayers) {
+                alert("Imposters must be at least 1 and less than the total number of players.");
+                return;
+            }
+
+            while (gameConfig.playerNames.length < gameConfig.totalPlayers) {
                 gameConfig.playerNames.push(`Player ${gameConfig.playerNames.length + 1}`);
             }
 
@@ -273,7 +498,7 @@
             gameSession.chosenHint = wordPair[1];
 
             gameSession.playerData = [];
-            for(let i = 0; i < gameConfig.totalPlayers; i++) {
+            for (let i = 0; i < gameConfig.totalPlayers; i++) {
                 gameSession.playerData.push({
                     name: gameConfig.playerNames[i],
                     isImposter: false
@@ -281,9 +506,9 @@
             }
 
             let assignedImposters = 0;
-            while(assignedImposters < gameConfig.imposterCount) {
+            while (assignedImposters < gameConfig.imposterCount) {
                 const randIdx = Math.floor(Math.random() * gameConfig.totalPlayers);
-                if(!gameSession.playerData[randIdx].isImposter) {
+                if (!gameSession.playerData[randIdx].isImposter) {
                     gameSession.playerData[randIdx].isImposter = true;
                     assignedImposters++;
                 }
@@ -299,7 +524,7 @@
             document.getElementById('next-player-btn').style.display = 'none';
             document.getElementById('reveal-btn').style.display = 'block';
             document.getElementById('turn-instructions').style.display = 'block';
-            
+
             const currentPlayer = gameSession.playerData[gameSession.currentTurnIndex];
             document.getElementById('turn-player-name').innerText = currentPlayer.name;
             showScreen('screen-turn');
@@ -315,10 +540,12 @@
             document.getElementById('turn-instructions').style.display = 'none';
             document.getElementById('role-display').style.display = 'block';
 
-            if(currentPlayer.isImposter) {
+            if (currentPlayer.isImposter) {
                 roleTitle.innerHTML = `<span class="imposter-text">YOU ARE THE IMPOSTER</span>`;
                 roleWord.innerText = "Word: ???";
-                roleHint.innerHTML = gameConfig.giveHint ? `Hint Word: <strong>${gameSession.chosenHint}</strong>` : "";
+                roleHint.innerHTML = gameConfig.giveHint
+                    ? `Hint Word: <strong>${gameSession.chosenHint}</strong>`
+                    : "";
             } else {
                 roleTitle.innerHTML = `<span class="civilian-text">YOU ARE CIVILIAN</span>`;
                 roleWord.innerHTML = `Secret Word: <strong>${gameSession.chosenWord}</strong>`;
@@ -330,7 +557,7 @@
 
         function advanceTurn() {
             gameSession.currentTurnIndex++;
-            if(gameSession.currentTurnIndex < gameSession.playerData.length) {
+            if (gameSession.currentTurnIndex < gameSession.playerData.length) {
                 setupTurnPage();
             } else {
                 showScreen('screen-results');
