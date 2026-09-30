@@ -34,9 +34,5 @@
   {
     "DisplayName": "Towers",
     "ID": "towers/index.html"
-  },
-  {
-    "DisplayName": "Driving Game",
-    "ID": "swerv/index.html"
   }
 ]
