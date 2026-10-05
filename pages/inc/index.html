@@ -238,8 +238,6 @@ button.bump{animation:bump .25s ease-out}
     c.appendChild(a);svg.appendChild(c);
   }
 })();
-// ---- NEON SETUP: paste your connection string between the quotes ----
-const NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_otm8PDZhs5xf@ep-rough-waterfall-b4rd9i9g-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 const SUF=["","K","M","B","T","Qd","Qn","Sx","Sp","Oc","No","Dc","UDc","DDc","TDc","QdDc","QnDc","SxDc","SpDc","OcDc","NoDc","Vg","UVg","DVg","TVg","QdVg","QnVg","SxVg","SpVg","OcVg","NoVg","Tg","UTg","DTg","TTg","QdTg","QnTg","SxTg","SpTg","OcTg","NoTg","Qag"];
 function fmt(n){
@@ -447,128 +445,324 @@ function render(){
   $('h-t').classList.toggle('hide',maxY<0);$('treewrap').classList.toggle('hide',maxY<0);
 }
 
-// ---- accounts + saving: Neon over its HTTP SQL endpoint ----
-const neon=NEON_CONNECTION_STRING.trim();
-let user=null,hashHex=null,maxOn=false;
-const status=m=>$('status').textContent=m;
-const msg=m=>$('authmsg').textContent=m;
-const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
-const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+// ---- accounts + saving: Cloudflare Worker API ----
 
-$('maxbtn').onclick=()=>{
-  maxOn=!maxOn;
-  $('maxbtn').setAttribute('aria-pressed',maxOn);
-  $('maxbtn').querySelector('.st').textContent=maxOn?'ON':'OFF';
+let user = null;
+let maxOn = false;
+
+const status = m => $('status').textContent = m;
+const msg = m => $('authmsg').textContent = m;
+
+const lsGet = k => {
+  try {
+    return localStorage.getItem(k);
+  } catch (e) {
+    return null;
+  }
 };
 
-async function sql(query,params=[]){
-  const host=new URL(neon).hostname;
-  const r=await fetch('https://'+host+'/sql',{method:'POST',keepalive:true,
-    headers:{'Content-Type':'application/json','Neon-Connection-String':neon},
-    body:JSON.stringify({query,params})});
-  if(!r.ok)throw new Error(await r.text());
-  return r.json();
-}
-const TABLE='CREATE TABLE IF NOT EXISTS players (username text PRIMARY KEY, salt text NOT NULL, hash text NOT NULL, data jsonb, created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now())';
-const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-async function hashPw(pw,salt){
-  if(!window.crypto||!crypto.subtle)throw new Error('Passwords need https or localhost');
-  const enc=new TextEncoder();
-  const key=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
-  return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:100000},key,256));
-}
+const lsSet = (k, v) => {
+  try {
+    localStorage.setItem(k, v);
+  } catch (e) {}
+};
 
-function applySave(raw){
-  s=fresh();
-  if(raw){
-    const d=typeof raw==='string'?JSON.parse(raw):raw;
-    if(d.v!==3){status('That save is from an older version, so you are starting fresh.');}
-    else{
-      s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.c=+d.c||0;s.a=+d.a||0;s.x=+d.x||0;s.tr=d.tr||{};s.sn=d.sn||{};s.t=d.t||Date.now();
-      IDS.forEach(k=>s.l[k]=Math.min(U[k].max,(d.l&&d.l[k])|0));
-      const away=Math.min(Math.max((Date.now()-s.t)/1000,0),3600);
-      s.n+=nps()*away;
+const api = async (path, options = {}) => {
+  const r = await fetch(path, {
+    ...options,
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+
+  let data = null;
+
+  try {
+    data = await r.json();
+  } catch (e) {}
+
+  if (!r.ok) {
+    throw new Error(
+      data?.error || `Request failed (${r.status})`
+    );
+  }
+
+  return data;
+};
+
+$('maxbtn').onclick = () => {
+  maxOn = !maxOn;
+
+  $('maxbtn').setAttribute('aria-pressed', maxOn);
+
+  $('maxbtn').querySelector('.st').textContent = maxOn ? 'ON' : 'OFF';
+};
+
+function applySave(raw) {
+  s = fresh();
+
+  if (raw) {
+    const d = typeof raw === 'string' ? JSON.parse(raw) : raw;
+
+    if (d.v !== 3) {
+      status('That save is from an older version, so you are starting fresh.');
+    } else {
+      s.n = +d.n || 0;
+      s.p = +d.p || 0;
+      s.i = +d.i || 0;
+      s.c = +d.c || 0;
+      s.a = +d.a || 0;
+      s.x = +d.x || 0;
+
+      s.tr = d.tr || {};
+      s.sn = d.sn || {};
+      s.t = d.t || Date.now();
+
+      IDS.forEach(k => {
+        s.l[k] = Math.min(U[k].max, (d.l && d.l[k]) | 0);
+      });
+
+      const away = Math.min(Math.max((Date.now() - s.t) / 1000, 0), 3600);
+
+      s.n += nps() * away;
     }
   }
+
   render();
 }
-function enter(name,hash,data){
-  user=name;hashHex=hash;
-  if(hash)lsSet('big-user',JSON.stringify({u:name,h:hash}));
-  $('who').textContent=name;
+
+function enterGuest(data) {
+  user = 'guest';
+
+  $('who').textContent = 'guest';
   $('auth').classList.add('hide');
+
   applySave(data);
-  status('Logged in as '+name);
+
+  status('Playing as guest');
 }
-async function auth(register){
-  const name=(register?$('ru'):$('lu')).value.trim().toLowerCase(),pw=(register?$('rp'):$('lp')).value;
-  if(!neon)return msg('Neon is not set up yet. You can still play as a guest.');
-  if(!/^[a-z0-9_]{3,20}$/.test(name))return msg('Username: 3 to 20 letters, numbers or _');
-  if(pw.length<6)return msg('Password must be at least 6 characters');
-  if(register&&pw!==$('rp2').value)return msg('Passwords do not match');
-  msg('Working...');
-  try{
-    await sql(TABLE);
-    if(register){
-      const salt=hex(crypto.getRandomValues(new Uint8Array(16))),hash=await hashPw(pw,salt);
-      const r=await sql('INSERT INTO players (username,salt,hash,data) VALUES ($1,$2,$3,$4::jsonb) ON CONFLICT (username) DO NOTHING RETURNING username',[name,salt,hash,JSON.stringify(fresh())]);
-      if(!r.rows||!r.rows.length)return msg('That username is taken');
-      msg('');enter(name,hash,null);
-    }else{
-      const r=await sql('SELECT salt,hash,data FROM players WHERE username=$1',[name]);
-      const row=r.rows&&r.rows[0];
-      if(!row||(await hashPw(pw,row.salt))!==row.hash)return msg('Wrong username or password');
-      msg('');enter(name,row.hash,row.data);
+
+function enterAccount(name, data) {
+  user = name;
+
+  $('who').textContent = name;
+  $('auth').classList.add('hide');
+
+  applySave(data);
+
+  status('Logged in as ' + name);
+}
+
+async function auth(register) {
+  const name = (register ? $('ru').value : $('lu').value)
+    .trim()
+    .toLowerCase();
+
+  const pw = register ? $('rp').value : $('lp').value;
+
+  if (!/^[a-z0-9_]{3,20}$/.test(name)) {
+    return msg('Username: 3 to 20 letters, numbers or _');
+  }
+
+  if (pw.length < 6) {
+    return msg('Password must be at least 6 characters');
+  }
+
+  if (register && pw !== $('rp2').value) {
+    return msg('Passwords do not match');
+  }
+
+  msg(register ? 'Creating account...' : 'Logging in...');
+
+  try {
+    const data = await api(
+      register ? '/api/register' : '/api/login',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          username: name,
+          password: pw
+        })
+      }
+    );
+
+    msg('');
+
+    enterAccount(data.username, data.data);
+
+    $('lp').value = '';
+    $('rp').value = '';
+    $('rp2').value = '';
+
+    if (register) {
+      status('Account created and logged in as ' + data.username);
     }
-  }catch(e){msg('Error: '+e.message.slice(0,120));}
+  } catch (e) {
+    msg(e.message.slice(0, 160));
+  }
 }
-async function save(){
-  if(!user)return;
-  s.t=Date.now();
-  const data=JSON.stringify(s);
-  lsSet('big-save-'+user,data);
-  if(!hashHex){status('Saved on this device (guest)');return;}
-  try{
-    const r=await sql('UPDATE players SET data=$2::jsonb, updated_at=now() WHERE username=$1 AND hash=$3 RETURNING username',[user,data,hashHex]);
-    status(r.rows&&r.rows.length?'Saved to Neon at '+new Date().toLocaleTimeString():'Save rejected. Please log in again.');
-  }catch(e){status('Neon save failed (kept on this device): '+e.message.slice(0,120));}
+
+async function save() {
+  if (!user) {
+    return;
+  }
+
+  s.t = Date.now();
+
+  const data = JSON.stringify(s);
+
+  if (user === 'guest') {
+    lsSet('big-save-guest', data);
+
+    status('Saved on this device (guest)');
+
+    return;
+  }
+
+  try {
+    await api('/api/save', {
+      method: 'POST',
+      body: data
+    });
+
+    status('Saved online at ' + new Date().toLocaleTimeString());
+  } catch (e) {
+    status('Online save failed: ' + e.message.slice(0, 120));
+  }
 }
-$('login').onclick=()=>auth(false);
-$('reg').onclick=()=>auth(true);
-$('lp').addEventListener('keydown',e=>{if(e.key==='Enter')auth(false);});
-$('rp2').addEventListener('keydown',e=>{if(e.key==='Enter')auth(true);});
-function tab(r){
-  $('pane-l').classList.toggle('hide',r);$('pane-r').classList.toggle('hide',!r);
-  [['tab-l',!r],['tab-r',r]].forEach(([id,on])=>{$(id).classList.toggle('on',on);$(id).setAttribute('aria-selected',on);});
+
+$('login').onclick = () => auth(false);
+
+$('reg').onclick = () => auth(true);
+
+$('lp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    auth(false);
+  }
+});
+
+$('rp2').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    auth(true);
+  }
+});
+
+function tab(r) {
+  $('pane-l').classList.toggle('hide', r);
+
+  $('pane-r').classList.toggle('hide', !r);
+
+  [
+    ['tab-l', !r],
+    ['tab-r', r]
+  ].forEach(([id, on]) => {
+    $(id).classList.toggle('on', on);
+
+    $(id).setAttribute('aria-selected', on);
+  });
+
   msg('');
 }
-$('tab-l').onclick=()=>tab(false);
-$('tab-r').onclick=()=>tab(true);
-$('guest').onclick=()=>enter('guest',null,lsGet('big-save-guest'));
-$('save').onclick=save;
-$('out').onclick=async()=>{
-  await save();
-  user=null;hashHex=null;
-  try{localStorage.removeItem('big-user');}catch(e){}
-  s=fresh();render();['lp','rp','rp2'].forEach(id=>$(id).value='');tab(false);
-  $('auth').classList.remove('hide');
+
+$('tab-l').onclick = () => tab(false);
+
+$('tab-r').onclick = () => tab(true);
+
+$('guest').onclick = () => {
+  enterGuest(lsGet('big-save-guest'));
 };
 
-setInterval(()=>{s.n+=nps()*0.1;if(!isFinite(s.n))s.n=1e300;render();},100);
-setInterval(()=>{if(has('t5'))['m1','m2','m3'].forEach(k=>purchase(k,true));},1000);
-setInterval(save,20000);
-addEventListener('beforeunload',save);
+$('save').onclick = save;
+
+$('out').onclick = async () => {
+  if (user === 'guest') {
+    user = null;
+
+    s = fresh();
+    render();
+
+    ['lp', 'rp', 'rp2'].forEach(id => {
+      $(id).value = '';
+    });
+
+    tab(false);
+
+    $('auth').classList.remove('hide');
+
+    return;
+  }
+
+  try {
+    await save();
+  } catch (e) {}
+
+  try {
+    await api('/api/logout', {
+      method: 'POST',
+      body: '{}'
+    });
+  } catch (e) {}
+
+  user = null;
+
+  s = fresh();
+  render();
+
+  ['lp', 'rp', 'rp2'].forEach(id => {
+    $(id).value = '';
+  });
+
+  tab(false);
+
+  $('auth').classList.remove('hide');
+
+  status('');
+};
+
+setInterval(() => {
+  s.n += nps() * 0.1;
+
+  if (!isFinite(s.n)) {
+    s.n = 1e300;
+  }
+
+  render();
+}, 100);
+
+setInterval(() => {
+  if (has('t5')) {
+    ['m1', 'm2', 'm3'].forEach(k => purchase(k, true));
+  }
+}, 1000);
+
+setInterval(save, 20000);
+
+addEventListener('beforeunload', () => {
+  if (user === 'guest') {
+    s.t = Date.now();
+
+    lsSet('big-save-guest', JSON.stringify(s));
+  }
+});
+
 render();
-if(!neon)msg('Neon is not set up yet. You can still play as a guest.');
-(async()=>{
-  let sv=null;try{sv=JSON.parse(lsGet('big-user')||'null');}catch(e){}
-  if(!sv||!neon)return;
-  msg('Signing you in...');
-  try{
-    const r=await sql('SELECT hash,data FROM players WHERE username=$1',[sv.u]);
-    const row=r.rows&&r.rows[0];
-    if(row&&row.hash===sv.h){msg('');enter(sv.u,sv.h,row.data);}else msg('');
-  }catch(e){msg('Could not reach Neon: '+e.message.slice(0,100));}
+
+(async () => {
+  msg('Checking login...');
+
+  try {
+    const data = await api('/api/me');
+
+    if (data.loggedIn) {
+      enterAccount(data.username, data.data);
+    } else {
+      msg('');
+    }
+  } catch (e) {
+    msg('Could not reach game server.');
+  }
 })();
 </script>
 </body>
