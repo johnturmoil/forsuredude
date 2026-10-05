@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic Incremental Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050505;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--border-hover:rgba(255,255,255,.18);--tx:#fff;--mu:rgba(255,255,255,.45);--subtle:rgba(255,255,255,.18)}
+body{background:var(--bg);color:var(--tx);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+#starfield{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:56px 1.25rem 3rem}
+.hero{text-align:center;padding:1.5rem 0 .5rem;position:relative}
+.hero-glow{position:absolute;width:520px;height:520px;max-width:100%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.055) 0%,transparent 70%);top:30%;left:50%;transform:translateX(-50%);pointer-events:none;animation:pulseGlow 6s ease-in-out infinite;z-index:-1}
+@keyframes pulseGlow{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.78rem;font-weight:500;color:var(--mu);letter-spacing:.02em;margin-bottom:1.5rem;opacity:0;animation:fadeUp .7s ease .2s forwards}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:#fff;opacity:.6}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:clamp(3.5rem,12vw,7rem);line-height:.9;letter-spacing:.02em;opacity:0;animation:fadeUp .8s ease .35s forwards}
+.hero-title .ghost{display:block;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.2)}
+.hero-desc{margin:1.25rem auto 0;font-size:1rem;font-weight:300;color:var(--mu);line-height:1.7;max-width:480px;opacity:0;animation:fadeUp .8s ease .5s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.divider{width:100%;height:1px;background:var(--border);margin:2rem 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.4rem}
+.stat b{display:block;font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:2.2rem;letter-spacing:.04em;word-break:break-all}
+.stat span{color:var(--mu);font-size:.78rem;letter-spacing:.02em}
+#rate{text-align:center;color:var(--mu);font-weight:300;margin-top:1rem}
+.row{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+h2{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:2rem;letter-spacing:.03em;text-align:center;margin:2.5rem 0 1rem}
+button{font:inherit;color:var(--tx);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.3rem;cursor:pointer;text-align:left;transition:border-color .25s,background .25s,transform .2s}
+button:hover:not(:disabled){border-color:var(--border-hover);background:rgba(255,255,255,.06);transform:translateY(-3px)}
+button:focus-visible{outline:2px solid rgba(255,255,255,.6);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.nm{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.04em}
+.lv{color:var(--mu);font-size:.85rem;font-weight:300}
+small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height:1.5;margin-top:.2rem}
+.big{flex:1;min-width:180px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.hide{display:none}
+input[type=text]{font:inherit;background:var(--surface);color:var(--tx);border:1px solid var(--border);border-radius:16px;padding:.9rem 1.1rem;width:190px}
+input[type=text]:focus{outline:none;border-color:var(--border-hover)}
+label{color:var(--mu);font-size:.85rem;font-weight:300;display:flex;align-items:center;gap:.5rem}
+#status{color:var(--subtle);font-size:.8rem;margin-top:1rem;text-align:center}
+@media(max-width:600px){.stats{grid-template-columns:1fr}.page{padding:40px 1rem 2rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;opacity:1!important}}
+</style>
+</head>
+<body>
+<svg id="starfield" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+<div class="page">
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="badge-dot"></span>Idle game</div>
+  <h1 class="hero-title"><span>Basic</span><span class="ghost">Incremental</span></h1>
+  <p class="hero-desc">Earn money, rebirth for points, then rebirth again for iron.</p>
+</section>
+<div class="divider"></div>
+
+<div class="stats">
+  <div class="stat" id="n"><b>0</b><span>Money</span></div>
+  <div class="stat" id="p"><b>0</b><span>Points</span></div>
+  <div class="stat" id="i"><b>0</b><span>Iron</span></div>
+</div>
+<div id="rate" style="color:var(--mu);margin-top:6px"></div>
+
+<div class="row">
+  <button class="big" id="gain">Gain money</button>
+  <button class="big" id="rebP"></button>
+  <button class="big" id="rebI"></button>
+</div>
+
+<h2>Money upgrades (cost money)</h2>
+<div class="grid" id="g-m"></div>
+<h2>Points upgrades (cost points)</h2>
+<div class="grid" id="g-p"></div>
+<h2>Iron upgrades (cost iron)</h2>
+<div class="grid" id="g-i"></div>
+
+<h2>Save</h2>
+<div class="row" style="align-items:center">
+  <input type="text" id="sid" aria-label="Save name" placeholder="Save name">
+  <button id="load">Load</button>
+  <button id="save">Save now</button>
+  <label><input type="checkbox" id="max"> Buy max</label>
+</div>
+<div id="status"></div>
+
+</div>
+<script>
+(function(){
+  const svg=document.getElementById('starfield'),W=innerWidth,H=innerHeight,NS='http://www.w3.org/2000/svg';
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  for(let i=0;i<140;i++){
+    const op=Math.random()*.4+.06,c=document.createElementNS(NS,'circle'),a=document.createElementNS(NS,'animate');
+    c.setAttribute('cx',Math.random()*W);c.setAttribute('cy',Math.random()*H);c.setAttribute('r',Math.random()+.15);
+    c.setAttribute('fill','white');c.setAttribute('opacity',op);
+    a.setAttribute('attributeName','opacity');a.setAttribute('values',op+';'+(op*.12).toFixed(3)+';'+op);
+    a.setAttribute('dur',(Math.random()*5+2).toFixed(1)+'s');a.setAttribute('begin',(Math.random()*8).toFixed(1)+'s');a.setAttribute('repeatCount','indefinite');
+    c.appendChild(a);svg.appendChild(c);
+  }
+})();
+// ---- NEON SETUP: paste your connection string between the quotes ----
+// Example: "postgresql://user:password@ep-xxxx.eu-west-2.aws.neon.tech/neondb?sslmode=require"
+const NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_otm8PDZhs5xf@ep-rough-waterfall-b4rd9i9g-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+
+const SUF=["","K","M","B","T","Qd","Qn","Sx","Sp","Oc","No","Dc","UDc","DDc","TDc","QdDc","QnDc","SxDc","SpDc","OcDc","NoDc","Vg","UVg","DVg","TVg","QdVg","QnVg","SxVg","SpVg","OcVg","NoVg","Tg","UTg","DTg","TTg","QdTg","QnTg","SxTg","SpTg","OcTg","NoTg","Qag"];
+function fmt(n){
+  if(!isFinite(n))return"Infinity";
+  if(n<1000)return String(+n.toFixed(2));
+  const k=Math.floor(Math.log10(n)/3);
+  if(k>=SUF.length)return n.toExponential(2);
+  return (n/Math.pow(10,3*k)).toFixed(2)+SUF[k];
+}
+
+// base = first cost, cm = cost multiplier per level, em = effect multiplier per level
+const U={
+  m1:{g:'m',cur:'n',name:'Money Upgrade 1',base:3,cm:3.0075,em:3,max:50,txt:'x3 money'},
+  m2:{g:'m',cur:'n',name:'Money Upgrade 2',base:1e11,cm:2.6,em:2,max:140,txt:'x2 money'},
+  m3:{g:'m',cur:'n',name:'Money Upgrade 3',base:1e70,cm:4,em:3,max:20,txt:'x3 money',need:'m2'},
+  p1:{g:'p',cur:'p',name:'Money Boost',base:1,cm:4,em:3,max:25,txt:'x3 money'},
+  p2:{g:'p',cur:'p',name:'Point Boost',base:5,cm:6,em:2,max:25,txt:'x2 points'},
+  i1:{g:'i',cur:'i',name:'Iron Money Boost',base:1,cm:3,em:10,max:15,txt:'x10 money'},
+  i2:{g:'i',cur:'i',name:'Iron Point Boost',base:2,cm:4,em:2.5,max:15,txt:'x2.5 points'},
+  i3:{g:'i',cur:'i',name:'Iron Mix Boost',base:5,cm:6,em:1.5,max:15,txt:'x1.5 iron and x2 points'}
+};
+const IDS=Object.keys(U);
+const POINT_COST=1e24, IRON_COST=1e15;
+
+const fresh=()=>({n:0,p:0,i:0,l:Object.fromEntries(IDS.map(k=>[k,0])),t:Date.now()});
+let s=fresh();
+
+const L=k=>s.l[k];
+const nps=()=>Math.pow(3,L('m1'))*Math.pow(2,L('m2'))*Math.pow(3,L('m3'))*Math.pow(3,L('p1'))*Math.pow(10,L('i1'));
+const pointMult=()=>Math.pow(2,L('p2'))*Math.pow(2.5,L('i2'))*Math.pow(2,L('i3'));
+const ironMult=()=>Math.pow(1.5,L('i3'));
+const cost=k=>U[k].base*Math.pow(U[k].cm,L(k));
+const maxed=k=>L(k)>=U[k].max;
+const unlocked=k=>!U[k].need||maxed(U[k].need);
+const pointGain=()=>s.n>=POINT_COST?Math.floor(s.n/POINT_COST*pointMult()):0;
+const ironGain=()=>s.p>=IRON_COST?Math.floor(s.p/IRON_COST*ironMult()):0;
+
+// ---- build UI ----
+const $=id=>document.getElementById(id);
+const btn={};
+IDS.forEach(k=>{
+  const b=document.createElement('button');
+  b.onclick=()=>buy(k);
+  $('g-'+U[k].g).appendChild(b);
+  btn[k]=b;
+});
+
+function buy(k){
+  let guard=0;
+  do{
+    if(maxed(k)||s[U[k].cur]<cost(k))break;
+    s[U[k].cur]-=cost(k);s.l[k]++;
+  }while($('max').checked&&++guard<1000);
+  render();
+}
+$('gain').onclick=()=>{s.n+=Math.max(1,nps());render();};
+$('rebP').onclick=()=>{
+  const g=pointGain();if(!g)return;
+  s.p+=g;s.n=0;['m1','m2','m3'].forEach(k=>s.l[k]=0);
+  render();save();
+};
+$('rebI').onclick=()=>{
+  const g=ironGain();if(!g)return;
+  s.i+=g;s.n=0;s.p=0;
+  ['m1','m2','m3','p1','p2'].forEach(k=>s.l[k]=0);
+  render();save();
+};
+
+function render(){
+  $('n').firstElementChild.textContent=fmt(s.n);
+  $('p').firstElementChild.textContent=fmt(s.p);
+  $('i').firstElementChild.textContent=fmt(s.i);
+  $('rate').textContent=fmt(nps())+' money per second';
+  $('gain').innerHTML='<span class="nm">Gain money</span><small>+'+fmt(Math.max(1,nps()))+'</small>';
+  const pg=pointGain(),ig=ironGain();
+  $('rebP').disabled=!pg;
+  $('rebP').innerHTML='<span class="nm">Point rebirth</span><small>'+(pg?'Gain '+fmt(pg)+' points':'Need 1.00Sp money')+' (resets money and its upgrades)</small>';
+  $('rebI').disabled=!ig;
+  $('rebI').innerHTML='<span class="nm">Iron rebirth</span><small>'+(ig?'Gain '+fmt(ig)+' iron':'Need 1.00Qd points')+' (resets points and points upgrades)</small>';
+  IDS.forEach(k=>{
+    const u=U[k],b=btn[k];
+    b.classList.toggle('hide',!unlocked(k));
+    const lv=L(k)+'/'+u.max;
+    if(maxed(k)){b.disabled=true;b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level - MAXED</small>';}
+    else{b.disabled=s[u.cur]<cost(k);b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level<br>Cost: '+fmt(cost(k))+'</small>';}
+  });
+}
+
+// ---- saving: Neon over its HTTP SQL endpoint, with a local backup ----
+const neon=NEON_CONNECTION_STRING.trim();
+$('sid').value=localStorage.getItem('big-id')||('player-'+Math.random().toString(36).slice(2,8));
+const status=m=>$('status').textContent=m;
+
+async function sql(query,params=[]){
+  const host=new URL(neon).hostname;
+  const r=await fetch('https://'+host+'/sql',{method:'POST',keepalive:true,
+    headers:{'Content-Type':'application/json','Neon-Connection-String':neon},
+    body:JSON.stringify({query,params})});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function save(){
+  const id=$('sid').value.trim()||'player';
+  localStorage.setItem('big-id',id);
+  s.t=Date.now();
+  const data=JSON.stringify(s);
+  localStorage.setItem('big-save-'+id,data);
+  if(!neon){status('Saved locally. Add a Neon connection string to save online.');return;}
+  try{
+    await sql('CREATE TABLE IF NOT EXISTS saves (id text PRIMARY KEY, data jsonb NOT NULL, updated_at timestamptz DEFAULT now())');
+    await sql('INSERT INTO saves (id,data,updated_at) VALUES ($1,$2::jsonb,now()) ON CONFLICT (id) DO UPDATE SET data=EXCLUDED.data, updated_at=now()',[id,data]);
+    status('Saved to Neon at '+new Date().toLocaleTimeString());
+  }catch(e){status('Neon save failed (saved locally instead): '+e.message.slice(0,140));}
+}
+async function load(){
+  const id=$('sid').value.trim()||'player';
+  let raw=null;
+  if(neon){
+    try{
+      await sql('CREATE TABLE IF NOT EXISTS saves (id text PRIMARY KEY, data jsonb NOT NULL, updated_at timestamptz DEFAULT now())');
+      const res=await sql('SELECT data FROM saves WHERE id=$1',[id]);
+      if(res.rows&&res.rows[0])raw=res.rows[0].data;
+      status(raw?'Loaded from Neon.':'No Neon save for "'+id+'" yet. Starting fresh.');
+    }catch(e){status('Neon load failed: '+e.message.slice(0,140));}
+  }
+  if(!raw){const loc=localStorage.getItem('big-save-'+id);if(loc){raw=loc;if(!neon)status('Loaded local save.');}}
+  s=fresh();
+  if(raw){
+    const d=typeof raw==='string'?JSON.parse(raw):raw;
+    s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.t=d.t||Date.now();
+    IDS.forEach(k=>s.l[k]=Math.min(U[k].max,(d.l&&d.l[k])|0));
+    const away=Math.min(Math.max((Date.now()-s.t)/1000,0),3600); // up to 1 hour offline
+    s.n+=nps()*away;
+  }
+  render();
+}
+$('save').onclick=save;
+$('load').onclick=load;
+
+setInterval(()=>{s.n+=nps()*0.1;if(!isFinite(s.n))s.n=1e300;render();},100);
+setInterval(save,20000);
+addEventListener('beforeunload',save);
+load();
+</script>
+</body>
+</html>
