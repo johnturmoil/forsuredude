@@ -88,8 +88,8 @@ button.bump{animation:bump .25s ease-out}
 .mi{width:1.1em;height:1.1em;vertical-align:-.2em;color:var(--c)}
 .big .mi{width:1.7rem;height:1.7rem;vertical-align:-.35rem;margin-right:.15rem}
 
-:root{--k:#c58bff}
-#c{--c:var(--k)}
+:root{--k:#c58bff;--a:#ff6b9d;--x:#5eead4}
+#c{--c:var(--k)}#a{--c:var(--a)}#x{--c:var(--x)}
 .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 #treewrap{overflow-x:auto;padding-bottom:.5rem}
 #tree{position:relative;height:520px;min-width:760px}
@@ -113,6 +113,8 @@ button.bump{animation:bump .25s ease-out}
 <symbol id="i-p" viewBox="0 0 24 24"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
 <symbol id="i-i" viewBox="0 0 24 24"><path d="M12 2.5l8 4.5v10l-8 4.5-8-4.5V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.5v6.3M4 7l5.3 3.1M20 7l-5.3 3.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".45"/></symbol>
 <symbol id="i-c" viewBox="0 0 24 24"><path d="M7 3h10l4.5 6L12 21.5 2.5 9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><path d="M2.5 9h19M9 9l3 12.5L15 9M9 9l-2-6M15 9l2-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".5"/></symbol>
+<symbol id="i-a" viewBox="0 0 24 24"><path d="M13.5 2.5L5 13.5h6l-1 8 8.5-11.5h-6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="3.4" fill="currentColor"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-30 12 12)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".5"/></symbol>
 </svg>
 <div class="aurora"><i></i><i></i><i></i></div>
 <svg id="starfield" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
@@ -130,6 +132,8 @@ button.bump{animation:bump .25s ease-out}
   <div class="stat" id="p"><b>0</b><span>Points</span><svg class="ic" aria-hidden="true"><use href="#i-p"/></svg></div>
   <div class="stat" id="i"><b>0</b><span>Iron</span><svg class="ic" aria-hidden="true"><use href="#i-i"/></svg></div>
   <div class="stat hide" id="c"><b>0</b><span>Crystals</span><svg class="ic" aria-hidden="true"><use href="#i-c"/></svg></div>
+  <div class="stat hide" id="a"><b>0</b><span>Plasma</span><svg class="ic" aria-hidden="true"><use href="#i-a"/></svg></div>
+  <div class="stat hide" id="x"><b>0</b><span>Void</span><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></div>
 </div>
 <div id="rate" style="color:var(--mu);margin-top:6px"></div>
 
@@ -138,6 +142,8 @@ button.bump{animation:bump .25s ease-out}
   <button class="big" id="rebP"></button>
   <button class="big" id="rebI"></button>
   <button class="big hide" id="rebC"></button>
+  <button class="big hide" id="rebA"></button>
+  <button class="big hide" id="rebX"></button>
 </div>
 
 <h2>Tech tree</h2>
@@ -152,6 +158,12 @@ button.bump{animation:bump .25s ease-out}
 
 <h2 id="h-c" class="hide">Crystal upgrades (cost crystals)</h2>
 <div class="grid" id="g-c"></div>
+
+<h2 id="h-a" class="hide">Plasma upgrades (cost plasma)</h2>
+<div class="grid" id="g-a"></div>
+
+<h2 id="h-x" class="hide">Void upgrades (cost void)</h2>
+<div class="grid" id="g-x"></div>
 
 <h2>Save</h2>
 <div class="row" style="align-items:center">
@@ -190,7 +202,7 @@ function fmt(n){
 
 // g = currency it costs (n money, p points, i iron, c crystals). cm = cost multiplier, em = effect multiplier. need = tech tree node
 const U={
-  m1:{g:'n',name:'Money Press',base:10,cm:3,em:2.25,max:40,txt:'x2.25 money'},
+  m1:{g:'n',name:'Money Press',base:10,cm:2.5,em:2,max:40,txt:'x2 money'},
   m2:{g:'n',name:'Money Factory',base:2e4,cm:2.2,em:2,max:30,txt:'x2 money'},
   m3:{g:'n',name:'Money Reactor',base:5e11,cm:3.2,em:3,max:25,txt:'x3 money',need:'t2'},
   p1:{g:'p',name:'Money Boost',base:1,cm:2,em:2,max:20,txt:'x2 money'},
@@ -199,7 +211,11 @@ const U={
   i2:{g:'i',name:'Iron Point Boost',base:4,cm:3,em:2,max:10,txt:'x2 points'},
   i3:{g:'i',name:'Iron Yield',base:10,cm:3.5,em:1.5,max:8,txt:'x1.5 iron',need:'t4'},
   c1:{g:'c',name:'Crystal Core',base:1,cm:2.5,em:3,max:10,txt:'x3 money',need:'t7'},
-  c2:{g:'c',name:'Crystal Yield',base:2,cm:3,em:2,max:8,txt:'x2 points and iron',need:'t7'}
+  c2:{g:'c',name:'Crystal Yield',base:2,cm:3,em:2,max:8,txt:'x2 points and iron',need:'t7'},
+  a1:{g:'a',name:'Plasma Surge',base:1,cm:2.5,em:4,max:10,txt:'x4 money',need:'t11'},
+  a2:{g:'a',name:'Plasma Forge',base:2,cm:3,em:2,max:8,txt:'x2 points, iron and crystals',need:'t11'},
+  x1:{g:'x',name:'Void Engine',base:1,cm:3,em:5,max:8,txt:'x5 money',need:'t15'},
+  x2:{g:'x',name:'Void Harvest',base:2,cm:3.5,em:2,max:8,txt:'x2 plasma',need:'t15'}
 };
 const IDS=Object.keys(U);
 // tech tree: permanent, never reset. x = percent across, y = pixels down
@@ -212,35 +228,53 @@ const T={
   t6:{name:'Deep Veins',d:'x2 iron',cur:'i',cost:20,x:84,y:220,req:['t3']},
   t7:{name:'Crystal Lattice',d:'Unlocks crystals',cur:'i',cost:60,x:50,y:330,req:['t5','t6']},
   t8:{name:'Resonance',d:'+50% money per crystal',cur:'c',cost:2,x:30,y:440,req:['t7']},
-  t9:{name:'Overclock',d:'x4 money',cur:'c',cost:8,x:70,y:440,req:['t8']}
+  t9:{name:'Overclock',d:'x4 money',cur:'c',cost:8,x:70,y:440,req:['t8']},
+  t10:{name:'Prism',d:'x2 crystals',cur:'c',cost:15,x:15,y:550,req:['t8']},
+  t11:{name:'Plasma Seed',d:'Unlocks plasma',cur:'c',cost:30,x:50,y:550,req:['t8','t9']},
+  t12:{name:'Gem Cutter',d:'x3 money',cur:'c',cost:25,x:85,y:550,req:['t9']},
+  t13:{name:'Ignition',d:'x2 plasma',cur:'a',cost:3,x:25,y:660,req:['t11']},
+  t14:{name:'Arc Welder',d:'x5 money',cur:'a',cost:8,x:75,y:660,req:['t11']},
+  t15:{name:'Plasma Core',d:'Unlocks void',cur:'a',cost:20,x:50,y:770,req:['t13','t14']},
+  t16:{name:'Hollow',d:'x3 plasma',cur:'x',cost:2,x:30,y:880,req:['t15']},
+  t17:{name:'Singularity',d:'x10 money',cur:'x',cost:6,x:70,y:880,req:['t16']}
 };
-const REQ={p:1e9,i:1e4,c:100};
+// rebirth gain = (amount / requirement) ^ exponent x multipliers, so bigger runs pay off more than proportionally
+const REQ={p:1e9,i:1e4,c:100,a:200,x:100};
+const EXP={p:1.2,i:1.25,c:1.3,a:1.35,x:1.4};
+const UNL={c:'t7',a:'t11',x:'t15'};
+const gainOf=(k,have,mult)=>(!UNL[k]||has(UNL[k]))&&have>=REQ[k]?Math.floor(Math.pow(have/REQ[k],EXP[k])*mult()):0;
 const RB={
-  p:{id:'rebP',name:'Point rebirth',from:'money',unit:'points',txt:'money and its upgrades',have:()=>s.n,gain:()=>s.n>=REQ.p?Math.floor(Math.sqrt(s.n/REQ.p)*pointMult()):0},
-  i:{id:'rebI',name:'Iron rebirth',from:'points',unit:'iron',txt:'money, points and their upgrades',have:()=>s.p,gain:()=>s.p>=REQ.i?Math.floor(Math.sqrt(s.p/REQ.i)*ironMult()):0},
-  c:{id:'rebC',name:'Crystal rebirth',from:'iron',unit:'crystals',txt:'everything except crystal upgrades and the tree',have:()=>s.i,gain:()=>has('t7')&&s.i>=REQ.c?Math.floor(Math.sqrt(s.i/REQ.c)):0}
+  p:{id:'rebP',name:'Point rebirth',from:'money',unit:'points',txt:'money and its upgrades',have:()=>s.n,gain:()=>gainOf('p',s.n,pointMult)},
+  i:{id:'rebI',name:'Iron rebirth',from:'points',unit:'iron',txt:'money, points and their upgrades',have:()=>s.p,gain:()=>gainOf('i',s.p,ironMult)},
+  c:{id:'rebC',name:'Crystal rebirth',from:'iron',unit:'crystals',txt:'everything below crystals',have:()=>s.i,gain:()=>gainOf('c',s.i,crystalMult)},
+  a:{id:'rebA',name:'Plasma rebirth',from:'crystals',unit:'plasma',txt:'everything below plasma',have:()=>s.c,gain:()=>gainOf('a',s.c,plasmaMult)},
+  x:{id:'rebX',name:'Void rebirth',from:'plasma',unit:'void',txt:'everything below void',have:()=>s.a,gain:()=>gainOf('x',s.a,()=>1)}
 };
 const RS={
   p:{cur:['n'],lv:['m1','m2','m3']},
   i:{cur:['n','p'],lv:['m1','m2','m3','p1','p2']},
-  c:{cur:['n','p','i'],lv:['m1','m2','m3','p1','p2','i1','i2','i3']}
+  c:{cur:['n','p','i'],lv:['m1','m2','m3','p1','p2','i1','i2','i3']},
+  a:{cur:['n','p','i','c'],lv:['m1','m2','m3','p1','p2','i1','i2','i3','c1','c2']},
+  x:{cur:['n','p','i','c','a'],lv:['m1','m2','m3','p1','p2','i1','i2','i3','c1','c2','a1','a2']}
 };
 
-const fresh=()=>({v:2,n:0,p:0,i:0,c:0,l:Object.fromEntries(IDS.map(k=>[k,0])),tr:{},t:Date.now()});
+const fresh=()=>({v:3,n:0,p:0,i:0,c:0,a:0,x:0,l:Object.fromEntries(IDS.map(k=>[k,0])),tr:{},t:Date.now()});
 let s=fresh();
 const has=k=>!!s.tr[k];
 const L=k=>s.l[k];
 const pw=(b,k)=>Math.pow(b,L(k));
-const nps=()=>pw(2.25,'m1')*pw(2,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t8')?1+.5*s.c:1);
-const pointMult=()=>pw(1.5,'p2')*pw(2,'i2')*pw(2,'c2')*(has('t3')?1.5:1);
-const ironMult=()=>pw(1.5,'i3')*pw(2,'c2')*(has('t6')?2:1);
+const nps=()=>pw(2,'m1')*pw(2,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*pw(4,'a1')*pw(5,'x1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t12')?3:1)*(has('t14')?5:1)*(has('t17')?10:1)*(has('t8')?1+.5*s.c:1);
+const pointMult=()=>pw(1.5,'p2')*pw(2,'i2')*pw(2,'c2')*pw(2,'a2')*(has('t3')?1.5:1);
+const ironMult=()=>pw(1.5,'i3')*pw(2,'c2')*pw(2,'a2')*(has('t6')?2:1);
+const crystalMult=()=>pw(2,'a2')*(has('t10')?2:1);
+const plasmaMult=()=>pw(2,'x2')*(has('t13')?2:1)*(has('t16')?3:1);
 const cost=k=>U[k].base*Math.pow(U[k].cm,L(k));
 const maxed=k=>L(k)>=U[k].max;
 const unlocked=k=>!U[k].need||has(U[k].need);
 
 // ---- UI ----
 const $=id=>document.getElementById(id);
-const COL={n:'var(--n)',p:'var(--p)',i:'var(--i)',c:'var(--k)'};
+const COL={n:'var(--n)',p:'var(--p)',i:'var(--i)',c:'var(--k)',a:'var(--a)',x:'var(--x)'};
 const ico=c=>'<svg class="mi"><use href="#i-'+c+'"/></svg>';
 const bar=p=>'<span class="bar"><i style="width:'+Math.max(0,Math.min(100,p))+'%"></i></span>';
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -268,9 +302,10 @@ const btn={},nb={};
 IDS.forEach(k=>{const b=document.createElement('button');b.onclick=()=>buy(k);$('g-'+U[k].g).appendChild(b);btn[k]=b;});
 
 const tree=$('tree');
+const TH=Math.max(...Object.values(T).map(n=>n.y))+90;tree.style.height=TH+'px';
 let lines='';
 Object.keys(T).forEach(k=>T[k].req.forEach(r=>{lines+='<line id="ln-'+k+'-'+r+'" x1="'+T[r].x+'" y1="'+(T[r].y+74)+'" x2="'+T[k].x+'" y2="'+T[k].y+'" vector-effect="non-scaling-stroke"/>';}));
-tree.innerHTML='<svg class="links" viewBox="0 0 100 520" preserveAspectRatio="none">'+lines+'</svg>';
+tree.innerHTML='<svg class="links" viewBox="0 0 100 '+TH+'" preserveAspectRatio="none">'+lines+'</svg>';
 Object.keys(T).forEach(k=>{
   const b=document.createElement('button');
   b.style.left='calc('+T[k].x+'% - 70px)';b.style.top=T[k].y+'px';
@@ -316,10 +351,11 @@ $('gain').onclick=e=>{
 $('rebP').onclick=()=>rebirth('p');
 $('rebI').onclick=()=>rebirth('i');
 $('rebC').onclick=()=>rebirth('c');
+$('rebA').onclick=()=>rebirth('a');
+$('rebX').onclick=()=>rebirth('x');
 
 function render(){
-  ['n','p','i','c'].forEach(c=>$(c).firstElementChild.textContent=fmt(s[c]));
-  $('c').classList.toggle('hide',!has('t7')&&!s.c);
+  ['n','p','i','c','a','x'].forEach(c=>{$(c).firstElementChild.textContent=fmt(s[c]);if(UNL[c])$(c).classList.toggle('hide',!has(UNL[c])&&!s[c]);});
   $('rate').textContent=fmt(nps())+' money per second';
   $('gain').innerHTML=ico('n')+' <span class="nm">Gain money</span><small>+'+fmt(Math.max(1,nps()*.1))+'</small>';
   $('gain').style.setProperty('--c',COL.n);
@@ -328,8 +364,7 @@ function render(){
     b.disabled=!g;b.classList.toggle('can',!!g);b.style.setProperty('--c',COL[k]);
     b.innerHTML=ico(k)+' <span class="nm">'+r.name+'</span><small>'+(g?'Gain '+fmt(g)+' '+r.unit:'Need '+fmt(REQ[k])+' '+r.from)+' (resets '+r.txt+')</small>'+bar(Math.log10(r.have()+1)/Math.log10(REQ[k])*100);
   }
-  $('rebC').classList.toggle('hide',!has('t7'));
-  $('h-c').classList.toggle('hide',!has('t7'));
+  for(const c in UNL){$(RB[c].id).classList.toggle('hide',!has(UNL[c]));$('h-'+c).classList.toggle('hide',!has(UNL[c]));}
   IDS.forEach(k=>{
     const u=U[k],b=btn[k],mx=maxed(k),can=!mx&&s[u.g]>=cost(k);
     b.classList.toggle('hide',!unlocked(k));b.style.setProperty('--c',COL[u.g]);
@@ -386,9 +421,9 @@ async function load(){
   s=fresh();
   if(raw){
     const d=typeof raw==='string'?JSON.parse(raw):raw;
-    if(d.v!==2){status('That save is from the old version, so you are starting fresh.');}
+    if(d.v!==3){status('That save is from the old version, so you are starting fresh.');}
     else{
-      s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.c=+d.c||0;s.tr=d.tr||{};s.t=d.t||Date.now();
+      s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.c=+d.c||0;s.a=+d.a||0;s.x=+d.x||0;s.tr=d.tr||{};s.t=d.t||Date.now();
       IDS.forEach(k=>s.l[k]=Math.min(U[k].max,(d.l&&d.l[k])|0));
       const away=Math.min(Math.max((Date.now()-s.t)/1000,0),3600);
       s.n+=nps()*away;
