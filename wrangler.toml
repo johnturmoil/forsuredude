@@ -1,5 +1,5 @@
 name = "moonscripts-games"
-main = "src/worker.js"          # path to the Worker file you pasted
+main = "worker.js"          # path to the Worker file you pasted
 compatibility_date = "2025-01-01"
 
 [assets]
