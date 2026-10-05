@@ -45,9 +45,57 @@ label{color:var(--mu);font-size:.85rem;font-weight:300;display:flex;align-items:
 #status{color:var(--subtle);font-size:.8rem;margin-top:1rem;text-align:center}
 @media(max-width:600px){.stats{grid-template-columns:1fr}.page{padding:40px 1rem 2rem}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;opacity:1!important}}
+
+:root{--n:#6aa6ff;--p:#7be0a4;--i:#f0a35e}
+#n{--c:var(--n)}#p{--c:var(--p)}#i{--c:var(--i)}
+.stat{position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--c);box-shadow:0 0 14px var(--c)}
+.stat b{color:var(--c);text-shadow:0 0 20px color-mix(in srgb,var(--c) 55%,transparent)}
+.hero-title span:first-child{display:block;background:linear-gradient(90deg,#fff 0%,#6aa6ff 35%,#7be0a4 55%,#f0a35e 75%,#fff 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite}
+@keyframes shine{to{background-position:-250% 0}}
+button.can{border-color:color-mix(in srgb,var(--c) 55%,transparent);box-shadow:0 0 22px -8px var(--c)}
+button.done:disabled{opacity:.7}
+button.big.can{animation:ready 2s ease-in-out infinite}
+@keyframes ready{50%{box-shadow:0 0 30px -2px var(--c);border-color:var(--c)}}
+.bar{display:block;height:3px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:.75rem;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c,#fff);box-shadow:0 0 8px var(--c,#fff);transition:width .3s}
+#gain .nm{font-size:1.9rem}
+.pop{position:fixed;pointer-events:none;z-index:5;font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--n);text-shadow:0 0 14px var(--n);animation:pop .9s ease-out forwards}
+@keyframes pop{to{transform:translateY(-60px);opacity:0}}
+
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.22;animation:drift 22s ease-in-out infinite alternate}
+.aurora i:nth-child(1){background:var(--n);top:-20vmax;left:-15vmax}
+.aurora i:nth-child(2){background:var(--p);bottom:-25vmax;right:-15vmax;animation-duration:28s;animation-delay:-8s}
+.aurora i:nth-child(3){background:var(--i);top:30%;left:45%;opacity:.12;animation-delay:-14s}
+@keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+button,.stat{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+button{position:relative;overflow:hidden}
+button::after{content:'';position:absolute;inset:0;background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.1),transparent 70%);opacity:0;transition:opacity .25s;pointer-events:none}
+button:hover:not(:disabled)::after{opacity:1}
+button.bump{animation:bump .25s ease-out}
+@keyframes bump{50%{transform:scale(.95)}}
+.spark{position:fixed;width:5px;height:5px;border-radius:50%;pointer-events:none;z-index:5;animation:spark .6s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+.ring{position:fixed;top:50%;left:50%;width:40px;height:40px;margin:-20px;border:2px solid var(--c);border-radius:50%;box-shadow:0 0 30px var(--c);pointer-events:none;z-index:6;animation:ring 1s ease-out forwards}
+@keyframes ring{to{transform:scale(60);opacity:0}}
+.flash{position:fixed;inset:0;background:var(--c);opacity:.18;pointer-events:none;z-index:6;animation:fl .6s ease-out forwards}
+@keyframes fl{to{opacity:0}}
+
+.stat{padding-right:4.5rem}
+.ic{position:absolute;right:1.1rem;top:50%;width:46px;height:46px;margin-top:-23px;color:var(--c);filter:drop-shadow(0 0 8px var(--c));animation:float 4s ease-in-out infinite alternate}
+@keyframes float{to{transform:translateY(-5px) rotate(4deg)}}
+.mi{width:1.1em;height:1.1em;vertical-align:-.2em;color:var(--c)}
+.big .mi{width:1.7rem;height:1.7rem;vertical-align:-.35rem;margin-right:.15rem}
 </style>
 </head>
 <body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0">
+<symbol id="i-n" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".4"/><path d="M14.6 9.4c-.5-.8-1.4-1.2-2.6-1.2-1.4 0-2.5.7-2.5 1.8 0 2.4 5.2 1.2 5.2 3.8 0 1.1-1.1 1.9-2.7 1.9-1.2 0-2.2-.5-2.7-1.4M12 6.6v1.6M12 15.8v1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-p" viewBox="0 0 24 24"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
+<symbol id="i-i" viewBox="0 0 24 24"><path d="M12 2.5l8 4.5v10l-8 4.5-8-4.5V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.5v6.3M4 7l5.3 3.1M20 7l-5.3 3.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".45"/></symbol>
+</svg>
+<div class="aurora"><i></i><i></i><i></i></div>
 <svg id="starfield" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
 <div class="page">
 <section class="hero">
@@ -59,9 +107,9 @@ label{color:var(--mu);font-size:.85rem;font-weight:300;display:flex;align-items:
 <div class="divider"></div>
 
 <div class="stats">
-  <div class="stat" id="n"><b>0</b><span>Money</span></div>
-  <div class="stat" id="p"><b>0</b><span>Points</span></div>
-  <div class="stat" id="i"><b>0</b><span>Iron</span></div>
+  <div class="stat" id="n"><b>0</b><span>Money</span><svg class="ic" aria-hidden="true"><use href="#i-n"/></svg></div>
+  <div class="stat" id="p"><b>0</b><span>Points</span><svg class="ic" aria-hidden="true"><use href="#i-p"/></svg></div>
+  <div class="stat" id="i"><b>0</b><span>Iron</span><svg class="ic" aria-hidden="true"><use href="#i-i"/></svg></div>
 </div>
 <div id="rate" style="color:var(--mu);margin-top:6px"></div>
 
@@ -152,43 +200,70 @@ IDS.forEach(k=>{
 });
 
 function buy(k){
-  let guard=0;
+  let guard=0;const before=s.l[k];
   do{
     if(maxed(k)||s[U[k].cur]<cost(k))break;
     s[U[k].cur]-=cost(k);s.l[k]++;
   }while($('max').checked&&++guard<1000);
   render();
+  if(s.l[k]>before&&!calm){const b=btn[k];b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
 }
-$('gain').onclick=()=>{s.n+=Math.max(1,nps());render();};
+$('gain').onclick=e=>{
+  const g=Math.max(1,nps());s.n+=g;render();
+  const d=document.createElement('div');d.className='pop';d.textContent='+'+fmt(g);
+  d.style.left=(e.clientX-20)+'px';d.style.top=(e.clientY-24)+'px';
+  document.body.appendChild(d);setTimeout(()=>d.remove(),900);
+  sparks(e.clientX,e.clientY,'#6aa6ff');
+};
 $('rebP').onclick=()=>{
   const g=pointGain();if(!g)return;
-  s.p+=g;s.n=0;['m1','m2','m3'].forEach(k=>s.l[k]=0);
+  s.p+=g;s.n=0;['m1','m2','m3'].forEach(k=>s.l[k]=0);wave('#7be0a4');
   render();save();
 };
 $('rebI').onclick=()=>{
   const g=ironGain();if(!g)return;
   s.i+=g;s.n=0;s.p=0;
-  ['m1','m2','m3','p1','p2'].forEach(k=>s.l[k]=0);
+  ['m1','m2','m3','p1','p2'].forEach(k=>s.l[k]=0);wave('#f0a35e');
   render();save();
 };
 
+const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sparks(x,y,col){
+  if(calm)return;
+  for(let k=0;k<10;k++){
+    const d=document.createElement('div'),a=Math.random()*6.28,r=30+Math.random()*50;
+    d.className='spark';
+    d.style.cssText='left:'+x+'px;top:'+y+'px;--dx:'+Math.cos(a)*r+'px;--dy:'+Math.sin(a)*r+'px;background:'+col+';box-shadow:0 0 8px '+col;
+    document.body.appendChild(d);setTimeout(()=>d.remove(),600);
+  }
+}
+function wave(col){
+  if(calm)return;
+  ['ring','flash'].forEach(c=>{const d=document.createElement('div');d.className=c;d.style.setProperty('--c',col);document.body.appendChild(d);setTimeout(()=>d.remove(),1000);});
+}
+document.addEventListener('pointermove',e=>{
+  const b=e.target.closest&&e.target.closest('button');
+  if(b){const r=b.getBoundingClientRect();b.style.setProperty('--mx',(e.clientX-r.left)+'px');b.style.setProperty('--my',(e.clientY-r.top)+'px');}
+});
+const CC={n:'var(--n)',p:'var(--p)',i:'var(--i)'};
+const bar=p=>'<span class="bar"><i style="width:'+Math.max(0,Math.min(100,p))+'%"></i></span>';
 function render(){
   $('n').firstElementChild.textContent=fmt(s.n);
   $('p').firstElementChild.textContent=fmt(s.p);
   $('i').firstElementChild.textContent=fmt(s.i);
   $('rate').textContent=fmt(nps())+' money per second';
-  $('gain').innerHTML='<span class="nm">Gain money</span><small>+'+fmt(Math.max(1,nps()))+'</small>';
+  $('gain').innerHTML='<svg class="mi"><use href="#i-n"/></svg> <span class="nm">Gain money</span><small>+'+fmt(Math.max(1,nps()))+'</small>';
   const pg=pointGain(),ig=ironGain();
-  $('rebP').disabled=!pg;
-  $('rebP').innerHTML='<span class="nm">Point rebirth</span><small>'+(pg?'Gain '+fmt(pg)+' points':'Need 1.00Sp money')+' (resets money and its upgrades)</small>';
-  $('rebI').disabled=!ig;
-  $('rebI').innerHTML='<span class="nm">Iron rebirth</span><small>'+(ig?'Gain '+fmt(ig)+' iron':'Need 1.00Qd points')+' (resets points and points upgrades)</small>';
+  $('rebP').disabled=!pg;$('rebP').classList.toggle('can',!!pg);$('rebP').style.setProperty('--c','var(--p)');
+  $('rebP').innerHTML='<svg class="mi"><use href="#i-p"/></svg> <span class="nm">Point rebirth</span><small>'+(pg?'Gain '+fmt(pg)+' points':'Need 1.00Sp money')+' (resets money and its upgrades)</small>'+bar(s.n/POINT_COST*100);
+  $('rebI').disabled=!ig;$('rebI').classList.toggle('can',!!ig);$('rebI').style.setProperty('--c','var(--i)');$('gain').style.setProperty('--c','var(--n)');
+  $('rebI').innerHTML='<svg class="mi"><use href="#i-i"/></svg> <span class="nm">Iron rebirth</span><small>'+(ig?'Gain '+fmt(ig)+' iron':'Need 1.00Qd points')+' (resets points and points upgrades)</small>'+bar(s.p/IRON_COST*100);
   IDS.forEach(k=>{
     const u=U[k],b=btn[k];
-    b.classList.toggle('hide',!unlocked(k));
+    b.classList.toggle('hide',!unlocked(k));b.style.setProperty('--c',CC[u.cur]);b.classList.toggle('can',!maxed(k)&&s[u.cur]>=cost(k));b.classList.toggle('done',maxed(k));
     const lv=L(k)+'/'+u.max;
-    if(maxed(k)){b.disabled=true;b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level - MAXED</small>';}
-    else{b.disabled=s[u.cur]<cost(k);b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level<br>Cost: '+fmt(cost(k))+'</small>';}
+    if(maxed(k)){b.disabled=true;b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level - MAXED</small>'+bar(100);}
+    else{b.disabled=s[u.cur]<cost(k);b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level<br>Cost: <svg class="mi"><use href="#i-'+u.cur+'"/></svg> '+fmt(cost(k))+'</small>'+bar(L(k)/u.max*100);}
   });
 }
 
