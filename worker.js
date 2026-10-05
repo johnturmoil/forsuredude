@@ -232,7 +232,7 @@ async function readJson(request) {
   const text = await request.text();
 
   if (text.length > MAX_SAVE_SIZE) {
-    throw new Error("Request too large");
+    throw new Error("wow too large");
   }
 
   try {
