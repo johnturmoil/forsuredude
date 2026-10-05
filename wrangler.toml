@@ -1,0 +1,8 @@
+name = "moonscripts-games"
+main = "src/worker.js"          # path to the Worker file you pasted
+compatibility_date = "2025-01-01"
+
+[assets]
+directory = "./public"          # folder containing index.html
+binding = "ASSETS"
+run_worker_first = ["/api/*"]   # send /api/* to the Worker before static assets
