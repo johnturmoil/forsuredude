@@ -190,7 +190,7 @@ function fmt(n){
 
 // g = currency it costs (n money, p points, i iron, c crystals). cm = cost multiplier, em = effect multiplier. need = tech tree node
 const U={
-  m1:{g:'n',name:'Money Press',base:10,cm:1.6,em:1.5,max:40,txt:'x1.5 money'},
+  m1:{g:'n',name:'Money Press',base:10,cm:3,em:2.25,max:40,txt:'x2.25 money'},
   m2:{g:'n',name:'Money Factory',base:2e4,cm:2.2,em:2,max:30,txt:'x2 money'},
   m3:{g:'n',name:'Money Reactor',base:5e11,cm:3.2,em:3,max:25,txt:'x3 money',need:'t2'},
   p1:{g:'p',name:'Money Boost',base:1,cm:2,em:2,max:20,txt:'x2 money'},
@@ -231,7 +231,7 @@ let s=fresh();
 const has=k=>!!s.tr[k];
 const L=k=>s.l[k];
 const pw=(b,k)=>Math.pow(b,L(k));
-const nps=()=>pw(1.5,'m1')*pw(2,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t8')?1+.5*s.c:1);
+const nps=()=>pw(2.25,'m1')*pw(2,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t8')?1+.5*s.c:1);
 const pointMult=()=>pw(1.5,'p2')*pw(2,'i2')*pw(2,'c2')*(has('t3')?1.5:1);
 const ironMult=()=>pw(1.5,'i3')*pw(2,'c2')*(has('t6')?2:1);
 const cost=k=>U[k].base*Math.pow(U[k].cm,L(k));
