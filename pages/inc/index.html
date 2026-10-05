@@ -87,6 +87,24 @@ button.bump{animation:bump .25s ease-out}
 @keyframes float{to{transform:translateY(-5px) rotate(4deg)}}
 .mi{width:1.1em;height:1.1em;vertical-align:-.2em;color:var(--c)}
 .big .mi{width:1.7rem;height:1.7rem;vertical-align:-.35rem;margin-right:.15rem}
+
+:root{--k:#c58bff}
+#c{--c:var(--k)}
+.stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+#treewrap{overflow-x:auto;padding-bottom:.5rem}
+#tree{position:relative;height:520px;min-width:760px}
+.links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.links line{stroke:rgba(255,255,255,.12);stroke-width:2}
+.links line.on{stroke:rgba(255,255,255,.7);filter:drop-shadow(0 0 4px #fff)}
+.node{position:absolute;width:140px;min-height:74px;padding:.7rem .8rem;border-radius:14px;text-align:center;z-index:1}
+.node .nm{font-size:1.15rem}
+.node.lock{opacity:.35}
+.node.av:not(.can){opacity:.75}
+.node.can{animation:ready 2s ease-in-out infinite}
+.node.own{border-color:var(--c);box-shadow:0 0 22px -6px var(--c),inset 0 0 18px -10px var(--c)}
+.node.own:disabled{opacity:1}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
 </style>
 </head>
 <body>
@@ -94,6 +112,7 @@ button.bump{animation:bump .25s ease-out}
 <symbol id="i-n" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".4"/><path d="M14.6 9.4c-.5-.8-1.4-1.2-2.6-1.2-1.4 0-2.5.7-2.5 1.8 0 2.4 5.2 1.2 5.2 3.8 0 1.1-1.1 1.9-2.7 1.9-1.2 0-2.2-.5-2.7-1.4M12 6.6v1.6M12 15.8v1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-p" viewBox="0 0 24 24"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
 <symbol id="i-i" viewBox="0 0 24 24"><path d="M12 2.5l8 4.5v10l-8 4.5-8-4.5V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.5v6.3M4 7l5.3 3.1M20 7l-5.3 3.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".45"/></symbol>
+<symbol id="i-c" viewBox="0 0 24 24"><path d="M7 3h10l4.5 6L12 21.5 2.5 9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity=".15"/><path d="M2.5 9h19M9 9l3 12.5L15 9M9 9l-2-6M15 9l2-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".5"/></symbol>
 </svg>
 <div class="aurora"><i></i><i></i><i></i></div>
 <svg id="starfield" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
@@ -102,7 +121,7 @@ button.bump{animation:bump .25s ease-out}
   <div class="hero-glow"></div>
   <div class="hero-badge"><span class="badge-dot"></span>Idle game</div>
   <h1 class="hero-title"><span>Basic</span><span class="ghost">Incremental</span></h1>
-  <p class="hero-desc">Earn money, rebirth for points, then rebirth again for iron.</p>
+  <p class="hero-desc">Earn money, rebirth up the chain to iron and crystals, and grow your tech tree.</p>
 </section>
 <div class="divider"></div>
 
@@ -110,6 +129,7 @@ button.bump{animation:bump .25s ease-out}
   <div class="stat" id="n"><b>0</b><span>Money</span><svg class="ic" aria-hidden="true"><use href="#i-n"/></svg></div>
   <div class="stat" id="p"><b>0</b><span>Points</span><svg class="ic" aria-hidden="true"><use href="#i-p"/></svg></div>
   <div class="stat" id="i"><b>0</b><span>Iron</span><svg class="ic" aria-hidden="true"><use href="#i-i"/></svg></div>
+  <div class="stat hide" id="c"><b>0</b><span>Crystals</span><svg class="ic" aria-hidden="true"><use href="#i-c"/></svg></div>
 </div>
 <div id="rate" style="color:var(--mu);margin-top:6px"></div>
 
@@ -117,14 +137,21 @@ button.bump{animation:bump .25s ease-out}
   <button class="big" id="gain">Gain money</button>
   <button class="big" id="rebP"></button>
   <button class="big" id="rebI"></button>
+  <button class="big hide" id="rebC"></button>
 </div>
 
+<h2>Tech tree</h2>
+<div id="treewrap"><div id="tree"></div></div>
+
 <h2>Money upgrades (cost money)</h2>
-<div class="grid" id="g-m"></div>
+<div class="grid" id="g-n"></div>
 <h2>Points upgrades (cost points)</h2>
 <div class="grid" id="g-p"></div>
 <h2>Iron upgrades (cost iron)</h2>
 <div class="grid" id="g-i"></div>
+
+<h2 id="h-c" class="hide">Crystal upgrades (cost crystals)</h2>
+<div class="grid" id="g-c"></div>
 
 <h2>Save</h2>
 <div class="row" style="align-items:center">
@@ -150,7 +177,6 @@ button.bump{animation:bump .25s ease-out}
   }
 })();
 // ---- NEON SETUP: paste your connection string between the quotes ----
-// Example: "postgresql://user:password@ep-xxxx.eu-west-2.aws.neon.tech/neondb?sslmode=require"
 const NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_otm8PDZhs5xf@ep-rough-waterfall-b4rd9i9g-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 const SUF=["","K","M","B","T","Qd","Qn","Sx","Sp","Oc","No","Dc","UDc","DDc","TDc","QdDc","QnDc","SxDc","SpDc","OcDc","NoDc","Vg","UVg","DVg","TVg","QdVg","QnVg","SxVg","SpVg","OcVg","NoVg","Tg","UTg","DTg","TTg","QdTg","QnTg","SxTg","SpTg","OcTg","NoTg","Qag"];
@@ -162,76 +188,67 @@ function fmt(n){
   return (n/Math.pow(10,3*k)).toFixed(2)+SUF[k];
 }
 
-// base = first cost, cm = cost multiplier per level, em = effect multiplier per level
+// g = currency it costs (n money, p points, i iron, c crystals). cm = cost multiplier, em = effect multiplier. need = tech tree node
 const U={
-  m1:{g:'m',cur:'n',name:'Money Upgrade 1',base:3,cm:3.0075,em:3,max:50,txt:'x3 money'},
-  m2:{g:'m',cur:'n',name:'Money Upgrade 2',base:1e11,cm:2.6,em:2,max:140,txt:'x2 money'},
-  m3:{g:'m',cur:'n',name:'Money Upgrade 3',base:1e70,cm:4,em:3,max:20,txt:'x3 money',need:'m2'},
-  p1:{g:'p',cur:'p',name:'Money Boost',base:1,cm:4,em:3,max:25,txt:'x3 money'},
-  p2:{g:'p',cur:'p',name:'Point Boost',base:5,cm:6,em:2,max:25,txt:'x2 points'},
-  i1:{g:'i',cur:'i',name:'Iron Money Boost',base:1,cm:3,em:10,max:15,txt:'x10 money'},
-  i2:{g:'i',cur:'i',name:'Iron Point Boost',base:2,cm:4,em:2.5,max:15,txt:'x2.5 points'},
-  i3:{g:'i',cur:'i',name:'Iron Mix Boost',base:5,cm:6,em:1.5,max:15,txt:'x1.5 iron and x2 points'}
+  m1:{g:'n',name:'Money Press',base:10,cm:1.6,em:1.5,max:40,txt:'x1.5 money'},
+  m2:{g:'n',name:'Money Factory',base:2e4,cm:2.2,em:2,max:30,txt:'x2 money'},
+  m3:{g:'n',name:'Money Reactor',base:5e11,cm:3.2,em:3,max:25,txt:'x3 money',need:'t2'},
+  p1:{g:'p',name:'Money Boost',base:1,cm:2,em:2,max:20,txt:'x2 money'},
+  p2:{g:'p',name:'Point Boost',base:3,cm:2.5,em:1.5,max:15,txt:'x1.5 points'},
+  i1:{g:'i',name:'Iron Money Boost',base:2,cm:2.5,em:3,max:12,txt:'x3 money'},
+  i2:{g:'i',name:'Iron Point Boost',base:4,cm:3,em:2,max:10,txt:'x2 points'},
+  i3:{g:'i',name:'Iron Yield',base:10,cm:3.5,em:1.5,max:8,txt:'x1.5 iron',need:'t4'},
+  c1:{g:'c',name:'Crystal Core',base:1,cm:2.5,em:3,max:10,txt:'x3 money',need:'t7'},
+  c2:{g:'c',name:'Crystal Yield',base:2,cm:3,em:2,max:8,txt:'x2 points and iron',need:'t7'}
 };
 const IDS=Object.keys(U);
-const POINT_COST=1e24, IRON_COST=1e15;
+// tech tree: permanent, never reset. x = percent across, y = pixels down
+const T={
+  t1:{name:'Spark',d:'x2 money',cur:'p',cost:3,x:50,y:0,req:[]},
+  t2:{name:'Reactor Plans',d:'Unlocks Money Reactor',cur:'p',cost:40,x:25,y:110,req:['t1']},
+  t3:{name:'Refinery',d:'x1.5 points',cur:'p',cost:100,x:75,y:110,req:['t1']},
+  t4:{name:'Forge',d:'Unlocks Iron Yield',cur:'i',cost:3,x:50,y:220,req:['t3']},
+  t5:{name:'Auto Press',d:'Auto-buys money upgrades',cur:'i',cost:8,x:16,y:220,req:['t2']},
+  t6:{name:'Deep Veins',d:'x2 iron',cur:'i',cost:20,x:84,y:220,req:['t3']},
+  t7:{name:'Crystal Lattice',d:'Unlocks crystals',cur:'i',cost:60,x:50,y:330,req:['t5','t6']},
+  t8:{name:'Resonance',d:'+50% money per crystal',cur:'c',cost:2,x:30,y:440,req:['t7']},
+  t9:{name:'Overclock',d:'x4 money',cur:'c',cost:8,x:70,y:440,req:['t8']}
+};
+const REQ={p:1e9,i:1e4,c:100};
+const RB={
+  p:{id:'rebP',name:'Point rebirth',from:'money',unit:'points',txt:'money and its upgrades',have:()=>s.n,gain:()=>s.n>=REQ.p?Math.floor(Math.sqrt(s.n/REQ.p)*pointMult()):0},
+  i:{id:'rebI',name:'Iron rebirth',from:'points',unit:'iron',txt:'money, points and their upgrades',have:()=>s.p,gain:()=>s.p>=REQ.i?Math.floor(Math.sqrt(s.p/REQ.i)*ironMult()):0},
+  c:{id:'rebC',name:'Crystal rebirth',from:'iron',unit:'crystals',txt:'everything except crystal upgrades and the tree',have:()=>s.i,gain:()=>has('t7')&&s.i>=REQ.c?Math.floor(Math.sqrt(s.i/REQ.c)):0}
+};
+const RS={
+  p:{cur:['n'],lv:['m1','m2','m3']},
+  i:{cur:['n','p'],lv:['m1','m2','m3','p1','p2']},
+  c:{cur:['n','p','i'],lv:['m1','m2','m3','p1','p2','i1','i2','i3']}
+};
 
-const fresh=()=>({n:0,p:0,i:0,l:Object.fromEntries(IDS.map(k=>[k,0])),t:Date.now()});
+const fresh=()=>({v:2,n:0,p:0,i:0,c:0,l:Object.fromEntries(IDS.map(k=>[k,0])),tr:{},t:Date.now()});
 let s=fresh();
-
+const has=k=>!!s.tr[k];
 const L=k=>s.l[k];
-const nps=()=>Math.pow(3,L('m1'))*Math.pow(2,L('m2'))*Math.pow(3,L('m3'))*Math.pow(3,L('p1'))*Math.pow(10,L('i1'));
-const pointMult=()=>Math.pow(2,L('p2'))*Math.pow(2.5,L('i2'))*Math.pow(2,L('i3'));
-const ironMult=()=>Math.pow(1.5,L('i3'));
+const pw=(b,k)=>Math.pow(b,L(k));
+const nps=()=>pw(1.5,'m1')*pw(2,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t8')?1+.5*s.c:1);
+const pointMult=()=>pw(1.5,'p2')*pw(2,'i2')*pw(2,'c2')*(has('t3')?1.5:1);
+const ironMult=()=>pw(1.5,'i3')*pw(2,'c2')*(has('t6')?2:1);
 const cost=k=>U[k].base*Math.pow(U[k].cm,L(k));
 const maxed=k=>L(k)>=U[k].max;
-const unlocked=k=>!U[k].need||maxed(U[k].need);
-const pointGain=()=>s.n>=POINT_COST?Math.floor(s.n/POINT_COST*pointMult()):0;
-const ironGain=()=>s.p>=IRON_COST?Math.floor(s.p/IRON_COST*ironMult()):0;
+const unlocked=k=>!U[k].need||has(U[k].need);
 
-// ---- build UI ----
+// ---- UI ----
 const $=id=>document.getElementById(id);
-const btn={};
-IDS.forEach(k=>{
-  const b=document.createElement('button');
-  b.onclick=()=>buy(k);
-  $('g-'+U[k].g).appendChild(b);
-  btn[k]=b;
-});
-
-function buy(k){
-  let guard=0;const before=s.l[k];
-  do{
-    if(maxed(k)||s[U[k].cur]<cost(k))break;
-    s[U[k].cur]-=cost(k);s.l[k]++;
-  }while($('max').checked&&++guard<1000);
-  render();
-  if(s.l[k]>before&&!calm){const b=btn[k];b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
-}
-$('gain').onclick=e=>{
-  const g=Math.max(1,nps());s.n+=g;render();
-  const d=document.createElement('div');d.className='pop';d.textContent='+'+fmt(g);
-  d.style.left=(e.clientX-20)+'px';d.style.top=(e.clientY-24)+'px';
-  document.body.appendChild(d);setTimeout(()=>d.remove(),900);
-  sparks(e.clientX,e.clientY,'#6aa6ff');
-};
-$('rebP').onclick=()=>{
-  const g=pointGain();if(!g)return;
-  s.p+=g;s.n=0;['m1','m2','m3'].forEach(k=>s.l[k]=0);wave('#7be0a4');
-  render();save();
-};
-$('rebI').onclick=()=>{
-  const g=ironGain();if(!g)return;
-  s.i+=g;s.n=0;s.p=0;
-  ['m1','m2','m3','p1','p2'].forEach(k=>s.l[k]=0);wave('#f0a35e');
-  render();save();
-};
-
+const COL={n:'var(--n)',p:'var(--p)',i:'var(--i)',c:'var(--k)'};
+const ico=c=>'<svg class="mi"><use href="#i-'+c+'"/></svg>';
+const bar=p=>'<span class="bar"><i style="width:'+Math.max(0,Math.min(100,p))+'%"></i></span>';
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function sparks(x,y,col){
   if(calm)return;
-  for(let k=0;k<10;k++){
-    const d=document.createElement('div'),a=Math.random()*6.28,r=30+Math.random()*50;
+  for(let k=0;k<12;k++){
+    const d=document.createElement('div'),a=Math.random()*6.28,r=30+Math.random()*60;
     d.className='spark';
     d.style.cssText='left:'+x+'px;top:'+y+'px;--dx:'+Math.cos(a)*r+'px;--dy:'+Math.sin(a)*r+'px;background:'+col+';box-shadow:0 0 8px '+col;
     document.body.appendChild(d);setTimeout(()=>d.remove(),600);
@@ -240,31 +257,92 @@ function sparks(x,y,col){
 function wave(col){
   if(calm)return;
   ['ring','flash'].forEach(c=>{const d=document.createElement('div');d.className=c;d.style.setProperty('--c',col);document.body.appendChild(d);setTimeout(()=>d.remove(),1000);});
+  const pg=document.querySelector('.page');pg.classList.remove('shake');void pg.offsetWidth;pg.classList.add('shake');
 }
 document.addEventListener('pointermove',e=>{
   const b=e.target.closest&&e.target.closest('button');
   if(b){const r=b.getBoundingClientRect();b.style.setProperty('--mx',(e.clientX-r.left)+'px');b.style.setProperty('--my',(e.clientY-r.top)+'px');}
 });
-const CC={n:'var(--n)',p:'var(--p)',i:'var(--i)'};
-const bar=p=>'<span class="bar"><i style="width:'+Math.max(0,Math.min(100,p))+'%"></i></span>';
+
+const btn={},nb={};
+IDS.forEach(k=>{const b=document.createElement('button');b.onclick=()=>buy(k);$('g-'+U[k].g).appendChild(b);btn[k]=b;});
+
+const tree=$('tree');
+let lines='';
+Object.keys(T).forEach(k=>T[k].req.forEach(r=>{lines+='<line id="ln-'+k+'-'+r+'" x1="'+T[r].x+'" y1="'+(T[r].y+74)+'" x2="'+T[k].x+'" y2="'+T[k].y+'" vector-effect="non-scaling-stroke"/>';}));
+tree.innerHTML='<svg class="links" viewBox="0 0 100 520" preserveAspectRatio="none">'+lines+'</svg>';
+Object.keys(T).forEach(k=>{
+  const b=document.createElement('button');
+  b.style.left='calc('+T[k].x+'% - 70px)';b.style.top=T[k].y+'px';
+  b.onclick=()=>buyNode(k);tree.appendChild(b);nb[k]=b;
+});
+
+function purchase(k,all){
+  let c=0;
+  while(unlocked(k)&&!maxed(k)&&s[U[k].g]>=cost(k)){
+    s[U[k].g]-=cost(k);s.l[k]++;c++;
+    if(!all||c>=500)break;
+  }
+  return c;
+}
+function buy(k){
+  const c=purchase(k,$('max').checked);
+  render();
+  if(c&&!calm){const b=btn[k];b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
+}
+function buyNode(k){
+  const n=T[k];
+  if(has(k)||!n.req.every(has)||s[n.cur]<n.cost)return;
+  s[n.cur]-=n.cost;s.tr[k]=1;
+  render();
+  const r=nb[k].getBoundingClientRect();
+  sparks(r.left+70,r.top+37,COL[n.cur]);sparks(r.left+70,r.top+37,'#fff');
+  save();
+}
+function rebirth(kind){
+  const g=RB[kind].gain();if(!g)return;
+  RS[kind].cur.forEach(c=>s[c]=0);
+  RS[kind].lv.forEach(k=>s.l[k]=0);
+  s[kind]+=g;
+  wave(COL[kind]);render();save();
+}
+$('gain').onclick=e=>{
+  const g=Math.max(1,nps()*.1);s.n+=g;render();
+  const d=document.createElement('div');d.className='pop';d.textContent='+'+fmt(g);
+  d.style.left=(e.clientX-20)+'px';d.style.top=(e.clientY-24)+'px';
+  document.body.appendChild(d);setTimeout(()=>d.remove(),900);
+  sparks(e.clientX,e.clientY,'#6aa6ff');
+};
+$('rebP').onclick=()=>rebirth('p');
+$('rebI').onclick=()=>rebirth('i');
+$('rebC').onclick=()=>rebirth('c');
+
 function render(){
-  $('n').firstElementChild.textContent=fmt(s.n);
-  $('p').firstElementChild.textContent=fmt(s.p);
-  $('i').firstElementChild.textContent=fmt(s.i);
+  ['n','p','i','c'].forEach(c=>$(c).firstElementChild.textContent=fmt(s[c]));
+  $('c').classList.toggle('hide',!has('t7')&&!s.c);
   $('rate').textContent=fmt(nps())+' money per second';
-  $('gain').innerHTML='<svg class="mi"><use href="#i-n"/></svg> <span class="nm">Gain money</span><small>+'+fmt(Math.max(1,nps()))+'</small>';
-  const pg=pointGain(),ig=ironGain();
-  $('rebP').disabled=!pg;$('rebP').classList.toggle('can',!!pg);$('rebP').style.setProperty('--c','var(--p)');
-  $('rebP').innerHTML='<svg class="mi"><use href="#i-p"/></svg> <span class="nm">Point rebirth</span><small>'+(pg?'Gain '+fmt(pg)+' points':'Need 1.00Sp money')+' (resets money and its upgrades)</small>'+bar(s.n/POINT_COST*100);
-  $('rebI').disabled=!ig;$('rebI').classList.toggle('can',!!ig);$('rebI').style.setProperty('--c','var(--i)');$('gain').style.setProperty('--c','var(--n)');
-  $('rebI').innerHTML='<svg class="mi"><use href="#i-i"/></svg> <span class="nm">Iron rebirth</span><small>'+(ig?'Gain '+fmt(ig)+' iron':'Need 1.00Qd points')+' (resets points and points upgrades)</small>'+bar(s.p/IRON_COST*100);
+  $('gain').innerHTML=ico('n')+' <span class="nm">Gain money</span><small>+'+fmt(Math.max(1,nps()*.1))+'</small>';
+  $('gain').style.setProperty('--c',COL.n);
+  for(const k in RB){
+    const r=RB[k],b=$(r.id),g=r.gain();
+    b.disabled=!g;b.classList.toggle('can',!!g);b.style.setProperty('--c',COL[k]);
+    b.innerHTML=ico(k)+' <span class="nm">'+r.name+'</span><small>'+(g?'Gain '+fmt(g)+' '+r.unit:'Need '+fmt(REQ[k])+' '+r.from)+' (resets '+r.txt+')</small>'+bar(Math.log10(r.have()+1)/Math.log10(REQ[k])*100);
+  }
+  $('rebC').classList.toggle('hide',!has('t7'));
+  $('h-c').classList.toggle('hide',!has('t7'));
   IDS.forEach(k=>{
-    const u=U[k],b=btn[k];
-    b.classList.toggle('hide',!unlocked(k));b.style.setProperty('--c',CC[u.cur]);b.classList.toggle('can',!maxed(k)&&s[u.cur]>=cost(k));b.classList.toggle('done',maxed(k));
-    const lv=L(k)+'/'+u.max;
-    if(maxed(k)){b.disabled=true;b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level - MAXED</small>'+bar(100);}
-    else{b.disabled=s[u.cur]<cost(k);b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+lv+')</span><small>'+u.txt+' per level<br>Cost: <svg class="mi"><use href="#i-'+u.cur+'"/></svg> '+fmt(cost(k))+'</small>'+bar(L(k)/u.max*100);}
+    const u=U[k],b=btn[k],mx=maxed(k),can=!mx&&s[u.g]>=cost(k);
+    b.classList.toggle('hide',!unlocked(k));b.style.setProperty('--c',COL[u.g]);
+    b.classList.toggle('can',can);b.classList.toggle('done',mx);b.disabled=!can;
+    b.innerHTML='<span class="nm">'+u.name+'</span> <span class="lv">('+L(k)+'/'+u.max+')</span><small>'+u.txt+' per level'+(mx?' - MAXED':'<br>Cost: '+ico(u.g)+' '+fmt(cost(k)))+'</small>'+bar(L(k)/u.max*100);
   });
+  for(const k in T){
+    const n=T[k],b=nb[k],own=has(k),av=n.req.every(has),can=av&&!own&&s[n.cur]>=n.cost;
+    b.className='node'+(own?' own':av?' av':' lock')+(can?' can':'');
+    b.disabled=!can;b.style.setProperty('--c',COL[n.cur]);
+    b.innerHTML='<span class="nm">'+n.name+'</span><small>'+n.d+'</small><small>'+(own?'Unlocked':ico(n.cur)+' '+fmt(n.cost))+'</small>';
+    n.req.forEach(r=>$('ln-'+k+'-'+r).classList.toggle('on',has(r)));
+  }
 }
 
 // ---- saving: Neon over its HTTP SQL endpoint, with a local backup ----
@@ -308,10 +386,13 @@ async function load(){
   s=fresh();
   if(raw){
     const d=typeof raw==='string'?JSON.parse(raw):raw;
-    s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.t=d.t||Date.now();
-    IDS.forEach(k=>s.l[k]=Math.min(U[k].max,(d.l&&d.l[k])|0));
-    const away=Math.min(Math.max((Date.now()-s.t)/1000,0),3600); // up to 1 hour offline
-    s.n+=nps()*away;
+    if(d.v!==2){status('That save is from the old version, so you are starting fresh.');}
+    else{
+      s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.c=+d.c||0;s.tr=d.tr||{};s.t=d.t||Date.now();
+      IDS.forEach(k=>s.l[k]=Math.min(U[k].max,(d.l&&d.l[k])|0));
+      const away=Math.min(Math.max((Date.now()-s.t)/1000,0),3600);
+      s.n+=nps()*away;
+    }
   }
   render();
 }
@@ -319,6 +400,7 @@ $('save').onclick=save;
 $('load').onclick=load;
 
 setInterval(()=>{s.n+=nps()*0.1;if(!isFinite(s.n))s.n=1e300;render();},100);
+setInterval(()=>{if(has('t5'))['m1','m2','m3'].forEach(k=>purchase(k,true));},1000);
 setInterval(save,20000);
 addEventListener('beforeunload',save);
 load();
