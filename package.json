@@ -2,7 +2,14 @@
   "name": "moonscripts-games",
   "private": true,
   "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.0"
+    "@neondatabase/serverless": "^1.2.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.146.0"
   }
 }
