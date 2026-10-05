@@ -39,8 +39,8 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 .big{flex:1;min-width:180px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
 .hide{display:none}
-input[type=text]{font:inherit;background:var(--surface);color:var(--tx);border:1px solid var(--border);border-radius:16px;padding:.9rem 1.1rem;width:190px}
-input[type=text]:focus{outline:none;border-color:var(--border-hover)}
+input[type=text],input[type=password]{font:inherit;background:var(--surface);color:var(--tx);border:1px solid var(--border);border-radius:16px;padding:.9rem 1.1rem;width:190px}
+input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(--border-hover)}
 label{color:var(--mu);font-size:.85rem;font-weight:300;display:flex;align-items:center;gap:.5rem}
 #status{color:var(--subtle);font-size:.8rem;margin-top:1rem;text-align:center}
 @media(max-width:600px){.stats{grid-template-columns:1fr}.page{padding:40px 1rem 2rem}}
@@ -105,6 +105,35 @@ button.bump{animation:bump .25s ease-out}
 .node.own:disabled{opacity:1}
 .shake{animation:shake .4s}
 @keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+.maxwrap{display:flex;justify-content:center;margin-top:1rem}
+.maxbtn{display:inline-flex;align-items:center;gap:.8rem;border-radius:999px;padding:.55rem 1.2rem .55rem .9rem}
+.maxbtn .lbl{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.08em}
+.maxbtn .track{position:relative;width:48px;height:26px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--border);transition:.25s}
+.maxbtn .track::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;opacity:.6;transition:.25s}
+.maxbtn .st{font-size:.75rem;letter-spacing:.12em;color:var(--mu);min-width:2ch}
+.maxbtn[aria-pressed=true]{border-color:var(--n);box-shadow:0 0 26px -4px var(--n)}
+.maxbtn[aria-pressed=true] .track{background:var(--n);border-color:var(--n)}
+.maxbtn[aria-pressed=true] .track::after{transform:translateX(22px);opacity:1}
+.maxbtn[aria-pressed=true] .st{color:var(--n)}
+#auth{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(5,5,5,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#auth.hide{display:none}
+.authbox{width:100%;max-width:380px;background:#0d0d0f;border:1px solid var(--border);border-radius:20px;padding:1.6rem;display:flex;flex-direction:column;gap:.8rem;text-align:center}
+.authbox h2{margin:0}
+.authbox p{color:var(--mu);font-weight:300;font-size:.9rem}
+.authbox input{width:100%}
+.authbox .row{margin-top:0}
+.authbox .row button{flex:1;text-align:center}
+.ghost{text-align:center;color:var(--mu);font-size:.85rem;padding:.7rem}
+#authmsg{min-height:1.2em;color:#f87171;font-size:.85rem}
+
+.tabs{display:flex;gap:.3rem;padding:.3rem;border:1px solid var(--border);border-radius:999px}
+.tab{flex:1;text-align:center;border:0;border-radius:999px;background:transparent;padding:.5rem;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.06em;color:var(--mu);backdrop-filter:none}
+.tab:hover:not(:disabled){transform:none;background:rgba(255,255,255,.05)}
+.tab.on{background:rgba(255,255,255,.12);color:var(--tx)}
+.pane{display:flex;flex-direction:column;gap:.8rem}
+.pane.hide{display:none}
+.authbox .go{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.06em;border-color:var(--n);box-shadow:0 0 22px -8px var(--n)}
 </style>
 </head>
 <body>
@@ -136,6 +165,7 @@ button.bump{animation:bump .25s ease-out}
   <div class="stat hide" id="x"><b>0</b><span>Void</span><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></div>
 </div>
 <div id="rate" style="color:var(--mu);margin-top:6px"></div>
+<div class="maxwrap"><button id="maxbtn" class="maxbtn" aria-pressed="false"><svg class="mi" style="--c:var(--n)"><use href="#i-a"/></svg><span class="lbl">Buy max</span><span class="track"></span><span class="st">OFF</span></button></div>
 
 <div class="row">
   <button class="big" id="gain">Gain money</button>
@@ -165,16 +195,36 @@ button.bump{animation:bump .25s ease-out}
 <h2 id="h-x" class="hide">Void upgrades (cost void)</h2>
 <div class="grid" id="g-x"></div>
 
-<h2>Save</h2>
+<h2>Account</h2>
 <div class="row" style="align-items:center">
-  <input type="text" id="sid" aria-label="Save name" placeholder="Save name">
-  <button id="load">Load</button>
+  <span style="color:var(--mu)">Logged in as <b id="who" style="color:var(--tx)"></b></span>
   <button id="save">Save now</button>
-  <label><input type="checkbox" id="max"> Buy max</label>
+  <button id="out">Log out</button>
 </div>
 <div id="status"></div>
 
 </div>
+<div id="auth"><div class="authbox">
+  <div class="tabs" role="tablist">
+    <button id="tab-l" class="tab on" role="tab" aria-selected="true">Log in</button>
+    <button id="tab-r" class="tab" role="tab" aria-selected="false">Register</button>
+  </div>
+  <div id="pane-l" class="pane">
+    <p>Welcome back. Log in to load your progress.</p>
+    <input id="lu" type="text" placeholder="Username" autocomplete="username" maxlength="20">
+    <input id="lp" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="login" class="go">Log in</button>
+  </div>
+  <div id="pane-r" class="pane hide">
+    <p>Create an account to save your progress online.</p>
+    <input id="ru" type="text" placeholder="Choose a username" autocomplete="username" maxlength="20">
+    <input id="rp" type="password" placeholder="Choose a password (6+ characters)" autocomplete="new-password">
+    <input id="rp2" type="password" placeholder="Confirm password" autocomplete="new-password">
+    <button id="reg" class="go">Create account</button>
+  </div>
+  <button id="guest" class="ghost">Play as guest (saves on this device only)</button>
+  <div id="authmsg"></div>
+</div></div>
 <script>
 (function(){
   const svg=document.getElementById('starfield'),W=innerWidth,H=innerHeight,NS='http://www.w3.org/2000/svg';
@@ -202,9 +252,9 @@ function fmt(n){
 
 // g = currency it costs (n money, p points, i iron, c crystals). cm = cost multiplier, em = effect multiplier. need = tech tree node
 const U={
-  m1:{g:'n',name:'Money Press',base:10,cm:2.2,em:2,max:40,txt:'x2 money'},
-  m2:{g:'n',name:'Money Factory',base:2e4,cm:2.2,em:2,max:30,txt:'x2 money'},
-  m3:{g:'n',name:'Money Reactor',base:5e11,cm:3.2,em:3,max:25,txt:'x3 money',need:'t2'},
+  m1:{g:'n',name:'Money Press',base:10,cm:2.3,em:2,max:40,txt:'x2 money'},
+  m2:{g:'n',name:'Money Factory',base:2e4,cm:2.3,em:2.5,max:30,txt:'x2.5 money'},
+  m3:{g:'n',name:'Money Reactor',base:5e11,cm:3.3,em:3,max:25,txt:'x3 money',need:'t2'},
   p1:{g:'p',name:'Money Boost',base:1,cm:2,em:2,max:20,txt:'x2 money'},
   p2:{g:'p',name:'Point Boost',base:3,cm:2.5,em:1.5,max:15,txt:'x1.5 points'},
   i1:{g:'i',name:'Iron Money Boost',base:2,cm:2.5,em:3,max:12,txt:'x3 money'},
@@ -270,7 +320,7 @@ const has=k=>!!s.tr[k];
 const seen=c=>c==='n'||!!s.sn[c];
 const L=k=>s.l[k];
 const pw=(b,k)=>Math.pow(b,L(k));
-const nps=()=>pw(3,'m1')*pw(2,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*pw(4,'a1')*pw(5,'x1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t12')?3:1)*(has('t14')?5:1)*(has('t17')?10:1)*(has('t19')?25:1)*(has('t21')?50:1)*(has('t23')?100:1)*(has('t22')?1+.25*s.x:1)*(has('t8')?1+.5*s.c:1);
+const nps=()=>pw(2,'m1')*pw(2.5,'m2')*pw(3,'m3')*pw(2,'p1')*pw(3,'i1')*pw(3,'c1')*pw(4,'a1')*pw(5,'x1')*(has('t1')?2:1)*(has('t9')?4:1)*(has('t12')?3:1)*(has('t14')?5:1)*(has('t17')?10:1)*(has('t19')?25:1)*(has('t21')?50:1)*(has('t23')?100:1)*(has('t22')?1+.25*s.x:1)*(has('t8')?1+.5*s.c:1);
 const pointMult=()=>pw(1.5,'p2')*pw(2,'i2')*pw(2,'c2')*pw(2,'a2')*(has('t3')?1.5:1)*(has('t18')?2:1);
 const ironMult=()=>pw(1.5,'i3')*pw(2,'c2')*pw(2,'a2')*(has('t6')?2:1)*(has('t18')?2:1);
 const crystalMult=()=>pw(2,'a2')*(has('t10')?2:1)*(has('t18')?2:1);
@@ -328,7 +378,7 @@ function purchase(k,all){
   return c;
 }
 function buy(k){
-  const c=purchase(k,$('max').checked);
+  const c=purchase(k,maxOn);
   render();
   if(c&&!calm){const b=btn[k];b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');}
 }
@@ -397,10 +447,19 @@ function render(){
   $('h-t').classList.toggle('hide',maxY<0);$('treewrap').classList.toggle('hide',maxY<0);
 }
 
-// ---- saving: Neon over its HTTP SQL endpoint, with a local backup ----
+// ---- accounts + saving: Neon over its HTTP SQL endpoint ----
 const neon=NEON_CONNECTION_STRING.trim();
-$('sid').value=localStorage.getItem('big-id')||('player-'+Math.random().toString(36).slice(2,8));
+let user=null,hashHex=null,maxOn=false;
 const status=m=>$('status').textContent=m;
+const msg=m=>$('authmsg').textContent=m;
+const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+
+$('maxbtn').onclick=()=>{
+  maxOn=!maxOn;
+  $('maxbtn').setAttribute('aria-pressed',maxOn);
+  $('maxbtn').querySelector('.st').textContent=maxOn?'ON':'OFF';
+};
 
 async function sql(query,params=[]){
   const host=new URL(neon).hostname;
@@ -410,35 +469,20 @@ async function sql(query,params=[]){
   if(!r.ok)throw new Error(await r.text());
   return r.json();
 }
-async function save(){
-  const id=$('sid').value.trim()||'player';
-  localStorage.setItem('big-id',id);
-  s.t=Date.now();
-  const data=JSON.stringify(s);
-  localStorage.setItem('big-save-'+id,data);
-  if(!neon){status('Saved locally. Add a Neon connection string to save online.');return;}
-  try{
-    await sql('CREATE TABLE IF NOT EXISTS saves (id text PRIMARY KEY, data jsonb NOT NULL, updated_at timestamptz DEFAULT now())');
-    await sql('INSERT INTO saves (id,data,updated_at) VALUES ($1,$2::jsonb,now()) ON CONFLICT (id) DO UPDATE SET data=EXCLUDED.data, updated_at=now()',[id,data]);
-    status('Saved to Neon at '+new Date().toLocaleTimeString());
-  }catch(e){status('Neon save failed (saved locally instead): '+e.message.slice(0,140));}
+const TABLE='CREATE TABLE IF NOT EXISTS players (username text PRIMARY KEY, salt text NOT NULL, hash text NOT NULL, data jsonb, created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now())';
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+async function hashPw(pw,salt){
+  if(!window.crypto||!crypto.subtle)throw new Error('Passwords need https or localhost');
+  const enc=new TextEncoder();
+  const key=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+  return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:100000},key,256));
 }
-async function load(){
-  const id=$('sid').value.trim()||'player';
-  let raw=null;
-  if(neon){
-    try{
-      await sql('CREATE TABLE IF NOT EXISTS saves (id text PRIMARY KEY, data jsonb NOT NULL, updated_at timestamptz DEFAULT now())');
-      const res=await sql('SELECT data FROM saves WHERE id=$1',[id]);
-      if(res.rows&&res.rows[0])raw=res.rows[0].data;
-      status(raw?'Loaded from Neon.':'No Neon save for "'+id+'" yet. Starting fresh.');
-    }catch(e){status('Neon load failed: '+e.message.slice(0,140));}
-  }
-  if(!raw){const loc=localStorage.getItem('big-save-'+id);if(loc){raw=loc;if(!neon)status('Loaded local save.');}}
+
+function applySave(raw){
   s=fresh();
   if(raw){
     const d=typeof raw==='string'?JSON.parse(raw):raw;
-    if(d.v!==3){status('That save is from the old version, so you are starting fresh.');}
+    if(d.v!==3){status('That save is from an older version, so you are starting fresh.');}
     else{
       s.n=+d.n||0;s.p=+d.p||0;s.i=+d.i||0;s.c=+d.c||0;s.a=+d.a||0;s.x=+d.x||0;s.tr=d.tr||{};s.sn=d.sn||{};s.t=d.t||Date.now();
       IDS.forEach(k=>s.l[k]=Math.min(U[k].max,(d.l&&d.l[k])|0));
@@ -448,14 +492,84 @@ async function load(){
   }
   render();
 }
+function enter(name,hash,data){
+  user=name;hashHex=hash;
+  if(hash)lsSet('big-user',JSON.stringify({u:name,h:hash}));
+  $('who').textContent=name;
+  $('auth').classList.add('hide');
+  applySave(data);
+  status('Logged in as '+name);
+}
+async function auth(register){
+  const name=(register?$('ru'):$('lu')).value.trim().toLowerCase(),pw=(register?$('rp'):$('lp')).value;
+  if(!neon)return msg('Neon is not set up yet. You can still play as a guest.');
+  if(!/^[a-z0-9_]{3,20}$/.test(name))return msg('Username: 3 to 20 letters, numbers or _');
+  if(pw.length<6)return msg('Password must be at least 6 characters');
+  if(register&&pw!==$('rp2').value)return msg('Passwords do not match');
+  msg('Working...');
+  try{
+    await sql(TABLE);
+    if(register){
+      const salt=hex(crypto.getRandomValues(new Uint8Array(16))),hash=await hashPw(pw,salt);
+      const r=await sql('INSERT INTO players (username,salt,hash,data) VALUES ($1,$2,$3,$4::jsonb) ON CONFLICT (username) DO NOTHING RETURNING username',[name,salt,hash,JSON.stringify(fresh())]);
+      if(!r.rows||!r.rows.length)return msg('That username is taken');
+      msg('');enter(name,hash,null);
+    }else{
+      const r=await sql('SELECT salt,hash,data FROM players WHERE username=$1',[name]);
+      const row=r.rows&&r.rows[0];
+      if(!row||(await hashPw(pw,row.salt))!==row.hash)return msg('Wrong username or password');
+      msg('');enter(name,row.hash,row.data);
+    }
+  }catch(e){msg('Error: '+e.message.slice(0,120));}
+}
+async function save(){
+  if(!user)return;
+  s.t=Date.now();
+  const data=JSON.stringify(s);
+  lsSet('big-save-'+user,data);
+  if(!hashHex){status('Saved on this device (guest)');return;}
+  try{
+    const r=await sql('UPDATE players SET data=$2::jsonb, updated_at=now() WHERE username=$1 AND hash=$3 RETURNING username',[user,data,hashHex]);
+    status(r.rows&&r.rows.length?'Saved to Neon at '+new Date().toLocaleTimeString():'Save rejected. Please log in again.');
+  }catch(e){status('Neon save failed (kept on this device): '+e.message.slice(0,120));}
+}
+$('login').onclick=()=>auth(false);
+$('reg').onclick=()=>auth(true);
+$('lp').addEventListener('keydown',e=>{if(e.key==='Enter')auth(false);});
+$('rp2').addEventListener('keydown',e=>{if(e.key==='Enter')auth(true);});
+function tab(r){
+  $('pane-l').classList.toggle('hide',r);$('pane-r').classList.toggle('hide',!r);
+  [['tab-l',!r],['tab-r',r]].forEach(([id,on])=>{$(id).classList.toggle('on',on);$(id).setAttribute('aria-selected',on);});
+  msg('');
+}
+$('tab-l').onclick=()=>tab(false);
+$('tab-r').onclick=()=>tab(true);
+$('guest').onclick=()=>enter('guest',null,lsGet('big-save-guest'));
 $('save').onclick=save;
-$('load').onclick=load;
+$('out').onclick=async()=>{
+  await save();
+  user=null;hashHex=null;
+  try{localStorage.removeItem('big-user');}catch(e){}
+  s=fresh();render();['lp','rp','rp2'].forEach(id=>$(id).value='');tab(false);
+  $('auth').classList.remove('hide');
+};
 
 setInterval(()=>{s.n+=nps()*0.1;if(!isFinite(s.n))s.n=1e300;render();},100);
 setInterval(()=>{if(has('t5'))['m1','m2','m3'].forEach(k=>purchase(k,true));},1000);
 setInterval(save,20000);
 addEventListener('beforeunload',save);
-load();
+render();
+if(!neon)msg('Neon is not set up yet. You can still play as a guest.');
+(async()=>{
+  let sv=null;try{sv=JSON.parse(lsGet('big-user')||'null');}catch(e){}
+  if(!sv||!neon)return;
+  msg('Signing you in...');
+  try{
+    const r=await sql('SELECT hash,data FROM players WHERE username=$1',[sv.u]);
+    const row=r.rows&&r.rows[0];
+    if(row&&row.hash===sv.h){msg('');enter(sv.u,sv.h,row.data);}else msg('');
+  }catch(e){msg('Could not reach Neon: '+e.message.slice(0,100));}
+})();
 </script>
 </body>
 </html>
