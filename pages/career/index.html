@@ -1,1 +1,216 @@
-
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Pro Career Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+:root{--bg:#050505;--surface:rgba(255,255,255,.04);--bd:rgba(255,255,255,.08);--bdh:rgba(255,255,255,.2);--tx:#fff;--mu:rgba(255,255,255,.5);--ac:#fff;color-scheme:dark;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Outfit',system-ui,sans-serif;line-height:1.45;overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh}
+#sf{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.sh{position:fixed;top:-20px;width:2px;height:90px;background:linear-gradient(transparent,#fff);opacity:0;z-index:0;pointer-events:none;animation:shoot 8s linear infinite}
+.page{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:calc(30px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px))}
+.top{text-align:center;position:relative;padding:8px 0 18px}
+.glow{position:absolute;width:440px;height:440px;max-width:100%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);top:-60px;left:50%;transform:translateX(-50%);animation:pulseGlow 6s ease-in-out infinite;z-index:-1}
+.badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.07);border:1px solid var(--bd);border-radius:99px;padding:.3rem .9rem;font-size:.78rem;color:var(--mu);margin-bottom:12px;animation:fadeUp .7s ease .2s backwards}
+.dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.6s infinite}.ball{display:inline-block;animation:bounce 1.8s ease-in-out infinite}
+.tt{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:clamp(3.4rem,14vw,6.2rem);line-height:.9;letter-spacing:.02em;margin:0;animation:fadeUp .8s ease .35s backwards}
+.tt span{display:block}.tt .gh{color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.28)}
+h2{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.5rem;letter-spacing:.05em;margin:18px 0 10px}.c h2{font-size:1.3rem;margin:0 0 10px}
+.c,.st,.oc,.tr{animation:fadeUp .6s ease backwards;animation-delay:calc(var(--i,0)*55ms)}
+.c{background:var(--surface);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:border-color .25s,background .25s,transform .2s}
+.c.hero:hover,.hc:hover,.sp:hover,.oc:hover,.st:hover,.tr:hover{border-color:var(--bdh);background:rgba(255,255,255,.07);transform:translateY(-3px)}
+label{display:block;font-size:12px;color:var(--mu);margin:8px 0 4px;letter-spacing:.07em;text-transform:uppercase}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,.06);color:#fff;font:inherit}select option{background:#111;color:#fff}input:focus,select:focus{outline:none;border-color:var(--bdh)}
+button{position:relative;overflow:hidden;background:#fff;color:#050505;border:0;border-radius:10px;padding:10px 16px;font:600 15px 'Outfit',sans-serif;cursor:pointer;margin:6px 6px 0 0;transition:transform .15s,box-shadow .2s}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(255,255,255,.2)}button:active{transform:none}
+button::after{content:'';position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.8),transparent);transform:skewX(-20deg)}button:hover::after{animation:shine .7s}
+button.s{background:transparent;color:#fff;border:1px solid var(--bdh)}button.s::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent)}.cta{animation:cta 2.4s ease-in-out infinite}
+.nav{display:flex;gap:6px;margin-bottom:14px;background:var(--surface);border:1px solid var(--bd);border-radius:12px;padding:5px}.nav button{flex:1;margin:0}.nav button.s{border-color:transparent}
+.r{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-bottom:12px}.g3{display:grid;gap:12px}
+.st{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:10px 6px;text-align:center;animation-delay:calc(var(--i,0)*45ms);transition:all .2s}.st>div{font-size:18px}
+.st b{display:block;font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.9rem;line-height:1.1}.st span{font-size:11px;color:var(--mu);letter-spacing:.07em;text-transform:uppercase}
+.hero{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}.hi{flex:1;min-width:0}
+.hi>b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.9rem;letter-spacing:.03em;line-height:1}
+.num{font-family:'Bebas Neue',sans-serif;font-size:3.6rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.6);min-width:56px;text-align:center;animation:glowNum 3s ease-in-out infinite}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.chip{background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:99px;padding:2px 9px;font-size:12px}
+.ring{width:80px;height:80px;border-radius:50%;background:conic-gradient(#fff calc(var(--p)*1%),rgba(255,255,255,.1) 0);display:grid;place-items:center;flex:none;animation:ringIn 1.3s ease backwards;box-shadow:0 0 26px rgba(255,255,255,.1)}
+.ring>div{width:64px;height:64px;border-radius:50%;background:#0b0b0b;display:grid;place-items:center;text-align:center;line-height:1}.ring b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.8rem}.ring small{font-size:10px;color:var(--mu);letter-spacing:.1em}
+.pill{background:rgba(255,255,255,.14);border-radius:99px;padding:1px 9px;font-size:12px;margin-left:6px;font-family:'Outfit',sans-serif}.mu{color:var(--mu)}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.tr{background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center;font-size:13px;animation-name:pop;animation-duration:.5s;animation-timing-function:cubic-bezier(.3,1.6,.5,1);animation-delay:calc(var(--i,0)*45ms);transition:all .2s}
+.tr b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.5rem}.tr small{display:block;color:var(--mu);font-size:11px}.ti{font-size:26px;animation:float 3s ease-in-out infinite}
+.hc{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}.hc .chips,.hs{grid-column:1/-1;margin:0;font-size:13px}
+.ov{font-family:'Bebas Neue',sans-serif;font-size:2rem;text-align:right;line-height:1}.ov small{font-family:'Outfit',sans-serif;font-size:12px;margin-left:4px}.up{color:#4ade80}.dn{color:#f87171}
+.og{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.oc{background:var(--surface);border:1px solid var(--bd);border-radius:16px;padding:16px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;animation-delay:calc(var(--i,0)*70ms);transition:all .2s}.oc.stay{border-style:dashed}
+.oc b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.35rem;letter-spacing:.04em}.oc button{width:100%;margin:4px 0 0}.ob svg{animation:float 3.5s ease-in-out infinite}
+.bar{width:80%;height:6px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}.bar i{display:block;height:100%;border-radius:9px;background:#fff;transform-origin:left;animation:grow 1s ease backwards}
+.sp{display:flex;align-items:center;gap:12px;padding:10px 14px}summary{cursor:pointer;font-weight:600}details .r{margin-top:6px}
+.fl{border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.25);vertical-align:-4px;margin-right:3px}.chip .fl{vertical-align:-3px}
+.ft{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid var(--bd);margin-top:20px;padding-top:14px;font-size:12px;color:var(--mu)}
+.ring{transition:--p 1.2s ease}.tog{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--bd);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-weight:500}
+label.sw{display:inline-block;position:relative;width:46px;height:26px;margin:0;flex:none}.sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;z-index:2;cursor:pointer}
+.sw i{position:absolute;inset:0;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid var(--bd);transition:.25s}.sw i::before{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.25s}
+.sw input:checked+i{background:#fff}.sw input:checked+i::before{transform:translateX(20px);background:#050505}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}100%{box-shadow:0 0 0 16px rgba(255,255,255,0)}}.flash{animation:flash .9s ease-out}
+.evc{border-color:rgba(255,255,255,.28);background:linear-gradient(135deg,rgba(255,255,255,.11),rgba(255,255,255,.03))}
+.mcs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mc{border:1px solid var(--bd);border-radius:12px;padding:12px;cursor:pointer;background:var(--surface);transition:all .2s}.mc.on{border-color:#fff;background:rgba(255,255,255,.12);box-shadow:0 0 18px rgba(255,255,255,.1)}.mc b{display:block;font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:1.3rem;letter-spacing:.04em}.mc span{font-size:12px;color:var(--mu)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}}@keyframes pop{from{opacity:0;transform:scale(.6)}}@keyframes grow{from{transform:scaleX(0)}}@keyframes ringIn{from{--p:0}}
+@keyframes pulseGlow{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.1)}}
+@keyframes blink{50%{opacity:.2}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px) rotate(180deg)}}@keyframes float{50%{transform:translateY(-4px)}}
+@keyframes shine{to{left:130%}}@keyframes cta{50%{box-shadow:0 0 0 7px rgba(255,255,255,.13),0 0 26px rgba(255,255,255,.3)}}
+@keyframes glowNum{50%{-webkit-text-stroke-color:#fff;text-shadow:0 0 18px rgba(255,255,255,.4)}}
+@keyframes shoot{0%{transform:translate(0,0) rotate(35deg);opacity:0}4%{opacity:.8}22%,100%{transform:translate(-520px,620px) rotate(35deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style></head><body><svg id="sf" xmlns="http://www.w3.org/2000/svg"></svg><i class="sh" style="left:85%"></i><i class="sh" style="left:60%;animation-delay:3s"></i><i class="sh" style="left:100%;animation-delay:5.5s"></i>
+<div class="page"><section class="top"><div class="glow"></div><div class="badge"><span class="dot"></span><span class="ball">⚽</span> Career Mode</div><h1 class="tt"><span>Pro</span><span class="gh">Career</span></h1></section><div id="app"></div>
+<footer class="ft"><b>Pro Career Simulator</b><span>Not affiliated with any real club or league.</span></footer></div>
+<script>
+const CT="AR Argentina;AU Australia;AT Austria;BE Belgium;BR Brazil;CM Cameroon;CA Canada;CL Chile;CO Colombia;HR Croatia;DK Denmark;EG Egypt;GB England / UK;FR France;DE Germany;GH Ghana;GR Greece;IE Ireland;IT Italy;JP Japan;KR South Korea;MX Mexico;MA Morocco;NL Netherlands;NG Nigeria;NO Norway;PL Poland;PT Portugal;SN Senegal;RS Serbia;ES Spain;SE Sweden;CH Switzerland;TR Turkey;US USA;UY Uruguay;SA Saudi Arabia".split(";").map(s=>[s.slice(0,2),s.slice(3)]);
+const CL="Manchester City,GB,90;Arsenal,GB,88;Liverpool,GB,88;Chelsea,GB,82;Manchester United,GB,80;Tottenham,GB,80;Newcastle,GB,78;Aston Villa,GB,78;Brighton,GB,72;Brentford,GB,68;Leeds United,GB,62;Wrexham,GB,55;Real Madrid,ES,91;Barcelona,ES,89;Atlético Madrid,ES,84;Real Sociedad,ES,74;Sevilla,ES,74;Valencia,ES,72;Bayern Munich,DE,89;Leverkusen,DE,84;Dortmund,DE,82;RB Leipzig,DE,82;Stuttgart,DE,74;Inter,IT,86;Juventus,IT,82;Napoli,IT,82;AC Milan,IT,80;Atalanta,IT,78;Roma,IT,76;Lazio,IT,74;PSG,FR,87;Marseille,FR,76;Monaco,FR,76;Lyon,FR,74;Lille,FR,72;Benfica,PT,78;Porto,PT,78;Sporting CP,PT,78;PSV,NL,78;Ajax,NL,76;Celtic,GB,68;Galatasaray,TR,72;Boca Juniors,AR,66;River Plate,AR,70;Flamengo,BR,72;Palmeiras,BR,72;Inter Miami,US,62;LA Galaxy,US,58;Al Hilal,SA,72;Al Nassr,SA,72;Club Brugge,BE,70;Red Bull Salzburg,AT,66;Copenhagen,DK,62;Fulham,GB,68;Crystal Palace,GB,68;West Ham,GB,72;Wolves,GB,64;Nottingham Forest,GB,68;Bournemouth,GB,66;Southampton,GB,60;Leicester City,GB,60;Sunderland,GB,58;Rangers,GB,64;Athletic Club,ES,78;Villarreal,ES,74;Real Betis,ES,74;Girona,ES,70;Celta Vigo,ES,64;Osasuna,ES,62;Eintracht Frankfurt,DE,76;Wolfsburg,DE,68;Freiburg,DE,68;Gladbach,DE,66;Hoffenheim,DE,68;Werder Bremen,DE,64;Union Berlin,DE,64;Fiorentina,IT,74;Bologna,IT,72;Torino,IT,66;Genoa,IT,60;Udinese,IT,60;Como,IT,58;Nice,FR,72;Lens,FR,70;Rennes,FR,70;Strasbourg,FR,62;Braga,PT,70;Vitória SC,PT,60;Feyenoord,NL,76;AZ Alkmaar,NL,70;FC Twente,NL,66;Anderlecht,BE,68;Union SG,BE,68;Genk,BE,64;Fenerbahçe,TR,74;Beşiktaş,TR,70;Trabzonspor,TR,64;Olympiacos,GR,68;Panathinaikos,GR,64;PAOK,GR,64;Sturm Graz,AT,62;Rapid Wien,AT,60;Young Boys,CH,64;FC Basel,CH,62;Midtjylland,DK,60;Bodø/Glimt,NO,62;Molde,NO,58;Malmö,SE,60;Djurgården,SE,56;Legia Warsaw,PL,60;Lech Poznań,PL,60;Red Star Belgrade,RS,64;Partizan,RS,58;Dinamo Zagreb,HR,66;Hajduk Split,HR,58;Shamrock Rovers,IE,46;Bohemians,IE,42;Racing Club,AR,64;Independiente,AR,60;San Lorenzo,AR,58;Corinthians,BR,66;São Paulo,BR,66;Fluminense,BR,66;Botafogo,BR,66;Atlético Mineiro,BR,66;Grêmio,BR,64;Santos,BR,60;Atlético Nacional,CO,58;Millonarios,CO,56;Colo-Colo,CL,56;Universidad de Chile,CL,54;Peñarol,UY,60;Nacional,UY,60;Club América,MX,66;Tigres UANL,MX,64;Monterrey,MX,64;Chivas,MX,62;Cruz Azul,MX,62;LAFC,US,62;Seattle Sounders,US,58;NYCFC,US,56;Atlanta United,US,56;Toronto FC,CA,50;Vancouver Whitecaps,CA,50;Vissel Kobe,JP,56;Yokohama F. Marinos,JP,56;Kawasaki Frontale,JP,54;Ulsan HD,KR,54;Jeonbuk Motors,KR,52;Melbourne City,AU,50;Sydney FC,AU,48;Al Ittihad,SA,70;Al Ahli,SA,68;Al Ahly,EG,64;Zamalek,EG,58;Wydad Casablanca,MA,56;Raja Casablanca,MA,54;Enyimba,NG,40;Remo Stars,NG,38;Asante Kotoko,GH,40;Hearts of Oak,GH,38;Coton Sport,CM,36;Génération Foot,SN,38;Jaraaf,SN,38".split(";").map(s=>{let p=s.split(",");return{n:p[0],c:p[1],s:+p[2]}});
+const PS={GK:[0,.01],CB:[.03,.02],LB:[.02,.07],RB:[.02,.07],CDM:[.03,.05],CM:[.06,.1],CAM:[.14,.18],LW:[.17,.16],RW:[.17,.16],ST:[.3,.08]};
+const H=(...c)=>c.map((x,i)=>`<rect y="${20/c.length*i}" width="30" height="${20/c.length+.1}" fill="${x}"/>`).join('');
+const V=(...c)=>c.map((x,i)=>`<rect x="${30/c.length*i}" width="${30/c.length+.1}" height="20" fill="${x}"/>`).join('');
+const st=(x,y,r,f)=>{let p=[];for(let i=0;i<10;i++){let a=Math.PI/5*i-Math.PI/2,q=i%2?r*.4:r;p.push((x+q*Math.cos(a)).toFixed(1)+','+(y+q*Math.sin(a)).toFixed(1))}return `<polygon points="${p.join(' ')}" fill="${f}"/>`};
+const rc=(x,y,w,h,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`,ci=(x,y,r,f)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`;
+const UJ='<rect width="30" height="20" fill="#012169"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0L30 20M30 0L0 20" stroke="#c8102e" stroke-width="1.6"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#c8102e" stroke-width="3.6"/>';
+const nord=(bg,c,c2)=>rc(0,0,30,20,bg)+rc(9,0,3,20,c)+rc(0,8.5,30,3,c)+(c2?rc(9.8,0,1.4,20,c2)+rc(0,9.3,30,1.4,c2):'');
+const strp=(n,a,b)=>Array.from({length:n},(_,i)=>rc(0,20/n*i,30,20/n+.1,i%2?b:a)).join('');
+const FG={AR:H('#74acdf','#fff','#74acdf')+ci(15,10,2.2,'#f6b40e'),AU:rc(0,0,30,20,'#00247d')+'<g transform="scale(.5)">'+UJ+'</g>'+st(7.5,15,2.4,'#fff')+st(21,4,1.4,'#fff')+st(25,9,1.4,'#fff')+st(21,15,1.4,'#fff')+st(18,9,1.4,'#fff'),AT:H('#ed2939','#fff','#ed2939'),BE:V('#000','#fdda24','#ef3340'),
+BR:rc(0,0,30,20,'#009c3b')+'<polygon points="15,2 27.5,10 15,18 2.5,10" fill="#ffdf00"/>'+ci(15,10,4.2,'#002776'),CM:V('#007a5e','#ce1126','#fcd116')+st(15,10,3,'#fcd116'),
+CA:rc(0,0,30,20,'#fff')+rc(0,0,7.5,20,'#d52b1e')+rc(22.5,0,7.5,20,'#d52b1e')+'<path d="M15 4l1.6 3.2 2-1-.8 4.3 2.2-.6-.6 2.2-3.2.3.3 3.1h-3l.3-3.1-3.2-.3-.6-2.2 2.2.6-.8-4.3 2 1z" fill="#d52b1e"/>',
+CL:H('#fff','#d52b1e').replace('<rect y="10"','<rect y="10"')+rc(0,0,10,10,'#0039a6')+st(5,5,3,'#fff'),CO:rc(0,0,30,10,'#fcd116')+rc(0,10,30,5,'#003893')+rc(0,15,30,5,'#ce1126'),
+HR:H('#ff0000','#fff','#171796')+rc(12.5,6.5,5,6,'#ff0000')+rc(12.5,6.5,1.7,1.5,'#fff')+rc(15.8,6.5,1.7,1.5,'#fff')+rc(14.1,8,1.7,1.5,'#fff'),DK:nord('#c8102e','#fff'),
+EG:H('#ce1126','#fff','#000')+rc(14,8.5,2,3,'#c09300'),GB:UJ,FR:V('#0055a4','#fff','#ef4135'),DE:H('#000','#dd0000','#ffce00'),GH:H('#ce1126','#fcd116','#006b3f')+st(15,10,3,'#000'),
+GR:strp(9,'#0d5eaf','#fff')+rc(0,0,11,11,'#0d5eaf')+rc(4.5,0,2,11,'#fff')+rc(0,4.5,11,2,'#fff'),IE:V('#169b62','#fff','#ff883e'),IT:V('#009246','#fff','#ce2b37'),JP:rc(0,0,30,20,'#fff')+ci(15,10,6,'#bc002d'),
+KR:rc(0,0,30,20,'#fff')+'<path d="M10.5 10a4.5 4.5 0 0 1 9 0z" fill="#cd2e3a"/><path d="M10.5 10a4.5 4.5 0 0 0 9 0z" fill="#0047a0"/>'+rc(3,4,4,.9,'#000')+rc(3,6,4,.9,'#000')+rc(23,13,4,.9,'#000')+rc(23,15,4,.9,'#000')+rc(23,4,4,.9,'#000')+rc(3,13,4,.9,'#000'),
+MX:V('#006847','#fff','#ce1126')+ci(15,10,2.2,'#8c6b2a'),MA:rc(0,0,30,20,'#c1272d')+'<path d="M15 5.5L17.7 14.3L10.5 8.8H19.5L12.3 14.3Z" fill="none" stroke="#006233" stroke-width="1"/>',NL:H('#ae1c28','#fff','#21468b'),NG:V('#008751','#fff','#008751'),
+NO:nord('#ba0c2f','#fff','#00205b'),PL:H('#fff','#dc143c'),PT:rc(0,0,12,20,'#006600')+rc(12,0,18,20,'#ff0000')+ci(12,10,3.6,'#ffe000')+ci(12,10,2,'#ff0000'),SN:V('#00853f','#fdef42','#e31b23')+st(15,10,3,'#00853f'),
+RS:H('#c6363c','#0c4076','#fff'),ES:rc(0,0,30,20,'#aa151b')+rc(0,5,30,10,'#ffc400'),SE:nord('#006aa7','#fecc00'),CH:rc(0,0,30,20,'#da291c')+rc(13,4,4,12,'#fff')+rc(9,8,12,4,'#fff'),
+TR:rc(0,0,30,20,'#e30a17')+ci(11,10,5,'#fff')+ci(12.5,10,4,'#e30a17')+st(16.5,10,2.6,'#fff'),
+US:strp(13,'#b22234','#fff')+rc(0,0,13,10.8,'#3c3b6e')+[0,1,2,3].map(i=>[0,1,2].map(j=>ci(2+i*3,2.2+j*3,.7,'#fff')).join('')).join(''),
+UY:strp(9,'#fff','#0038a8')+rc(0,0,11,11,'#fff')+ci(5.5,5.5,2.6,'#fcd116'),SA:rc(0,0,30,20,'#006c35')+rc(7,5,16,2.4,'#fff')+rc(8,14,14,1.3,'#fff')};
+const flag=(c,w=24)=>`<svg class="fl" width="${w}" height="${Math.round(w*2/3)}" viewBox="0 0 30 20">${FG[c]||rc(0,0,30,20,'#888')}</svg>`;
+const fl=c=>flag(c);
+const R=(a,b)=>a+Math.random()*(b-a),I=(a,b)=>Math.floor(R(a,b+1)),cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pois=l=>{let L=Math.exp(-l),k=0,p=1;do{k++;p*=Math.random()}while(p>L);return k-1};
+const pick=a=>a[I(0,a.length-1)];
+const $=id=>document.getElementById(id);
+const ctOpts=s=>CT.map(([c,n])=>`<option value="${c}" ${c==s?'selected':''}>${n}</option>`).join('');
+const posOpts=s=>Object.keys(PS).map(p=>`<option ${p==s?'selected':''}>${p}</option>`).join('');
+let G=null,M=20;
+const EU=['GB','ES','DE','IT','FR','PT','NL','TR','BE','AT','DK'];
+const CS={};"BR:90,AR:92,FR:91,ES:90,GB:88,DE:86,PT:86,NL:85,IT:84,BE:82,HR:80,UY:80,MA:78,CO:78,SN:74,CH:72,DK:72,MX:72,JP:72,US:72,KR:70,TR:70,NO:70,AT:70,PL:68,SE:68,RS:68".split(',').forEach(x=>{let p=x.split(':');CS[p[0]]=+p[1]});
+const IC={'League Title':'🏆','Domestic Cup':'🏅','Champions League':'⭐','Continental Cup':'⭐','World Cup':'🌍','Continental Championship':'🥇','Golden Boot':'👟','Playmaker Award':'🎯','Golden Glove':'🧤','Young Player of the Year':'🐣','Player of the Season':'🌟',"Ballon d'Or":'👑'};
+const wage=o=>Math.round(5*Math.pow(o/60,10));
+const cc=()=>CL.find(c=>c.n==G.club);
+let MODE='normal';
+function pickMode(m){MODE=m;['normal','quick'].forEach(k=>$('m_'+k).classList.toggle('on',k==m))}
+function setup(){MODE='normal';$('app').innerHTML=`<div class="c"><h2>Create your player</h2>
+<label>Name</label><input id="nm" value="Alex Morgan" maxlength="30">
+<div class="r"><div><label>Origin country <span id="fp">${flag('GB')}</span></label><select id="co" onchange="$('fp').innerHTML=flag(this.value)">${ctOpts('GB')}</select></div>
+<div><label>Position</label><select id="po">${posOpts('ST')}</select></div>
+<div><label>Shirt number</label><input id="nu" type="number" min="1" max="99" value="9"></div>
+</div><p style="color:var(--mu);font-size:13px">You'll start at a random club from your origin country at age 17.</p>
+<label>Game mode</label><div class="mcs"><div class="mc on" id="m_normal" onclick="pickMode('normal')"><b>Normal</b><span>Season by season. Club offers every year, plus an event to decide every 3 years.</span></div><div class="mc" id="m_quick" onclick="pickMode('quick')"><b>Quick</b><span>Sim 3 seasons at a time. You decide events and club moves every 3 years.</span></div></div><button onclick="start()">Start career</button></div>`}
+function rollPot(){let u=1-Math.random(),v=Math.random(),z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return cl(Math.round(88.5+3.8*z),70,99)}
+function startClub(c){let p=CL.filter(x=>x.c==c);if(!p.length)p=CL.filter(x=>x.s<=68);return pick(p).n}
+function start(){G={name:$('nm').value||'Player',cc:$('co').value,pos:$('po').value,num:cl(+$('nu').value||9,1,99),club:startClub($('co').value),age:17,ovr:I(52,62),pot:rollPot(),ex:0,ev:null,season:1,m:0,ss:{g:0,a:0,app:0,pts:0,r:0},c:{g:0,a:0,app:0,caps:0,clubs:[]},t:{club:[],intl:[],pers:[]},h:[],mode:MODE,pend:null,tab:'home',stay:false,offers:null,over:false,log:[]};
+G.c.clubs.push(G.club);L(`Signed youth deal at <b>${G.club}</b>. Season 1 begins.`);render()}
+function L(t){G.log.unshift(t)}
+function match(){if(G.offers||G.over)return;let k=cc(),pool=CL.filter(c=>c.c==k.c&&c!=k);if(pool.length<4)pool=CL.filter(c=>c!=k);let o=pick(pool),d=k.s-o.s+(G.m%2?-2:3);
+let gf=pois(1.4*Math.exp(d/25)),ga=pois(1.2*Math.exp(-d/25)),sp=cl(.5+(G.ovr-k.s+10)/30,.05,1),starts=Math.random()<sp,sub=!starts&&Math.random()<.3,g=0,a=0;
+if(starts||sub){let w=PS[G.pos],f=(.6+G.ovr/150)*(starts?1:.4);for(let i=0;i<gf;i++){if(Math.random()<w[0]*f)g++;else if(Math.random()<w[1]*f)a++}
+if(G.pos=='GB')0;G.ss.app++;G.c.app++}
+let res=gf>ga?'W':gf<ga?'L':'D',pts=res=='W'?3:res=='D'?1:0;G.ss.pts+=pts;G.ss.g+=g;G.ss.a+=a;G.c.g+=g;G.c.a+=a;
+G.m++;if(G.m>=M)endSeason()}
+function simSeason(){let n=G.mode=='quick'?3:1;for(let i=0;i<n&&!G.over;i++){let s=G.season;while(G.season==s&&!G.over)match();if(G.pend||G.offers)break}update()}
+const EV=[
+['🏋️','Training harder','Your fitness coach offers extra sessions.',['Go all in',[[3,'Extra sessions pay off and your touch sharpens.',2,1],[4,'Steady gains from the extra work.',1,0],[2,'Overtraining leaves you drained and injured.',-2,-1],[1,'A breakthrough year: everything clicks.',4,1]]],['Balanced plan',[[6,'Steady, sensible progress.',1,0],[3,'Small gains, nothing special.',0,0]]]],
+['😡','Argument with the coach','You and your coach clash over your role.',['Stand your ground',[[4,'Dropped to the bench for weeks after a row.',-2,0],[2,'A heated bust-up damages your standing for good.',-3,-1],[2,'You clear the air and earn his trust.',1,0],[1,'He respects your fire and gives you a bigger role.',2,1]]],['Apologise',[[5,'You smooth things over.',0,0],[3,'He appreciates the humility.',1,0],[1,'You still lose some respect.',-1,0]]]],
+['💉','Club doctor offers a special treatment','The club doctor quietly offers you an unlabelled injection.',['Accept the treatment',[[3,'You feel superhuman: a huge boost.',4,0],[2,'A modest boost with no problems.',2,0],[3,'Nasty side effects set you back.',-2,-1],[2,'Failed test: a ban and lasting damage to your career.',-4,-2]]],['Refuse politely',[[6,'You stay clean and keep your reputation.',0,0],[2,'Your integrity impresses the club.',1,0],[1,'You wonder if you missed an edge.',-1,0]]]],
+['🩹','Injury scare','You pick up a knock before a big run of games.',['Play through it',[[4,'Minor knock, quick recovery.',0,0],[3,'A few months out hurts your sharpness.',-2,0],[1,'A serious injury changes your trajectory.',-4,-2]]],['Rest fully',[[6,'Full recovery, back on form.',0,0],[2,'The extra rest sharpens your fitness.',1,0],[1,'Rust after the long layoff.',-1,0]]]],
+['🧠','New manager arrives','A new manager takes over at the club.',['Demand a key role',[[4,'He builds the team around you.',2,1],[2,'His tactical overhaul suits you perfectly.',3,1],[2,"His system doesn't suit your game.",-1,0],[1,'He turns you into the heart of his side.',4,2]]],['Keep your head down',[[5,'You hold down a steady role.',1,0],[2,'You adapt well to his ideas.',2,0],[2,'He barely notices you.',-1,0]]]],
+['🥗','Nutrition and recovery plan','A nutritionist proposes an overhaul to your routine.',['Full lifestyle reset',[[5,'Fitter and sharper than ever.',2,0],[2,'Big gains from a full reset.',3,1],[1,'The strict regime leaves you flat.',-1,0]]],['Small tweaks',[[6,'Modest, safe gains.',1,0],[3,'No real difference.',0,0]]]],
+['🎉','Nightlife trouble','Teammates invite you out the night before a game.',['Go out anyway',[[4,'Headlines and a fine: your focus slips.',-2,0],[2,'You learn from it and refocus.',1,0],[1,'Scandal ruins your reputation and form.',-3,-1]]],['Stay in',[[6,'You dodge the drama.',0,0],[2,'Extra rest helps your form.',1,0]]]],
+['👴','Veteran mentor','A veteran teammate offers to mentor you.',['Embrace his advice',[[5,'A senior pro takes you under his wing.',2,1],[2,'He changes your whole mindset.',3,1],[1,'His advice only confuses you.',-2,0]]],['Go it alone',[[5,'You stick to your own routine.',0,0],[3,'Going solo works out fine.',1,0]]]]];
+const evHTML=()=>{let e=G.ev;return e?`<div class="c evc"><h2>${e.i} Event: ${e.n}</h2><p style="margin:0 0 8px">${e.t}</p><div class="chips"><span class="chip">${e.c}</span><span class="chip ${e.d>=0?'up':'dn'}">${e.d>0?'▲ +'+e.d:e.d<0?'▼ '+e.d:'No change in'} OVR</span>${e.p?`<span class="chip ${e.p>0?'up':'dn'}">${e.p>0?'Your outlook improved':'Your outlook worsened'}</span>`:''}</div></div>`:''};
+function patchEvt(){$('evt').innerHTML=evHTML();stag($('evt'))}
+function choose(ci){let e=EV[G.pend.i],c=e[3+ci],out=c[1],w=out.reduce((a,x)=>a+x[0],0),r=Math.random()*w,t=out[0];for(const x of out){r-=x[0];if(r<=0){t=x;break}}
+let o=G.ovr;G.pot=cl(G.pot+t[3],60,99);let cap=G.pot+G.ex,tg=G.ovr+t[2];if(tg>cap&&G.ex<3&&Math.random()<.2){G.ex=Math.min(3,G.ex+tg-cap);cap=G.pot+G.ex}G.ovr=cl(Math.min(tg,cap),38,99);
+G.ev={i:e[0],n:e[1],t:t[1],d:G.ovr-o,p:t[3],c:c[0]};G.pend=null;let h=G.h[0];if(h){h.o1=G.ovr;h.x=e[0]+' '+e[1]+': '+(G.ev.d>=0?'+':'')+G.ev.d+' OVR'}update()}
+const sl=()=>G.mode=='quick'?G.season+'–'+(G.season+2):G.season;
+const pendHTML=()=>{let e=EV[G.pend.i];return `<div class="c evc"><h2>${e[0]} ${e[1]}</h2><p style="margin:0 0 6px">${e[2]}</p><p class="mu" style="margin:0">How do you respond?</p><button onclick="choose(0)">🎲 ${e[3][0]}</button><button class="s" onclick="choose(1)">🛡️ ${e[4][0]}</button></div>`};
+function endSeason(){let k=cc(),s=G.ss,rate=s.pts/(M*3),ev=[],ob=G.ovr;
+const T=(c,n)=>{G.t[c].push({n,s:G.season});ev.push(n)};
+if(s.app>=8){if(rate>.74&&k.s>=70)T('club','League Title');
+if(Math.random()<Math.pow(Math.max(0,k.s-55)/40,3)*.35)T('club','Domestic Cup');
+if(k.s>=76&&Math.random()<Math.pow((k.s-70)/22,4)*.4)T('club',EU.includes(k.c)?'Champions League':'Continental Cup')}
+let ag=G.age,gp=G.pot-G.ovr,dl=ag<21?gp*R(.12,.2)+R(1,2.5):ag<25?gp*R(.2,.3)+R(-.2,.5):ag<29?gp*R(.1,.2)+R(-.2,.3):ag<32?R(-.3,.8):R(-4,-1.2);if(ag<29)dl=Math.max(0,dl);if(s.app>=14&&ag<32)dl+=1;
+let nv=Math.round(G.ovr+dl),cp=G.pot+G.ex;if(nv>cp){if(G.ex<3&&Math.random()<.03){G.ex++;cp++}nv=Math.min(nv,cp)}G.ovr=cl(nv,38,99);G.ev=null;G.pend=null;if(G.season>1&&G.season%3==0)G.pend={i:I(0,EV.length-1)};
+if(s.g>=13)T('pers','Golden Boot');if(s.a>=11)T('pers','Playmaker Award');
+if(G.pos=='GK'&&G.ovr>=80&&s.app>=14&&Math.random()<.3)T('pers','Golden Glove');
+if(ag<=21&&G.ovr>=74&&s.app>=10&&Math.random()<.4)T('pers','Young Player of the Year');
+if(G.ovr>=84&&s.app>=14&&Math.random()<.35)T('pers','Player of the Season');
+if(G.ovr>=90&&s.app>=14&&Math.random()<.4)T('pers',"Ballon d'Or");
+if(G.ovr>=72&&Math.random()<.7){G.c.caps+=I(2,8);if(G.season%4==0||G.season%4==2){let p=Math.pow(Math.max(0,(CS[G.cc]||64)-60)/35,5)*.3;if(Math.random()<p)T('intl',G.season%4==0?'World Cup':'Continental Championship')}}
+G.h.unshift({s:G.season,age:ag,club:k.n,o0:ob,o1:G.ovr,app:s.app,g:s.g,a:s.a,ev,x:G.ev?G.ev.i+' '+G.ev.n+': '+(G.ev.d>=0?'+':'')+G.ev.d+' OVR':''});G.age++;
+if(G.age>=36||G.ovr<44){G.pend=null;G.over=true;G.tab='sum';return}
+G.season++;G.m=0;G.ss={g:0,a:0,app:0,pts:0,r:0};if(!G.stay&&(G.mode!='quick'||(G.season-1)%3==0))genOffers(false)}
+function genOffers(req){let k=cc(),p=CL.filter(c=>c.n!=G.club&&c.s>=G.ovr-12&&c.s<=G.ovr+8);if(p.length<3)p=CL.filter(c=>c.n!=G.club&&c.s<=G.ovr+10);
+let o=[...p].sort(()=>Math.random()-.5).slice(0,3);G.offers=o;L(req?'📨 Offers received after your transfer request.':'📨 Contract time: new offers have arrived.')}
+function take(n){if(n&&n!=G.club){G.club=n;if(!G.c.clubs.includes(n))G.c.clubs.push(n);L(`✍️ Joined <b>${n}</b>.`)}else L(`Stayed at ${G.club}.`);G.offers=null;update()}
+function apply(){G.name=$('en').value||G.name;G.cc=$('ec').value;G.pos=$('ep').value;G.num=cl(+$('eu').value||G.num,1,99);L(`✏️ Profile updated: ${G.name}, #${G.num}, ${G.pos}, ${CT.find(c=>c[0]==G.cc)[1]}.`);update()}
+const hs=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
+const crest=(n,z=44)=>{let h=hs(n),w=n.replace(/[^A-Za-zÀ-ÿ ]/g,'').split(' ').filter(Boolean),t=(w.length>1?w[0][0]+w[1][0]:n.slice(0,3)).toUpperCase(),a=(h+40)%360;
+return `<svg width="${z}" height="${Math.round(z*1.14)}" viewBox="0 0 44 50"><path d="M4 4h36v22c0 11-9 18-18 21C13 44 4 37 4 26z" fill="hsl(${h} 60% 40%)" stroke="hsl(${a} 70% 78%)" stroke-width="3"/><path d="M4 4h36v10H4z" fill="hsl(${a} 70% 78%)" opacity=".35"/><text x="22" y="32" text-anchor="middle" font-size="${t.length>2?13:16}" font-weight="800" fill="#fff" font-family="system-ui">${t}</text></svg>`};
+const cname=c=>CT.find(x=>x[0]==c)[1];
+const tier=x=>x>=84?'Elite':x>=76?'Top':x>=68?'Solid':x>=58?'Mid-table':'Lower';
+const role=x=>{let p=cl(.5+(G.ovr-x+10)/30,.05,1);return p>=.8?'Key starter':p>=.5?'Regular starter':p>=.25?'Rotation':'Prospect'};
+const grp=c=>{let m={};G.t[c].forEach(x=>(m[x.n]=m[x.n]||[]).push(x));return Object.entries(m)};
+const cab=(c,t,i)=>{let n=G.t[c].length;return `<div class="c"><h2>${i} ${t} <span class="pill">${n}</span></h2>${n?`<div class="tg">${grp(c).map(([k,v])=>`<div class="tr"><div class="ti">${IC[k]||'🏆'}</div><b>${v.length}×</b><div>${k}</div><small>${v.map(x=>'S'+x.s).join(' · ')}</small></div>`).join('')}</div>`:'<p class="mu">No trophies yet</p>'}</div>`};
+const stt=(i,v,l,k)=>`<div class="st" ${k?`id="s_${k}"`:''}><div>${i}</div><b data-v="${v}">${v}</b><span>${l}</span></div>`;
+const evc=(ev,x)=>ev.map(e=>`<span class="chip">${IC[e]||'🏆'} ${e}</span>`).join('')+(x?`<span class="chip">${x}</span>`:'');
+function offerCard(o,stay){let b=stay?cc():o;return `<div class="oc ${stay?'stay':''}"><div class="ob">${crest(b.n,58)}</div><b>${b.n}</b><div class="mu">${fl(b.c)} ${cname(b.c)}</div><div class="bar"><i style="width:${b.s}%"></i></div><div class="chips" style="justify-content:center"><span class="chip">${tier(b.s)} · ${b.s}</span><span class="chip">${role(b.s)}</span></div><button class="${stay?'s':''}" onclick="take(${stay?'':`'${b.n.replace(/'/g,"\\'")}'`})">${stay?'Stay':'Join'}</button></div>`}
+function spells(){let o=[];[...G.h].reverse().forEach(h=>{let l=o[o.length-1];if(l&&l.club==h.club){l.to=h.s;l.app+=h.app;l.g+=h.g;l.a+=h.a}else o.push({club:h.club,from:h.s,to:h.s,app:h.app,g:h.g,a:h.a})});return o.reverse()}
+const tot=()=>G.t.club.length+G.t.intl.length+G.t.pers.length;
+const tiles=()=>[['🏟️',G.c.app,'Apps','app'],['⚽',G.c.g,'Goals','g'],['🅰️',G.c.a,'Assists','a'],['🌍',G.c.caps,'Caps','caps'],['🏆',tot(),'Trophies','tr'],['🔁',G.c.clubs.length,'Clubs','clubs']];
+const chipsH=()=>`<span class="chip">${fl(G.cc)} ${cname(G.cc)}</span><span class="chip">${G.pos}</span><span class="chip">${G.club}</span><span class="chip">Age ${G.age}</span><span class="chip">${G.mode=='quick'?'⏩ 3-year mode':'📅 Yearly mode'}</span>`;
+const actMode=()=>G.over?'over':G.pend?'pend':G.offers?'offers':'sim';
+function actHTML(){return G.over?`<div class="c"><h2>🎽 Career over</h2><p>You retired at ${G.age}. See your full career on the Summary page.</p><button onclick="setTab('sum')">View summary</button><button class="s" onclick="setup()">New career</button></div>`:
+G.pend?pendHTML():G.offers?`<h2>📨 Contract offers</h2><div class="og">${G.offers.map(o=>offerCard(o)).join('')}${offerCard(0,1)}</div>`:
+`<div class="c"><h2>⏭️ Season <span id="sn">${sl()}</span></h2><button class="cta" onclick="simSeason()">${G.mode=='quick'?'Sim 3 seasons':'Sim season'}</button><button class="s" onclick="genOffers(true);update()">Request transfer</button></div>`}
+function lastHTML(){let l=G.h[0],u=l.o1>=l.o0;return `<div class="c hc"><div><b id="lt">Last season (S${l.s})</b><div class="mu" id="lc">${l.club}</div></div><div class="ov"><span id="lo" data-v="${l.o1}">${l.o1}</span><small id="ld" class="${u?'up':'dn'}">${u?'▲':'▼'}${Math.abs(l.o1-l.o0)}</small></div><div class="mu hs" id="ls">${l.app} apps · ${l.g} goals · ${l.a} assists</div><div class="chips" id="le">${evc(l.ev,l.x)}</div></div>`}
+function home(){let k=cc();
+return `<div class="c hero" id="hero"><div class="num" id="hnum">${G.num}</div><span id="hcrest" data-c="${G.club}">${crest(k.n,38)}</span><div class="hi"><b id="hname">${G.name}</b><div class="chips" id="hchips">${chipsH()}</div></div><div class="ring" id="ring" style="--p:${G.ovr}"><div><b id="ovn" data-v="${G.ovr}">${G.ovr}</b><small>OVR</small></div></div></div>
+<div class="g">${tiles().map(t=>stt(...t)).join('')}</div>
+<div id="evt">${evHTML()}</div><div id="act" data-m="${actMode()}">${actHTML()}</div><div id="last">${G.h[0]?lastHTML():''}</div>
+<details class="c"><summary>✏️ Edit player</summary><div class="r"><div><label>Name</label><input id="en" value="${G.name}"></div><div><label>Number</label><input id="eu" type="number" min="1" max="99" value="${G.num}"></div>
+<div><label>Position</label><select id="ep">${posOpts(G.pos)}</select></div><div><label>Origin country <span id="fq">${flag(G.cc)}</span></label><select id="ec" onchange="$('fq').innerHTML=flag(this.value)">${ctOpts(G.cc)}</select></div></div><button onclick="apply()">Apply changes</button></details>`}
+function numTo(el,to){let f=+el.dataset.v;if(isNaN(f))f=+el.textContent||0;el.dataset.v=to;if(f===to)return;let t0=performance.now();(function fr(t){let p=Math.min(1,(t-t0)/900),e=1-Math.pow(1-p,3);el.textContent=Math.round(f+(to-f)*e);if(p<1)requestAnimationFrame(fr)})(t0)}
+function flash(e){e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash')}
+function patchHero(){$('hnum').textContent=G.num;$('hname').textContent=G.name;$('hchips').innerHTML=chipsH();let c=$('hcrest');if(c.dataset.c!=G.club){c.dataset.c=G.club;c.innerHTML=crest(G.club,38)}
+if(+$('ovn').dataset.v!==G.ovr){$('ring').style.setProperty('--p',G.ovr);numTo($('ovn'),G.ovr);flash($('ring'))}}
+function patchStats(){tiles().forEach(([i,v,l,k])=>{let e=$('s_'+k),b=e.querySelector('b');if(+b.dataset.v!==v){numTo(b,v);flash(e)}})}
+function patchLast(){let l=G.h[0];if(!l)return;if(!$('lo')){$('last').innerHTML=lastHTML();return}let u=l.o1>=l.o0;$('lt').textContent='Last season (S'+l.s+')';$('lc').textContent=l.club;numTo($('lo'),l.o1);let d=$('ld');d.className=u?'up':'dn';d.textContent=(u?'▲':'▼')+Math.abs(l.o1-l.o0);$('ls').textContent=l.app+' apps · '+l.g+' goals · '+l.a+' assists';$('le').innerHTML=evc(l.ev,l.x);flash($('lo').closest('.c'))}
+function patchAct(){let a=$('act'),m=actMode();if(a.dataset.m!=m){a.dataset.m=m;a.innerHTML=actHTML();stag(a)}else if(m=='sim')$('sn').textContent=sl()}
+function update(){if(G.over||G.tab!='home'||!$('hero')){if(G.over)G.tab='sum';render();return}patchHero();patchStats();patchLast();patchEvt();patchAct()}
+function summary(){let tot=G.t.club.length+G.t.intl.length+G.t.pers.length,pk=Math.max(G.ovr,...G.h.map(h=>h.o1)),bg=Math.max(0,...G.h.map(h=>h.g));
+return `<div class="c hero"><div class="hi"><b>${G.name}</b><div class="mu">${fl(G.cc)} ${cname(G.cc)} · ${G.pos} · #${G.num} · ${G.over?'Retired':'Active'}</div></div><div class="ring" style="--p:${pk}"><div><b>${pk}</b><small>PEAK</small></div></div></div>
+<h2>📈 Career totals</h2><div class="g">${stt('📅',G.h.length,'Seasons')}${stt('🏟️',G.c.app,'Apps')}${stt('⚽',G.c.g,'Goals')}${stt('🅰️',G.c.a,'Assists')}${stt('🌍',G.c.caps,'Caps')}${stt('🏆',tot,'Trophies')}${stt('🔥',bg,'Best goals')}${stt('🔁',G.c.clubs.length,'Clubs')}</div>
+<h2>🏆 Trophy cabinet</h2><div class="g3">${cab('club','Club trophies','🛡️')}${cab('intl','International trophies','🌍')}${cab('pers','Personal awards','⭐')}</div>
+<h2>🛡️ Clubs</h2>${spells().map(x=>`<div class="c sp">${crest(x.club,34)}<div><b>${x.club}</b><div class="mu">S${x.from}${x.to>x.from?'–S'+x.to:''} · ${x.app} apps · ${x.g} goals · ${x.a} assists</div></div></div>`).join('')||'<div class="c mu">No clubs yet.</div>'}
+<h2>📅 Season history</h2>${G.h.length?G.h.map(h=>`<div class="c hc"><div><b>Season ${h.s}</b> · Age ${h.age}<div class="mu">${h.club}</div></div><div class="ov">${h.o1}<small class="${h.o1>=h.o0?'up':'dn'}">${h.o1>=h.o0?'▲':'▼'}${Math.abs(h.o1-h.o0)}</small></div><div class="mu hs">${h.app} apps · ${h.g} goals · ${h.a} assists</div><div class="chips">${evc(h.ev,h.x)}</div></div>`).join(''):'<div class="c mu">Sim your first season to start your history.</div>'}`}
+const stag=r=>r.querySelectorAll('.c,.oc,.st,.tr').forEach((e,i)=>e.style.setProperty('--i',Math.min(i,16)));
+function shell(){$('app').innerHTML=`<div class="nav"><button id="n_home" onclick="setTab('home')">🏠 Career</button><button id="n_sum" onclick="setTab('sum')">📊 Summary</button></div><div class="tog"><span>🔒 Stay at current club</span><label class="sw"><input type="checkbox" id="stay" onchange="G.stay=this.checked"><i></i></label></div><div id="view"></div>`;$('stay').checked=!!G.stay}
+function setTab(k){G.tab=k;render()}
+function render(){if(!$('view'))shell();let t=G.tab;$('n_home').className=t=='home'?'':'s';$('n_sum').className=t=='sum'?'':'s';$('view').innerHTML=t=='sum'?summary():home();stag($('view'))}
+(function(){if(typeof innerWidth==='undefined')return;const sv=document.getElementById('sf'),N='http://www.w3.org/2000/svg';
+function build(){sv.innerHTML='';const W=innerWidth,Hh=innerHeight;sv.setAttribute('viewBox','0 0 '+W+' '+Hh);
+for(let i=0;i<170;i++){const op=Math.random()*.4+.06,c=document.createElementNS(N,'circle');c.setAttribute('cx',Math.random()*W);c.setAttribute('cy',Math.random()*Hh);c.setAttribute('r',Math.random()+.15);c.setAttribute('fill','#fff');c.setAttribute('opacity',op);
+const a=document.createElementNS(N,'animate');a.setAttribute('attributeName','opacity');a.setAttribute('values',op+';'+(op*.12).toFixed(3)+';'+op);a.setAttribute('dur',(Math.random()*5+2).toFixed(1)+'s');a.setAttribute('begin',(Math.random()*8).toFixed(1)+'s');a.setAttribute('repeatCount','indefinite');c.appendChild(a);sv.appendChild(c)}}
+build();addEventListener('resize',build)})();
+setup();
+</script></body></html>
