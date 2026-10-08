@@ -42,5 +42,9 @@
   {
     "DisplayName": "Career",
     "ID": "career/index.html"
+  },
+  {
+    "DisplayName": "A Small World Cup",
+    "ID": "footballing/index.html"
   }
 ]
