@@ -154,7 +154,7 @@ const UP=[];B.forEach((b,i)=>TIERS.forEach((t,j)=>UP.push({id:i+"_"+j,i,own:t[0]
 const NEWS=["Jayden Li has entered the chat.","Family reunion of Lis causes Jayden shortage.","Every Li in the phone book has joined the grind.","Economists baffled by Jayden inflation.","Census confirms: there are a lot of Lis.","Experts say: more Jaydens.","The Jayden market hits all-time high.","Jayden Li declared a natural resource."];
 const fresh=()=>({gm:1,cb:1,pb:0,n:0,t:0,c:0,own:B.map(()=>0),up:{},ts:Date.now()});
 let S=fresh();
-try{const s=JSON.parse(localStorage.getItem("jlc")||"null");if(s&&s.own&&s.own.length===B.length)S=s}catch(e){}
+try{const s=JSON.parse(localStorage.getItem("jlc2")||"null");if(s&&s.own&&s.own.length===B.length)S=s}catch(e){}
 const $=id=>document.getElementById(id);
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mult=i=>{let m=1;UP.forEach(u=>{if(u.i===i&&S.up[u.id])m*=2});return m};
@@ -189,10 +189,10 @@ el.innerHTML=`<span class="nm">${B[u.i][0]} ${u.name}</span><small>Doubles outpu
 $("h-u").classList.toggle("hide",!any)}
 let last=performance.now();
 setInterval(()=>{const now=performance.now(),dt=(now-last)/1000;last=now;const g=cps()*dt;S.n+=g;S.t+=g;render()},100);
-function save(){try{S.ts=Date.now();localStorage.setItem("jlc",JSON.stringify(S));$("status").textContent="Saved at "+new Date().toLocaleTimeString()}catch(e){$("status").textContent="Saving is unavailable here"}}
+function save(){try{S.ts=Date.now();localStorage.setItem("jlc2",JSON.stringify(S));$("status").textContent="Saved at "+new Date().toLocaleTimeString()}catch(e){$("status").textContent="Saving is unavailable here"}}
 setInterval(save,20000);$("save").onclick=save;
-$("reset").onclick=()=>{if(confirm("Reset all progress?")){S=fresh();try{localStorage.removeItem("jlc")}catch(e){}render()}};
-const PIN="67676767",ov=$("adm"),pv=$("pinv"),av=$("admv");
+$("reset").onclick=()=>{if(confirm("Reset all progress?")){S=fresh();try{localStorage.removeItem("jlc2")}catch(e){}render()}};
+const PIN="7569",ov=$("adm"),pv=$("pinv"),av=$("admv");
 function toast(m){const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
 function openAdm(){ov.classList.remove("hide");pv.classList.remove("hide");av.classList.add("hide");$("pin").value="";$("pmsg").textContent="";setTimeout(()=>$("pin").focus(),30)}
 function closeAdm(){ov.classList.add("hide")}
@@ -206,7 +206,7 @@ $("pno").onclick=()=>{closeAdm();if(S.pb){toast("2x clicks already claimed")}els
 const num=id=>{const v=Number($(id).value);return isFinite(v)&&v>0?v:null};
 const say=m=>{$("amsg").textContent=m;render()};
 function maxLi(i){S.own[i]=Math.max(S.own[i],500);UP.forEach(u=>{if(u.i===i)S.up[u.id]=1})}
-$("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();try{localStorage.removeItem("jlc")}catch(e){}say("Data reset")}};
+$("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();try{localStorage.removeItem("jlc2")}catch(e){}say("Data reset")}};
 $("a-max").onclick=()=>{B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
 $("a-maxli").onclick=()=>{const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
 $("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;say("Multiplier set to x"+fmt(v))};
