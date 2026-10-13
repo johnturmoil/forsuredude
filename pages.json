@@ -46,5 +46,13 @@
   {
     "DisplayName": "Li Clicker",
     "ID": "Li/index.html"
+  },
+  {
+    "DisplayName": "Hole.io",
+    "ID": "hole/index.html"
+  },
+  {
+    "DisplayName": "Geometry Dash",
+    "ID": "dash/index.html"
   }
 ]
