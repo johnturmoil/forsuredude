@@ -151,8 +151,7 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <label>Multiplier (applies to everything)</label><div class="inl"><input id="mult" type="number" min="0" step="any" placeholder="e.g. 10"><button id="a-mult">Set</button></div>
 <label>Give clicks</label><div class="inl"><input id="clk" type="number" min="0" step="any" placeholder="e.g. 1000"><button id="a-clicks">Give</button></div>
 <label>Give a certain Li</label><div class="inl"><select id="lsel2"></select><input id="amt" type="number" min="0" step="any" placeholder="Amount"><button id="a-give">Give</button></div>
-<label>Leaderboard editor (needs the server admin key)</label>
-<input id="sk" type="password" autocomplete="off" placeholder="Server admin key">
+<label>Leaderboard editor</label>
 <div class="inl"><input id="eu" type="text" maxlength="20" placeholder="Username"><input id="es" type="text" inputmode="decimal" placeholder="Score (blank = my total)"></div>
 <div class="two"><button id="e-set" class="go">Add / set</button><button id="e-del" class="danger">Delete</button></div>
 <div class="two"><button id="e-ref">Refresh list</button><button id="e-clear" class="danger">Clear all</button></div>
@@ -253,13 +252,9 @@ lbMsg("Submitting...");
 try{const r=await fetch(LB_URL+"/api/score",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,score:S.t})});
 const d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
 lbMsg("Submitted! You are #"+d.rank);$("lbu").value="";lbLoad()}catch(e){lbMsg(e.message||"Couldn't submit",1)}};
-let SK="";try{SK=sessionStorage.getItem("jlck")||""}catch(e){}
-$("sk").value=SK;
-$("sk").addEventListener("input",()=>{SK=$("sk").value;try{sessionStorage.setItem("jlck",SK)}catch(e){}});
 async function adm(path,body){
 if(NOLB)throw new Error("Set LB_URL first");
-if(!SK)throw new Error("Enter the server admin key");
-const r=await fetch(LB_URL+path,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Key":SK},body:JSON.stringify(body||{})});
+const r=await fetch(LB_URL+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body||{})});
 let d={};try{d=await r.json()}catch(e){}
 if(!r.ok)throw new Error(d.error||"Request failed ("+r.status+")");return d}
 const eu=()=>$("eu").value.trim().toLowerCase(),okName=u=>/^[a-z0-9_]{3,20}$/.test(u);
