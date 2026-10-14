@@ -103,6 +103,7 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 .pbox .inl{display:flex;flex-direction:row;gap:.6rem}.pbox .inl input,.pbox .inl select{flex:1;min-width:0}
 .pbox .inl button{white-space:nowrap}
 .pbox .danger{border-color:#f87171;color:#fca5a5}
+#elist{max-height:180px;overflow-y:auto}#elist li{cursor:pointer}
 #lbmsg{min-height:1.2em;font-size:.85rem;text-align:left}
 .lbl{list-style:none;display:flex;flex-direction:column;gap:.35rem;text-align:left}
 .lbl li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .8rem;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
@@ -150,6 +151,12 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <label>Multiplier (applies to everything)</label><div class="inl"><input id="mult" type="number" min="0" step="any" placeholder="e.g. 10"><button id="a-mult">Set</button></div>
 <label>Give clicks</label><div class="inl"><input id="clk" type="number" min="0" step="any" placeholder="e.g. 1000"><button id="a-clicks">Give</button></div>
 <label>Give a certain Li</label><div class="inl"><select id="lsel2"></select><input id="amt" type="number" min="0" step="any" placeholder="Amount"><button id="a-give">Give</button></div>
+<label>Leaderboard editor (needs the server admin key)</label>
+<input id="sk" type="password" autocomplete="off" placeholder="Server admin key">
+<div class="inl"><input id="eu" type="text" maxlength="20" placeholder="Username"><input id="es" type="text" inputmode="decimal" placeholder="Score (blank = my total)"></div>
+<div class="two"><button id="e-set" class="go">Add / set</button><button id="e-del" class="danger">Delete</button></div>
+<div class="two"><button id="e-ref">Refresh list</button><button id="e-clear" class="danger">Clear all</button></div>
+<ol id="elist" class="lbl"></ol>
 <div id="amsg"></div><button id="a-close" class="ghost">Close</button></div>
 </div></div>
 <script>
@@ -211,7 +218,7 @@ function closeAdm(){ov.classList.add("hide")}
 $("pwr").onclick=openAdm;$("a-close").onclick=closeAdm;
 ov.addEventListener("click",e=>{if(e.target===ov)closeAdm()});
 addEventListener("keydown",e=>{if(e.key==="Escape")closeAdm()});
-function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;S.ch=1;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent=""}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
+function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;S.ch=1;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent="";eList()}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
 $("pgo").onclick=tryPin;$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin()});
 $("pno").onclick=()=>{closeAdm();if(S.pb){toast("2x clicks already claimed")}else{S.pb=1;S.cb=(S.cb||1)*2;toast("No PIN? Enjoy 2x clicks instead.");wave("#6aa6ff")}render()};
 ["lsel","lsel2"].forEach(id=>$(id).innerHTML=B.map((b,i)=>`<option value="${i}">${b[0]} ${b[1]}</option>`).join(""));
@@ -240,12 +247,32 @@ addEventListener("keydown",e=>{if(e.key==="Escape")lbOv.classList.add("hide")});
 $("lbsub").onclick=async()=>{
 const u=$("lbu").value.trim().toLowerCase();
 if(!/^[a-z0-9_]{3,20}$/.test(u))return lbMsg("Username: 3 to 20 letters, numbers or _",1);
-if(S.ch)return lbMsg("Admin tools were used on this save, so it can't be submitted. Reset to play legit.",1);
+if(S.ch)return lbMsg("Admin tools were used on this save. Add yourself from the admin panel, or reset to play legit.",1);
 if(NOLB)return lbLoad();
 lbMsg("Submitting...");
 try{const r=await fetch(LB_URL+"/api/score",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,score:S.t})});
 const d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
 lbMsg("Submitted! You are #"+d.rank);$("lbu").value="";lbLoad()}catch(e){lbMsg(e.message||"Couldn't submit",1)}};
+let SK="";try{SK=sessionStorage.getItem("jlck")||""}catch(e){}
+$("sk").value=SK;
+$("sk").addEventListener("input",()=>{SK=$("sk").value;try{sessionStorage.setItem("jlck",SK)}catch(e){}});
+async function adm(path,body){
+if(NOLB)throw new Error("Set LB_URL first");
+if(!SK)throw new Error("Enter the server admin key");
+const r=await fetch(LB_URL+path,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Key":SK},body:JSON.stringify(body||{})});
+let d={};try{d=await r.json()}catch(e){}
+if(!r.ok)throw new Error(d.error||"Request failed ("+r.status+")");return d}
+const eu=()=>$("eu").value.trim().toLowerCase(),okName=u=>/^[a-z0-9_]{3,20}$/.test(u);
+async function eList(){if(NOLB)return;try{const r=await fetch(LB_URL+"/api/leaderboard"),d=await r.json();
+$("elist").innerHTML=d.results.map(x=>`<li data-u="${esc(x.username)}" data-s="${x.score}"><span>${esc(x.username)}</span><b>${fmt(x.score)}</b></li>`).join("")||"<li>No entries</li>"}catch(e){say("Couldn't load entries")}}
+$("elist").onclick=e=>{const li=e.target.closest("li[data-u]");if(li){$("eu").value=li.dataset.u;$("es").value=li.dataset.s}};
+$("e-set").onclick=async()=>{const u=eu();if(!okName(u))return say("Username: 3 to 20 letters, numbers or _");
+const raw=$("es").value.trim(),sc=raw===""?S.t:Number(raw);if(!isFinite(sc)||sc<0)return say("Enter a valid score");
+try{const d=await adm("/api/admin/set",{username:u,score:sc});say(u+" set to "+fmt(sc)+" (#"+d.rank+")");eList()}catch(e){say(e.message)}};
+$("e-del").onclick=async()=>{const u=eu();if(!okName(u))return say("Pick or type a username");if(!confirm("Delete "+u+"?"))return;
+try{await adm("/api/admin/delete",{username:u});say(u+" deleted");eList()}catch(e){say(e.message)}};
+$("e-clear").onclick=async()=>{if(!confirm("Delete EVERY leaderboard entry?"))return;try{await adm("/api/admin/clear");say("Leaderboard cleared");eList()}catch(e){say(e.message)}};
+$("e-ref").onclick=eList;
 let ni=0;setInterval(()=>{ni=(ni+1)%NEWS.length;$("news").textContent=NEWS[ni]},6000);
 render();
 </script></body></html>
