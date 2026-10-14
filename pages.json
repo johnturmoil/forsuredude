@@ -46,8 +46,8 @@
   },
   {
     "DisplayName": "Career",
-    "Type": "id",
-    "ID": "career/index.html"
+    "Type": "url",
+    "ID": "https://copero.com.ar"
   },
   {
     "DisplayName": "A Small World Cup",
