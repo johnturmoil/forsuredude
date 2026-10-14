@@ -1,50 +1,62 @@
 [
   {
     "DisplayName": "Blackjack",
+    "Type": "id",
     "ID": "blackjack/index.html"
   },
   {
     "DisplayName": "Imposters",
+    "Type": "id",
     "ID": "imposters/index.html"
   },
   {
     "DisplayName": "Guess Number",
+    "Type": "id",
     "ID": "guessnumber/index.html"
   },
   {
     "DisplayName": "Space Raiders",
+    "Type": "id",
     "ID": "spaceraiders/index.html"
   },
   {
     "DisplayName": "Wordle",
+    "Type": "id",
     "ID": "wordle/index.html"
   },
   {
     "DisplayName": "Tetris",
+    "Type": "id",
     "ID": "tetris/index.html"
   },
   {
     "DisplayName": "Crossy Roads",
+    "Type": "id",
     "ID": "crossyroads/index.html"
   },
   {
     "DisplayName": "Mines",
+    "Type": "id",
     "ID": "mines/index.html"
   },
   {
     "DisplayName": "Towers",
+    "Type": "id",
     "ID": "towers/index.html"
   },
   {
     "DisplayName": "Career",
+    "Type": "id",
     "ID": "career/index.html"
   },
   {
     "DisplayName": "A Small World Cup",
+    "Type": "id",
     "ID": "footballing/index.html"
   },
   {
     "DisplayName": "Li Clicker",
+    "Type": "id",
     "ID": "Li/index.html"
   }
 ]
