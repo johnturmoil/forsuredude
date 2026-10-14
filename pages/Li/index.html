@@ -18,7 +18,9 @@ body{background:var(--bg);color:var(--tx);font-family:'Outfit','Trebuchet MS',sy
 @keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.15)}}
 .page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 1.25rem 3rem}
 .hero{text-align:center;position:relative}
-.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.78rem;font-weight:500;color:var(--mu);margin-bottom:1.2rem;animation:up .7s ease .2s both}
+.toprow{display:flex;gap:.6rem;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem;animation:up .7s ease .2s both}
+.pill{border-radius:999px;padding:.3rem .9rem;font-size:.78rem;font-weight:500;color:var(--tx);text-align:center;border-color:color-mix(in srgb,var(--n) 55%,transparent)}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.78rem;font-weight:500;color:var(--mu)}
 .badge b{width:6px;height:6px;border-radius:50%;background:var(--p);box-shadow:0 0 8px var(--p)}
 h1{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:clamp(3.5rem,13vw,7rem);line-height:.9;letter-spacing:.02em;animation:up .8s ease .35s both}
 h1 span{display:block}
@@ -115,7 +117,7 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <svg id="stars" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
 <div class="page">
 <section class="hero">
-<div class="badge"><b></b>Idle game</div>
+<div class="toprow"><div class="badge"><b></b>Idle game</div><button id="lbbtn" class="pill">🏆 Leaderboard</button></div>
 <h1><span>Jayden Li</span><span class="ghost">Clicker</span></h1>
 <p class="news" id="news">Jayden Li has entered the chat.</p>
 </section>
@@ -131,7 +133,7 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <div class="grid" id="g-u"></div>
 <h2>The Li family</h2>
 <div class="grid" id="g-b"></div>
-<div class="row" style="margin-top:2rem"><button class="tool" id="lbbtn">Leaderboard</button><button class="tool" id="save">Save now</button><button class="tool" id="reset">Reset</button></div>
+<div class="row" style="margin-top:2rem"><button class="tool" id="save">Save now</button><button class="tool" id="reset">Reset</button></div>
 <div id="status"></div>
 </div>
 <button id="pwr" aria-label="Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button>
