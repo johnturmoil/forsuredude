@@ -58,5 +58,10 @@
     "DisplayName": "Li Clicker",
     "Type": "id",
     "ID": "Li/index.html"
+  },
+  {
+    "DisplayName": "Geometry Dash",
+    "Type": "url",
+    "ID": "https://gd.smose.uk/"
   }
 ]
