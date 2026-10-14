@@ -376,51 +376,67 @@
   }
 
   async function loadGames() {
-    const container = document.getElementById("games");
+  const container = document.getElementById("games");
 
-    try {
-      const response = await fetch("../pages.json");
-      if (!response.ok) throw new Error("Could not load pages.json");
+  try {
+    const response = await fetch("../pages.json");
+    if (!response.ok) throw new Error("Could not load pages.json");
 
-      const files = await response.json();
-      container.innerHTML = "";
+    const files = await response.json();
+    container.innerHTML = "";
 
-      files
-        .slice()
-        .sort((a, b) => (a.DisplayName || "").localeCompare(b.DisplayName || ""))
-        .forEach(item => {
-          const name = item.DisplayName || item.ID || "Untitled";
-          const id = item.ID || "#";
+    files
+      .slice()
+      .sort((a, b) => (a.DisplayName || "").localeCompare(b.DisplayName || ""))
+      .forEach(item => {
+        const type = (item.Type || "id").toLowerCase();
+        const name = item.DisplayName || item.ID || item.URL || "Untitled";
+        const target = item.URL || item.ID || "#";
+        const isUrl = type === "url";
 
-          const button = document.createElement("a");
-          button.className = "game-card";
-          button.href = "../pages/" + id;
+        const button = document.createElement("a");
+        button.className = "game-card";
 
-          const label = document.createElement("span");
-          label.className = "game-name";
-          label.textContent = name;
+        if (isUrl) {
+          // Full external URL: use as-is
+          button.href = target;
+          button.target = "_blank";
+          button.rel = "noopener noreferrer";
+        } else {
+          // Local page: resolve relative to ../pages/
+          button.href = "../pages/" + target;
+        }
 
-          const arrow = document.createElement("span");
-          arrow.className = "game-arrow";
-          arrow.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path fill="currentColor" fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8" />
-            </svg>
-          `;
+        const label = document.createElement("span");
+        label.className = "game-name";
+        label.textContent = name;
 
-          button.appendChild(label);
-          button.appendChild(arrow);
-          container.appendChild(button);
-        });
+        const arrow = document.createElement("span");
+        arrow.className = "game-arrow";
 
-      if (!files.length) {
-        container.innerHTML = '<div class="loading">No games found.</div>';
-      }
-    } catch (error) {
-      container.innerHTML = '<div class="error">Failed to load pages.json</div>';
-      console.error(error);
+        // Arrow points right for local pages, diagonal "external" arrow for URLs
+        arrow.innerHTML = isUrl
+          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+               <path fill="currentColor" fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+               <path fill="currentColor" fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+             </svg>`
+          : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+               <path fill="currentColor" fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8" />
+             </svg>`;
+
+        button.appendChild(label);
+        button.appendChild(arrow);
+        container.appendChild(button);
+      });
+
+    if (!files.length) {
+      container.innerHTML = '<div class="loading">No games found.</div>';
     }
+  } catch (error) {
+    container.innerHTML = '<div class="error">Failed to load pages.json</div>';
+    console.error(error);
   }
+}
 
   loadGames();
 </script>
