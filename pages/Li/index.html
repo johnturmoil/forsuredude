@@ -101,6 +101,11 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 .pbox .inl{display:flex;flex-direction:row;gap:.6rem}.pbox .inl input,.pbox .inl select{flex:1;min-width:0}
 .pbox .inl button{white-space:nowrap}
 .pbox .danger{border-color:#f87171;color:#fca5a5}
+#lbmsg{min-height:1.2em;font-size:.85rem;text-align:left}
+.lbl{list-style:none;display:flex;flex-direction:column;gap:.35rem;text-align:left}
+.lbl li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .8rem;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.lbl li:nth-child(1){border-color:#ffd166;box-shadow:0 0 18px -8px #ffd166}
+.lbl b{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:1.2rem;color:var(--n)}
 #pmsg,#amsg{min-height:1.2em;font-size:.85rem;color:#f87171}#amsg{color:var(--p)}
 .shk{animation:shk .4s}@keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .toast{position:fixed;left:50%;bottom:calc(60px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:#0d0d0f;border:1px solid var(--n);box-shadow:0 0 24px -6px var(--n);border-radius:999px;padding:.6rem 1.2rem;font-size:.9rem;pointer-events:none;animation:fl2 3s forwards}
@@ -126,10 +131,15 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <div class="grid" id="g-u"></div>
 <h2>The Li family</h2>
 <div class="grid" id="g-b"></div>
-<div class="row" style="margin-top:2rem"><button class="tool" id="save">Save now</button><button class="tool" id="reset">Reset</button></div>
+<div class="row" style="margin-top:2rem"><button class="tool" id="lbbtn">Leaderboard</button><button class="tool" id="save">Save now</button><button class="tool" id="reset">Reset</button></div>
 <div id="status"></div>
 </div>
 <button id="pwr" aria-label="Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button>
+<div id="lb" class="ov hide" role="dialog" aria-modal="true" aria-label="Leaderboard"><div class="pbox">
+<h3>Leaderboard</h3><p>Score = total Jaydens earned. Enter a username every time you want to update your place.</p>
+<div class="inl"><input id="lbu" type="text" maxlength="20" placeholder="Username" autocomplete="off"><button id="lbsub" class="go">Submit</button></div>
+<div id="lbmsg"></div><ol id="lbl" class="lbl"></ol>
+<div class="two"><button id="lbref">Refresh</button><button id="lbclose" class="ghost">Close</button></div></div></div>
 <div id="adm" class="ov hide" role="dialog" aria-modal="true" aria-label="Admin panel"><div class="pbox" id="pbox">
 <div id="pinv"><h3>Admin</h3><p>Enter the PIN to continue.</p><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"><div id="pmsg"></div><button id="pgo" class="go">Unlock</button><button id="pno" class="ghost">I don't know the PIN</button></div>
 <div id="admv" class="hide"><h3>Admin panel</h3>
@@ -152,7 +162,7 @@ const B=[["🖱️","Cursor Li",15,.1],["👵","Auntie Li",100,1],["🌾","Farme
 const TIERS=[[1,10],[5,50],[25,500],[50,5000]];
 const UP=[];B.forEach((b,i)=>TIERS.forEach((t,j)=>UP.push({id:i+"_"+j,i,own:t[0],cost:b[2]*t[1],name:b[1]+" x2"})));
 const NEWS=["Jayden Li has entered the chat.","Family reunion of Lis causes Jayden shortage.","Every Li in the phone book has joined the grind.","Economists baffled by Jayden inflation.","Census confirms: there are a lot of Lis.","Experts say: more Jaydens.","The Jayden market hits all-time high.","Jayden Li declared a natural resource."];
-const fresh=()=>({gm:1,cb:1,pb:0,n:0,t:0,c:0,own:B.map(()=>0),up:{},ts:Date.now()});
+const fresh=()=>({ch:0,gm:1,cb:1,pb:0,n:0,t:0,c:0,own:B.map(()=>0),up:{},ts:Date.now()});
 let S=fresh();
 try{const s=JSON.parse(localStorage.getItem("jlc2")||"null");if(s&&s.own&&s.own.length===B.length)S=s}catch(e){}
 const $=id=>document.getElementById(id);
@@ -199,7 +209,7 @@ function closeAdm(){ov.classList.add("hide")}
 $("pwr").onclick=openAdm;$("a-close").onclick=closeAdm;
 ov.addEventListener("click",e=>{if(e.target===ov)closeAdm()});
 addEventListener("keydown",e=>{if(e.key==="Escape")closeAdm()});
-function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent=""}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
+function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;S.ch=1;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent=""}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
 $("pgo").onclick=tryPin;$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin()});
 $("pno").onclick=()=>{closeAdm();if(S.pb){toast("2x clicks already claimed")}else{S.pb=1;S.cb=(S.cb||1)*2;toast("No PIN? Enjoy 2x clicks instead.");wave("#6aa6ff")}render()};
 ["lsel","lsel2"].forEach(id=>$(id).innerHTML=B.map((b,i)=>`<option value="${i}">${b[0]} ${b[1]}</option>`).join(""));
@@ -207,11 +217,33 @@ const num=id=>{const v=Number($(id).value);return isFinite(v)&&v>0?v:null};
 const say=m=>{$("amsg").textContent=m;render()};
 function maxLi(i){S.own[i]=Math.max(S.own[i],500);UP.forEach(u=>{if(u.i===i)S.up[u.id]=1})}
 $("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();try{localStorage.removeItem("jlc2")}catch(e){}say("Data reset")}};
-$("a-max").onclick=()=>{B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
-$("a-maxli").onclick=()=>{const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
-$("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;say("Multiplier set to x"+fmt(v))};
-$("a-clicks").onclick=()=>{const v=num("clk");if(!v)return say("Enter a valid amount");const g=v*cv();S.n+=g;S.t+=g;S.c+=v;say("Added "+fmt(v)+" clicks ("+fmt(g)+" Jaydens)")};
-$("a-give").onclick=()=>{const i=+$("lsel2").value,v=Math.floor(num("amt")||0);if(!v)return say("Enter a valid amount");S.own[i]+=v;S.t=Math.max(S.t,B[i][2]);say("Gave "+fmt(v)+" "+B[i][1])};
+$("a-max").onclick=()=>{S.ch=1;B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
+$("a-maxli").onclick=()=>{S.ch=1;const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
+$("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;S.ch=1;say("Multiplier set to x"+fmt(v))};
+$("a-clicks").onclick=()=>{const v=num("clk");if(!v)return say("Enter a valid amount");const g=v*cv();S.n+=g;S.t+=g;S.c+=v;S.ch=1;say("Added "+fmt(v)+" clicks ("+fmt(g)+" Jaydens)")};
+$("a-give").onclick=()=>{const i=+$("lsel2").value,v=Math.floor(num("amt")||0);if(!v)return say("Enter a valid amount");S.own[i]+=v;S.ch=1;S.t=Math.max(S.t,B[i][2]);say("Gave "+fmt(v)+" "+B[i][1])};
+const LB_URL="https://lb.moonscripts.live"; // leaderboard backend; endpoints are /api/leaderboard and /api/score
+const lbOv=$("lb"),NOLB=LB_URL.includes("YOUR-");
+const lbMsg=(m,bad)=>{const e=$("lbmsg");e.textContent=m;e.style.color=bad?"#f87171":"var(--p)"};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function lbLoad(){
+if(NOLB)return lbMsg("Leaderboard server isn't set up yet. Set LB_URL in the code.",1);
+try{const r=await fetch(LB_URL+"/api/leaderboard"),d=await r.json();
+$("lbl").innerHTML=d.results.length?d.results.map((x,i)=>`<li><span>${i+1}. ${esc(x.username)}</span><b>${fmt(x.score)}</b></li>`).join(""):"<li>No scores yet. Be the first!</li>"}
+catch(e){lbMsg("Couldn't load the leaderboard.",1)}}
+$("lbbtn").onclick=()=>{lbOv.classList.remove("hide");$("lbu").value="";lbMsg("");lbLoad()};
+$("lbclose").onclick=()=>lbOv.classList.add("hide");$("lbref").onclick=()=>{lbMsg("");lbLoad()};
+lbOv.addEventListener("click",e=>{if(e.target===lbOv)lbOv.classList.add("hide")});
+addEventListener("keydown",e=>{if(e.key==="Escape")lbOv.classList.add("hide")});
+$("lbsub").onclick=async()=>{
+const u=$("lbu").value.trim().toLowerCase();
+if(!/^[a-z0-9_]{3,20}$/.test(u))return lbMsg("Username: 3 to 20 letters, numbers or _",1);
+if(S.ch)return lbMsg("Admin tools were used on this save, so it can't be submitted. Reset to play legit.",1);
+if(NOLB)return lbLoad();
+lbMsg("Submitting...");
+try{const r=await fetch(LB_URL+"/api/score",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,score:S.t})});
+const d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
+lbMsg("Submitted! You are #"+d.rank);$("lbu").value="";lbLoad()}catch(e){lbMsg(e.message||"Couldn't submit",1)}};
 let ni=0;setInterval(()=>{ni=(ni+1)%NEWS.length;$("news").textContent=NEWS[ni]},6000);
 render();
 </script></body></html>
