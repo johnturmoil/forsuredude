@@ -192,14 +192,14 @@ setInterval(()=>{const now=performance.now(),dt=(now-last)/1000;last=now;const g
 function save(){try{S.ts=Date.now();localStorage.setItem("jlc2",JSON.stringify(S));$("status").textContent="Saved at "+new Date().toLocaleTimeString()}catch(e){$("status").textContent="Saving is unavailable here"}}
 setInterval(save,20000);$("save").onclick=save;
 $("reset").onclick=()=>{if(confirm("Reset all progress?")){S=fresh();try{localStorage.removeItem("jlc2")}catch(e){}render()}};
-const PIN="7569",ov=$("adm"),pv=$("pinv"),av=$("admv");
+const PIN="7426",ov=$("adm"),pv=$("pinv"),av=$("admv");
 function toast(m){const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
 function openAdm(){ov.classList.remove("hide");pv.classList.remove("hide");av.classList.add("hide");$("pin").value="";$("pmsg").textContent="";setTimeout(()=>$("pin").focus(),30)}
 function closeAdm(){ov.classList.add("hide")}
 $("pwr").onclick=openAdm;$("a-close").onclick=closeAdm;
 ov.addEventListener("click",e=>{if(e.target===ov)closeAdm()});
 addEventListener("keydown",e=>{if(e.key==="Escape")closeAdm()});
-function tryPin(){if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent=""}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
+function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent=""}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
 $("pgo").onclick=tryPin;$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin()});
 $("pno").onclick=()=>{closeAdm();if(S.pb){toast("2x clicks already claimed")}else{S.pb=1;S.cb=(S.cb||1)*2;toast("No PIN? Enjoy 2x clicks instead.");wave("#6aa6ff")}render()};
 ["lsel","lsel2"].forEach(id=>$(id).innerHTML=B.map((b,i)=>`<option value="${i}">${b[0]} ${b[1]}</option>`).join(""));
