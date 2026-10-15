@@ -246,11 +246,11 @@ const num=id=>{const v=Number($(id).value);return isFinite(v)&&v>0?v:null};
 const say=m=>{$("amsg").textContent=m;render()};
 function maxLi(i){S.own[i]=Math.max(S.own[i],500);UP.forEach(u=>{if(u.i===i)S.up[u.id]=1})}
 $("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();if(user==="guest"){try{localStorage.removeItem("jlc2")}catch(e){}}else if(user)saveCloud();say("Data reset")}};
-$("a-max").onclick=()=>{S.ch=1;B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
-$("a-maxli").onclick=()=>{S.ch=1;const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
-$("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;S.ch=1;say("Multiplier set to x"+fmt(v))};
-$("a-clicks").onclick=()=>{const v=num("clk");if(!v)return say("Enter a valid amount");const g=v*cv();S.n+=g;S.t+=g;S.c+=v;S.ch=1;say("Added "+fmt(v)+" clicks ("+fmt(g)+" Jaydens)")};
-$("a-give").onclick=()=>{const i=+$("lsel2").value,v=Math.floor(num("amt")||0);if(!v)return say("Enter a valid amount");S.own[i]+=v;S.ch=1;S.t=Math.max(S.t,B[i][2]);say("Gave "+fmt(v)+" "+B[i][1])};
+$("a-max").onclick=()=>{B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
+$("a-maxli").onclick=()=>{const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
+$("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;say("Multiplier set to x"+fmt(v))};
+$("a-clicks").onclick=()=>{const v=num("clk");if(!v)return say("Enter a valid amount");const g=v*cv();S.n+=g;S.t+=g;S.c+=v;say("Added "+fmt(v)+" clicks ("+fmt(g)+" Jaydens)")};
+$("a-give").onclick=()=>{const i=+$("lsel2").value,v=Math.floor(num("amt")||0);if(!v)return say("Enter a valid amount");S.own[i]+=v;S.t=Math.max(S.t,B[i][2]);say("Gave "+fmt(v)+" "+B[i][1])};
 const LB_URL="https://lb.moonscripts.live"; // leaderboard backend; endpoints are /api/leaderboard and /api/score
 const lbOv=$("lb"),NOLB=LB_URL.includes("YOUR-");
 const lbMsg=(m,bad)=>{const e=$("lbmsg");e.textContent=m;e.style.color=bad?"#f87171":"var(--p)"};
@@ -266,7 +266,6 @@ lbOv.addEventListener("click",e=>{if(e.target===lbOv)lbOv.classList.add("hide")}
 addEventListener("keydown",e=>{if(e.key==="Escape")lbOv.classList.add("hide")});
 $("lbsub").onclick=async()=>{
 if(!user||user==="guest")return lbMsg("Guests can't be on the leaderboard. Log in or register first.",1);
-if(S.ch)return lbMsg("Admin tools were used on this save. Add yourself from the admin panel, or reset to play legit.",1);
 lbMsg("Submitting...");
 try{await saveCloud();const d=await call("/api/submit",{});lbMsg("Submitted! You are #"+d.rank);lbLoad()}catch(e){lbMsg(e.message||"Couldn't submit",1)}};
 async function adm(path,body){
