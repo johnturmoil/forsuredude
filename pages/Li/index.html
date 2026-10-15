@@ -109,6 +109,9 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 .lbl li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .8rem;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
 .lbl li:nth-child(1){border-color:#ffd166;box-shadow:0 0 18px -8px #ffd166}
 .lbl b{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:1.2rem;color:var(--n)}
+.chk{display:flex;gap:.5rem;align-items:center}.pbox input[type=checkbox]{width:auto;flex:none}
+.pbox .two button.on{border-color:var(--n);background:rgba(255,255,255,.1)}
+#aerr,#acmsg{min-height:1.2em;font-size:.85rem;color:var(--p)}
 #pmsg,#amsg{min-height:1.2em;font-size:.85rem;color:#f87171}#amsg{color:var(--p)}
 .shk{animation:shk .4s}@keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .toast{position:fixed;left:50%;bottom:calc(60px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:#0d0d0f;border:1px solid var(--n);box-shadow:0 0 24px -6px var(--n);border-radius:999px;padding:.6rem 1.2rem;font-size:.9rem;pointer-events:none;animation:fl2 3s forwards}
@@ -118,7 +121,7 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <svg id="stars" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
 <div class="page">
 <section class="hero">
-<div class="toprow"><div class="badge"><b></b>Idle game</div><button id="lbbtn" class="pill">🏆 Leaderboard</button></div>
+<div class="toprow"><div class="badge"><b></b>Idle game</div><button id="lbbtn" class="pill">🏆 Leaderboard</button><button id="acbtn" class="pill">👤 Account</button></div>
 <h1><span>Jayden Li</span><span class="ghost">Clicker</span></h1>
 <p class="news" id="news">Jayden Li has entered the chat.</p>
 </section>
@@ -138,9 +141,24 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <div id="status"></div>
 </div>
 <button id="pwr" aria-label="Admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button>
+<div id="auth" class="ov" role="dialog" aria-modal="true" aria-label="Log in"><div class="pbox">
+<h3>Jayden Li Clicker</h3>
+<div class="two"><button id="tab-l" class="on">Log in</button><button id="tab-r">Register</button></div>
+<input id="au" type="text" maxlength="20" placeholder="Username" autocomplete="username">
+<input id="ap" type="password" maxlength="100" placeholder="Password (6+ characters)" autocomplete="current-password">
+<label class="chk hide" id="impw"><input id="imp" type="checkbox"> Import my guest progress into this account</label>
+<div id="aerr">Checking login...</div>
+<button id="ago" class="go">Log in</button>
+<button id="aguest" class="ghost">Play as guest (no leaderboard)</button>
+<button id="aclose" class="ghost hide">Cancel</button></div></div>
+<div id="acc" class="ov hide" role="dialog" aria-modal="true" aria-label="Account"><div class="pbox">
+<h3>Account</h3><p id="ainfo"></p>
+<button id="a-cloud" class="go">Save to cloud</button><button id="a-pull">Load from cloud</button><button id="a-imp">Import guest data</button>
+<button id="a-login" class="go">Log in / Register</button><button id="a-out">Log out</button>
+<div id="acmsg"></div><button id="acclose" class="ghost">Close</button></div></div>
 <div id="lb" class="ov hide" role="dialog" aria-modal="true" aria-label="Leaderboard"><div class="pbox">
-<h3>Leaderboard</h3><p>Score = total Jaydens earned. Enter a username every time you want to update your place.</p>
-<div class="inl"><input id="lbu" type="text" maxlength="20" placeholder="Username" autocomplete="off"><button id="lbsub" class="go">Submit</button></div>
+<h3>Leaderboard</h3><p>Score = total Jaydens earned. Press Submit to update your place. Guests can't be on the leaderboard.</p>
+<button id="lbsub" class="go">Submit my score</button>
 <div id="lbmsg"></div><ol id="lbl" class="lbl"></ol>
 <div class="two"><button id="lbref">Refresh</button><button id="lbclose" class="ghost">Close</button></div></div></div>
 <div id="adm" class="ov hide" role="dialog" aria-modal="true" aria-label="Admin panel"><div class="pbox" id="pbox">
@@ -172,7 +190,6 @@ const UP=[];B.forEach((b,i)=>TIERS.forEach((t,j)=>UP.push({id:i+"_"+j,i,own:t[0]
 const NEWS=["Jayden Li has entered the chat.","Family reunion of Lis causes Jayden shortage.","Every Li in the phone book has joined the grind.","Economists baffled by Jayden inflation.","Census confirms: there are a lot of Lis.","Experts say: more Jaydens.","The Jayden market hits all-time high.","Jayden Li declared a natural resource."];
 const fresh=()=>({ch:0,gm:1,cb:1,pb:0,n:0,t:0,c:0,own:B.map(()=>0),up:{},ts:Date.now()});
 let S=fresh();
-try{const s=JSON.parse(localStorage.getItem("jlc2")||"null");if(s&&s.own&&s.own.length===B.length)S=s}catch(e){}
 const $=id=>document.getElementById(id);
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mult=i=>{let m=1;UP.forEach(u=>{if(u.i===i&&S.up[u.id])m*=2});return m};
@@ -207,9 +224,13 @@ el.innerHTML=`<span class="nm">${B[u.i][0]} ${u.name}</span><small>Doubles outpu
 $("h-u").classList.toggle("hide",!any)}
 let last=performance.now();
 setInterval(()=>{const now=performance.now(),dt=(now-last)/1000;last=now;const g=cps()*dt;S.n+=g;S.t+=g;render()},100);
-function save(){try{S.ts=Date.now();localStorage.setItem("jlc2",JSON.stringify(S));$("status").textContent="Saved at "+new Date().toLocaleTimeString()}catch(e){$("status").textContent="Saving is unavailable here"}}
+let user=null,TOKEN="";
+try{TOKEN=localStorage.getItem("jlc2-token")||""}catch(e){}
+const setStatus=m=>$("status").textContent=m;
+function saveLocal(){try{S.ts=Date.now();localStorage.setItem("jlc2",JSON.stringify(S));setStatus("Saved on this device (guest) at "+new Date().toLocaleTimeString())}catch(e){setStatus("Saving is unavailable here")}}
+function save(){if(user==="guest")saveLocal();else if(user)saveCloud()}
 setInterval(save,20000);$("save").onclick=save;
-$("reset").onclick=()=>{if(confirm("Reset all progress?")){S=fresh();try{localStorage.removeItem("jlc2")}catch(e){}render()}};
+$("reset").onclick=()=>{if(user&&confirm("Reset all progress?")){S=fresh();if(user==="guest"){try{localStorage.removeItem("jlc2")}catch(e){}}else saveCloud();render()}};
 const PIN="7426",ov=$("adm"),pv=$("pinv"),av=$("admv");
 function toast(m){const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
 function openAdm(){ov.classList.remove("hide");pv.classList.remove("hide");av.classList.add("hide");$("pin").value="";$("pmsg").textContent="";setTimeout(()=>$("pin").focus(),30)}
@@ -217,14 +238,14 @@ function closeAdm(){ov.classList.add("hide")}
 $("pwr").onclick=openAdm;$("a-close").onclick=closeAdm;
 ov.addEventListener("click",e=>{if(e.target===ov)closeAdm()});
 addEventListener("keydown",e=>{if(e.key==="Escape")closeAdm()});
-function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;S.ch=1;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent="";eList()}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
+function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;S.ch=1;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent="";eList();if(user&&user!=="guest"&&!$("eu").value)$("eu").value=user}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
 $("pgo").onclick=tryPin;$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin()});
 $("pno").onclick=()=>{closeAdm();if(S.pb){toast("2x clicks already claimed")}else{S.pb=1;S.cb=(S.cb||1)*2;toast("No PIN? Enjoy 2x clicks instead.");wave("#6aa6ff")}render()};
 ["lsel","lsel2"].forEach(id=>$(id).innerHTML=B.map((b,i)=>`<option value="${i}">${b[0]} ${b[1]}</option>`).join(""));
 const num=id=>{const v=Number($(id).value);return isFinite(v)&&v>0?v:null};
 const say=m=>{$("amsg").textContent=m;render()};
 function maxLi(i){S.own[i]=Math.max(S.own[i],500);UP.forEach(u=>{if(u.i===i)S.up[u.id]=1})}
-$("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();try{localStorage.removeItem("jlc2")}catch(e){}say("Data reset")}};
+$("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();if(user==="guest"){try{localStorage.removeItem("jlc2")}catch(e){}}else if(user)saveCloud();say("Data reset")}};
 $("a-max").onclick=()=>{S.ch=1;B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
 $("a-maxli").onclick=()=>{S.ch=1;const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
 $("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;S.ch=1;say("Multiplier set to x"+fmt(v))};
@@ -239,19 +260,15 @@ if(NOLB)return lbMsg("Leaderboard server isn't set up yet. Set LB_URL in the cod
 try{const r=await fetch(LB_URL+"/api/leaderboard"),d=await r.json();
 $("lbl").innerHTML=d.results.length?d.results.map((x,i)=>`<li><span>${i+1}. ${esc(x.username)}</span><b>${fmt(x.score)}</b></li>`).join(""):"<li>No scores yet. Be the first!</li>"}
 catch(e){lbMsg("Couldn't load the leaderboard.",1)}}
-$("lbbtn").onclick=()=>{lbOv.classList.remove("hide");$("lbu").value="";lbMsg("");lbLoad()};
+$("lbbtn").onclick=()=>{lbOv.classList.remove("hide");lbMsg(user==="guest"?"Log in to appear on the leaderboard.":"");lbLoad()};
 $("lbclose").onclick=()=>lbOv.classList.add("hide");$("lbref").onclick=()=>{lbMsg("");lbLoad()};
 lbOv.addEventListener("click",e=>{if(e.target===lbOv)lbOv.classList.add("hide")});
 addEventListener("keydown",e=>{if(e.key==="Escape")lbOv.classList.add("hide")});
 $("lbsub").onclick=async()=>{
-const u=$("lbu").value.trim().toLowerCase();
-if(!/^[a-z0-9_]{3,20}$/.test(u))return lbMsg("Username: 3 to 20 letters, numbers or _",1);
+if(!user||user==="guest")return lbMsg("Guests can't be on the leaderboard. Log in or register first.",1);
 if(S.ch)return lbMsg("Admin tools were used on this save. Add yourself from the admin panel, or reset to play legit.",1);
-if(NOLB)return lbLoad();
 lbMsg("Submitting...");
-try{const r=await fetch(LB_URL+"/api/score",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,score:S.t})});
-const d=await r.json();if(!r.ok)throw new Error(d.error||"Failed");
-lbMsg("Submitted! You are #"+d.rank);$("lbu").value="";lbLoad()}catch(e){lbMsg(e.message||"Couldn't submit",1)}};
+try{await saveCloud();const d=await call("/api/submit",{});lbMsg("Submitted! You are #"+d.rank);lbLoad()}catch(e){lbMsg(e.message||"Couldn't submit",1)}};
 async function adm(path,body){
 if(NOLB)throw new Error("Set LB_URL first");
 const r=await fetch(LB_URL+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body||{})});
@@ -268,6 +285,44 @@ $("e-del").onclick=async()=>{const u=eu();if(!okName(u))return say("Pick or type
 try{await adm("/api/admin/delete",{username:u});say(u+" deleted");eList()}catch(e){say(e.message)}};
 $("e-clear").onclick=async()=>{if(!confirm("Delete EVERY leaderboard entry?"))return;try{await adm("/api/admin/clear");say("Leaderboard cleared");eList()}catch(e){say(e.message)}};
 $("e-ref").onclick=eList;
+const guestData=()=>{try{const s=JSON.parse(localStorage.getItem("jlc2")||"null");return s&&s.own&&s.own.length===B.length?s:null}catch(e){return null}};
+function setToken(v){TOKEN=v;try{v?localStorage.setItem("jlc2-token",v):localStorage.removeItem("jlc2-token")}catch(e){}}
+async function call(path,body){
+if(NOLB)throw new Error("Server not set up (LB_URL)");
+const h={"Content-Type":"application/json"};if(TOKEN)h.Authorization="Bearer "+TOKEN;
+const r=await fetch(LB_URL+path,body===undefined?{headers:h}:{method:"POST",headers:h,body:JSON.stringify(body)});
+let d={};try{d=await r.json()}catch(e){}
+if(r.status===401&&TOKEN&&!/login|register/.test(path)){setToken("");user=null;showAuth("Session expired. Please log in again.")}
+if(!r.ok)throw new Error(d.error||"Request failed ("+r.status+")");return d}
+async function saveCloud(){if(!user||user==="guest")return;try{S.ts=Date.now();await call("/api/save",{state:S});setStatus("Saved online at "+new Date().toLocaleTimeString())}catch(e){setStatus("Online save failed: "+e.message.slice(0,100))}}
+function loadState(st){S=st&&st.own&&st.own.length===B.length?Object.assign(fresh(),st):fresh();render()}
+const applyMode=()=>{$("acbtn").textContent="👤 "+(user==="guest"?"Guest":user||"Account")};
+let reg=false;
+function tab(r){reg=r;$("tab-l").classList.toggle("on",!r);$("tab-r").classList.toggle("on",r);$("ago").textContent=r?"Create account":"Log in";$("ap").autocomplete=r?"new-password":"current-password";$("imp").checked=r;$("aerr").textContent=""}
+function showAuth(msg,closable){$("auth").classList.remove("hide");$("aerr").textContent=msg||"";$("aclose").classList.toggle("hide",!closable);$("impw").classList.toggle("hide",!guestData());$("imp").checked=reg}
+function enter(name,token,state,g){user=name;setToken(token);$("auth").classList.add("hide");applyMode();loadState(g||state);if(g)saveCloud();setStatus("Logged in as "+name)}
+$("tab-l").onclick=()=>tab(false);$("tab-r").onclick=()=>tab(true);$("aclose").onclick=()=>$("auth").classList.add("hide");
+$("ago").onclick=async()=>{
+const u=$("au").value.trim().toLowerCase(),p=$("ap").value,e=$("aerr");
+if(!/^[a-z0-9_]{3,20}$/.test(u))return e.textContent="Username: 3 to 20 letters, numbers or _";
+if(p.length<6)return e.textContent="Password must be at least 6 characters";
+const g=$("imp").checked?guestData():null;
+if(g&&!reg&&!confirm("This replaces the progress saved on this account with your guest progress. Continue?"))return;
+e.textContent=reg?"Creating account...":"Logging in...";
+try{const d=await call(reg?"/api/register":"/api/login",{username:u,password:p});$("ap").value="";enter(d.username,d.token,d.state,g)}catch(er){e.textContent=er.message}};
+$("ap").addEventListener("keydown",e=>{if(e.key==="Enter")$("ago").click()});
+$("aguest").onclick=()=>{user="guest";$("auth").classList.add("hide");applyMode();loadState(guestData())};
+$("acbtn").onclick=()=>{const g=user==="guest";$("acc").classList.remove("hide");$("acmsg").textContent="";
+$("ainfo").textContent=g?"Playing as guest. Progress is saved on this device only, and guests can't join the leaderboard.":"Logged in as "+user+". Progress saves online automatically.";
+["a-cloud","a-pull","a-out"].forEach(id=>$(id).classList.toggle("hide",g));$("a-imp").classList.toggle("hide",g||!guestData());$("a-login").classList.toggle("hide",!g)};
+$("acclose").onclick=()=>$("acc").classList.add("hide");
+$("a-cloud").onclick=async()=>{await saveCloud();$("acmsg").textContent=$("status").textContent};
+$("a-pull").onclick=async()=>{try{const d=await call("/api/me");loadState(d.state);$("acmsg").textContent="Loaded from cloud"}catch(e){$("acmsg").textContent=e.message}};
+$("a-imp").onclick=async()=>{const g=guestData();if(!g)return;if(!confirm("This replaces your online progress with your guest progress. Continue?"))return;loadState(g);await saveCloud();$("acmsg").textContent="Guest progress imported"};
+$("a-login").onclick=()=>{saveLocal();$("acc").classList.add("hide");tab(false);showAuth("",true)};
+$("a-out").onclick=async()=>{await saveCloud();try{await call("/api/logout",{})}catch(e){}setToken("");user=null;S=fresh();render();$("acc").classList.add("hide");tab(false);applyMode();showAuth("")};
+document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
+(async()=>{if(TOKEN){try{const d=await call("/api/me");enter(d.username,TOKEN,d.state);return}catch(e){}showAuth("Couldn't restore your session.");return}showAuth("")})();
 let ni=0;setInterval(()=>{ni=(ni+1)%NEWS.length;$("news").textContent=NEWS[ni]},6000);
 render();
 </script></body></html>
