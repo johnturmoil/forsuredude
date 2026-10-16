@@ -6,7 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{color-scheme:dark;--bg:#050505;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--bh:rgba(255,255,255,.18);--tx:#fff;--mu:rgba(255,255,255,.45);--n:#6aa6ff;--p:#7be0a4;--i:#f0a35e;--c:var(--n);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:dark;--bg:#050505;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--bh:rgba(255,255,255,.18);--tx:#fff;--mu:rgba(255,255,255,.45);--k:#c58bff;--n:#6aa6ff;--p:#7be0a4;--i:#f0a35e;--c:var(--n);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--tx);font-family:'Outfit','Trebuchet MS',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
 #stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
@@ -35,7 +35,7 @@ h1 .ghost{color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.22)}
 .stat::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--c);box-shadow:0 0 14px var(--c)}
 .stat b{display:block;font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:2.2rem;letter-spacing:.04em;color:var(--c);text-shadow:0 0 20px color-mix(in srgb,var(--c) 55%,transparent);overflow-wrap:anywhere}
 .stat span{color:var(--mu);font-size:.78rem}
-#s1{--c:var(--n)}#s2{--c:var(--p)}#s3{--c:var(--i)}
+#s4{--c:var(--k)}#s1{--c:var(--n)}#s2{--c:var(--p)}#s3{--c:var(--i)}
 .stage{position:relative;display:flex;justify-content:center;margin:1.5rem 0 .5rem}
 .stage::before{content:'';position:absolute;width:420px;height:420px;max-width:100%;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(106,166,255,.16) 0%,transparent 70%);animation:glow 6s ease-in-out infinite}
 @keyframes glow{50%{opacity:.6;transform:translate(-50%,-50%) scale(1.12)}}
@@ -110,12 +110,23 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 .lbl li:nth-child(1){border-color:#ffd166;box-shadow:0 0 18px -8px #ffd166}
 .lbl b{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;font-size:1.2rem;color:var(--n)}
 .chk{display:flex;gap:.5rem;align-items:center}.pbox input[type=checkbox]{width:auto;flex:none}
+#atokrow{margin-top:0}#atokrow input{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem}
 .pbox .two button.on{border-color:var(--n);background:rgba(255,255,255,.1)}
 #aerr,#acmsg{min-height:1.2em;font-size:.85rem;color:var(--p)}
 #pmsg,#amsg{min-height:1.2em;font-size:.85rem;color:#f87171}#amsg{color:var(--p)}
 .shk{animation:shk .4s}@keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .toast{position:fixed;left:50%;bottom:calc(60px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:#0d0d0f;border:1px solid var(--n);box-shadow:0 0 24px -6px var(--n);border-radius:999px;padding:.6rem 1.2rem;font-size:.9rem;pointer-events:none;animation:fl2 3s forwards}
 @keyframes fl2{80%{opacity:1}to{opacity:0}}
+small{white-space:pre-line}
+#big .face{display:none}#big .face.on{display:block}
+.fp.gold{color:#ffd166;text-shadow:0 0 14px #ffd166}
+.rbtn{width:100%;--c:var(--k)}.rbtn .bar i{background:var(--k);box-shadow:0 0 8px var(--k)}
+#rtree{--c:var(--k)}
+.trow{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.7rem;position:relative}
+.trow:not(:last-child)::after{content:'';position:absolute;bottom:-1.4rem;left:50%;width:2px;height:1.1rem;background:rgba(255,255,255,.35);box-shadow:0 0 6px #fff}
+.node{width:150px;text-align:center;padding:.7rem .6rem}
+.node.own{border-color:var(--k);box-shadow:0 0 22px -6px var(--k),inset 0 0 18px -10px var(--k)}
+.node.own:disabled{opacity:1}.node.lock{opacity:.35}.node.av{opacity:.7}
 </style></head><body>
 <div class="aurora"><i></i><i></i><i></i></div>
 <svg id="stars" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
@@ -130,13 +141,17 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <div class="stat" id="s1"><b id="n">0</b><span>Jaydens</span></div>
 <div class="stat" id="s2"><b id="cps">0</b><span>Per second</span></div>
 <div class="stat" id="s3"><b id="cv">1</b><span>Per click</span></div>
+<div class="stat hide" id="s4"><b id="lp">0</b><span>Li Points</span></div>
 </div>
-<div class="stage"><button id="big" aria-label="Click Jayden"><img id="face" alt=""></button></div>
+<div class="stage"><button id="big" aria-label="Click Jayden"></button></div>
 <div class="row"><button id="maxbtn" class="maxbtn" aria-pressed="false"><span class="lbl">Buy max</span><span class="track"></span></button></div>
 <h2 id="h-u" class="hide">Upgrades</h2>
 <div class="grid" id="g-u"></div>
 <h2>The Li family</h2>
 <div class="grid" id="g-b"></div>
+<div id="rbsec" class="hide"><h2>Rebirth</h2>
+<button id="rebtn" class="rbtn"><span class="nm" id="rbn"></span><small id="rbs"></small><span class="bar"><i id="rbbar"></i></span></button>
+<h2>Rebirth tree</h2><div id="rtree"></div></div>
 <div class="row" style="margin-top:2rem"><button class="tool" id="save">Save now</button><button class="tool" id="reset">Reset</button></div>
 <div id="status"></div>
 </div>
@@ -150,6 +165,8 @@ small{display:block;color:var(--mu);font-weight:300;font-size:.82rem;line-height
 <div id="aerr">Checking login...</div>
 <button id="ago" class="go">Log in</button>
 <button id="aguest" class="ghost">Play as guest (no leaderboard)</button>
+<button id="atokbtn" class="ghost">Have a login token?</button>
+<div id="atokrow" class="row hide"><input id="atok" type="text" placeholder="Paste login token" autocomplete="off"><button id="atokgo" class="go">Use token</button></div>
 <button id="aclose" class="ghost hide">Cancel</button></div></div>
 <div id="acc" class="ov hide" role="dialog" aria-modal="true" aria-label="Account"><div class="pbox">
 <h3>Account</h3><p id="ainfo"></p>
@@ -185,45 +202,81 @@ a.setAttribute('attributeName','opacity');a.setAttribute('values',op+';'+(op*.12
 const SUF=["","K","M","B","T","Qd","Qn","Sx","Sp","Oc","No","Dc"];
 function fmt(x){if(!isFinite(x))return"Infinity";if(x<1000)return String(+x.toFixed(x<10?1:0));const k=Math.floor(Math.log10(x)/3);if(k>=SUF.length)return x.toExponential(2);return(x/Math.pow(10,3*k)).toFixed(2)+SUF[k]}
 const B=[["🖱️","Cursor Li",15,.1],["👵","Auntie Li",100,1],["🌾","Farmer Li",1100,8],["⛏️","Miner Li",12000,47],["🏭","Boss Li",130000,260],["🏦","Banker Li",1.4e6,1400],["⛩️","Monk Li",2e7,7800],["🧙","Wizard Li",3.3e8,44000],["🚀","Astronaut Li",5.1e9,260000],["⚗️","Alchemist Li",7.5e10,1.6e6],["🌀","Portal Li",1e12,1e7],["⏳","Time Traveller Li",1.4e13,6.5e7]];
-const TIERS=[[1,10],[5,50],[25,500],[50,5000]];
+const TIERS=[[1,10],[5,50],[25,500],[50,5000],[100,5e4]];
 const UP=[];B.forEach((b,i)=>TIERS.forEach((t,j)=>UP.push({id:i+"_"+j,i,own:t[0],cost:b[2]*t[1],name:b[1]+" x2"})));
+const UPB=B.map((b,i)=>UP.filter(u=>u.i===i));
 const NEWS=["Jayden Li has entered the chat.","Family reunion of Lis causes Jayden shortage.","Every Li in the phone book has joined the grind.","Economists baffled by Jayden inflation.","Census confirms: there are a lot of Lis.","Experts say: more Jaydens.","The Jayden market hits all-time high.","Jayden Li declared a natural resource."];
-const fresh=()=>({ch:0,gm:1,cb:1,pb:0,n:0,t:0,c:0,own:B.map(()=>0),up:{},ts:Date.now()});
+const fresh=()=>({ch:0,gm:1,cb:1,pb:0,rt:0,lp:0,lpt:0,rbs:0,rb:{},n:0,t:0,c:0,own:B.map(()=>0),up:{},ts:Date.now()});
 let S=fresh();
 const $=id=>document.getElementById(id);
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const mult=i=>{let m=1;UP.forEach(u=>{if(u.i===i&&S.up[u.id])m*=2});return m};
-const cost=i=>Math.ceil(B[i][2]*Math.pow(1.15,S.own[i]));
-const G=()=>S.gm||1;
+const hr=k=>!!(S.rb&&S.rb[k]);
+const mult=i=>{let m=1;UPB[i].forEach(u=>{if(S.up[u.id])m*=2});if(i===0&&hr("r5"))m*=1.5;if((i===1||i===2)&&hr("r6"))m*=1.5;if(i>=7&&hr("r11"))m*=1.3;return m};
+const cost=i=>Math.ceil(B[i][2]*Math.pow(1.15,S.own[i])*(hr("r3")?.98:1)*(hr("r9")?.97:1));
+const BASE=8; // base production multiplier (balancing)
+const G=()=>BASE*(S.gm||1)*(1+.01*(S.lpt||0))*(hr("r1")?1.2:1)*(hr("r8")?1.2:1)*(hr("r13")?1+.01*(S.rbs||0):1)*(hr("r14")?1.3:1);
 const cps=()=>B.reduce((a,b,i)=>a+S.own[i]*b[3]*mult(i)*G(),0);
-const cv=()=>mult(0)*(S.cb||1)*G();
+const cv=()=>(mult(0)*G()+cps()*.03)*(S.cb||1)*(hr("r2")?1.25:1);
 let maxOn=false;
-function sparks(x,y,col){if(calm)return;for(let k=0;k<12;k++){const d=document.createElement('div'),a=Math.random()*6.28,r=30+Math.random()*60;d.className='spark';d.style.cssText='left:'+x+'px;top:'+y+'px;--dx:'+Math.cos(a)*r+'px;--dy:'+Math.sin(a)*r+'px;background:'+col+';box-shadow:0 0 8px '+col;document.body.appendChild(d);setTimeout(()=>d.remove(),600)}}
+function sparks(x,y,col){if(calm||document.getElementsByClassName('spark').length>36)return;for(let k=0;k<8;k++){const d=document.createElement('div'),a=Math.random()*6.28,r=30+Math.random()*60;d.className='spark';d.style.cssText='left:'+x+'px;top:'+y+'px;--dx:'+Math.cos(a)*r+'px;--dy:'+Math.sin(a)*r+'px;background:'+col+';box-shadow:0 0 8px '+col;document.body.appendChild(d);setTimeout(()=>d.remove(),600)}}
 function wave(col){if(calm)return;['wave','flash'].forEach(c=>{const d=document.createElement('div');d.className=c;d.style.setProperty('--c',col);document.body.appendChild(d);setTimeout(()=>d.remove(),1000)})}
 document.addEventListener('pointermove',e=>{const b=e.target.closest&&e.target.closest('button');if(b){const r=b.getBoundingClientRect();b.style.setProperty('--mx',(e.clientX-r.left)+'px');b.style.setProperty('--my',(e.clientY-r.top)+'px')}});
-let idx=0;$("face").src=IMGS[0];
-$("big").addEventListener("click",e=>{const v=cv();S.n+=v;S.t+=v;S.c++;idx=(idx+1)%IMGS.length;$("face").src=IMGS[idx];
+let idx=0;const faces=IMGS.map(s=>{const im=new Image();im.src=s;im.alt="";im.className="face";$("big").appendChild(im);return im});faces[0].classList.add("on");
+$("big").addEventListener("click",e=>{let v=cv();const gold=hr("r7")&&Math.random()<.05;if(gold)v*=10;S.n+=v;S.t+=v;S.rt+=v;S.c++;faces[idx].classList.remove("on");idx=(idx+1)%faces.length;faces[idx].classList.add("on");
 const big=$("big");big.classList.remove("hit");void big.offsetWidth;big.classList.add("hit");
 const r=big.getBoundingClientRect(),x=e.clientX||r.left+r.width/2,y=e.clientY||r.top+r.height/2;
-const d=document.createElement('div');d.className='fp';d.textContent='+'+fmt(v);d.style.left=(x-20)+'px';d.style.top=(y-24)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),900);
+const d=document.createElement('div');d.className='fp'+(gold?' gold':'');d.textContent='+'+fmt(v);d.style.left=(x-20)+'px';d.style.top=(y-24)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),900);
 sparks(x,y,'#6aa6ff');render()});
 $("maxbtn").onclick=()=>{maxOn=!maxOn;$("maxbtn").setAttribute("aria-pressed",maxOn)};
-const bb=[],ub={};
-B.forEach((b,i)=>{const el=document.createElement("button");el.className="bd";el.onclick=()=>{let c=0;while(S.n>=cost(i)){S.n-=cost(i);S.own[i]++;c++;if(!maxOn||c>=500)break}
-if(c){bump(el);const r=el.getBoundingClientRect();sparks(r.left+r.width/2,r.top+r.height/2,'#6aa6ff')}render()};
-$("g-b").appendChild(el);bb.push(el)});
-UP.forEach(u=>{const el=document.createElement("button");el.className="up";el.onclick=()=>{if(S.n>=u.cost){S.n-=u.cost;S.up[u.id]=1;const r=el.getBoundingClientRect();sparks(r.left+r.width/2,r.top+r.height/2,'#7be0a4');wave('#7be0a4');render()}};$("g-u").appendChild(el);ub[u.id]=el});
-function bump(el){if(calm)return;el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
+const bb=[],ub={},C={};
+const mk=(cls,nm)=>{const el=document.createElement("button");el.className=cls;el.innerHTML='<span class="nm"></span> <span class="lv"></span><small></small><span class="bar"><i></i></span>';
+el.children[0].textContent=nm;return{el,lv:el.children[1],sm:el.children[2],bar:el.children[3].firstChild,c:{}}};
+const ro=(r,k,v)=>{if(r.c[k]!==v){r.c[k]=v;r[k].textContent=v}};
+const rf=(r,k,on,cls)=>{if(r.c[k]!==on){r.c[k]=on;r.el.classList.toggle(cls,on)}};
+const rw=(r,w)=>{if(r.c.w!==w){r.c.w=w;r.bar.style.width=w+"%"}};
+const rd=(r,can)=>{if(r.el.disabled===can)r.el.disabled=!can};
+const sc=(id,x)=>{if(C[id]!==x){C[id]=x;$(id).textContent=x}};
+const tg=(id,cls,on)=>{const k=id+cls;if(C[k]!==on){C[k]=on;$(id).classList.toggle(cls,on)}};
+B.forEach((b,i)=>{const r=mk("bd",b[0]+" "+b[1]);r.el.onclick=()=>{let c=0;while(S.n>=cost(i)){S.n-=cost(i);S.own[i]++;c++;if(!maxOn||c>=500)break}
+if(c){const q=r.el.getBoundingClientRect();sparks(q.left+q.width/2,q.top+q.height/2,'#6aa6ff');if(!calm){r.el.classList.remove('bump');void r.el.offsetWidth;r.el.classList.add('bump')}}render()};
+$("g-b").appendChild(r.el);bb.push(r)});
+UP.forEach(u=>{const r=mk("up",B[u.i][0]+" "+u.name);r.el.onclick=()=>{if(S.n>=u.cost){S.n-=u.cost;S.up[u.id]=1;const q=r.el.getBoundingClientRect();sparks(q.left+q.width/2,q.top+q.height/2,'#7be0a4');wave('#7be0a4');render()}};
+r.sm.textContent="Doubles output"+(u.i===0?" and click power":"")+"\nCost: "+fmt(u.cost)+" Jaydens";$("g-u").appendChild(r.el);ub[u.id]=r});
+// ---- rebirth ----
+const RB={r1:["Family Ties","+20% all production",1,[]],r2:["Steady Fingers","+25% click power",1,["r1"]],r3:["Bulk Discount","Buildings 2% cheaper",1,["r1"]],r4:["Seed Money","Start each run with 5,000 Jaydens",1,["r2"]],r5:["Cursor Training","Cursor Li x1.5",2,["r2"]],r6:["Family Business","Auntie Li and Farmer Li x1.5",2,["r3"]],r7:["Golden Click","5% of clicks give x10",2,["r5"]],r8:["Boss Energy","+20% all production",2,["r6"]],r9:["Efficient Hiring","Buildings 3% cheaper",2,["r6"]],r10:["Head Start","Start runs with 10 Cursor Li and 5 Auntie Li",3,["r4"]],r11:["Mystic Arts","Wizard Li and above x1.3",3,["r8"]],r12:["Offline Dividends","Full offline earnings (normally half)",3,["r10"]],r13:["Li Legacy","+1% production per rebirth",3,["r8"]],r14:["Grand Family","+30% all production",4,["r11","r13"]]};
+const RK=Object.keys(RB),nodes={};
+const dep=k=>RB[k][3].length?1+Math.max(...RB[k][3].map(dep)):0;
+(()=>{const rows=[];RK.forEach(k=>{(rows[dep(k)]=rows[dep(k)]||[]).push(k)});
+rows.forEach(ks=>{const row=document.createElement("div");row.className="trow";
+ks.forEach(k=>{const el=document.createElement("button");el.innerHTML='<span class="nm">'+RB[k][0]+'</span><small>'+RB[k][1]+'</small><small></small>';el.onclick=()=>buyNode(k);nodes[k]={el,cst:el.lastChild,st:""};row.appendChild(el)});$("rtree").appendChild(row)})})();
+function buyNode(k){const n=RB[k];if(hr(k)||!n[3].every(hr)||S.lp<n[2])return;S.lp-=n[2];S.rb[k]=1;const q=nodes[k].el.getBoundingClientRect();sparks(q.left+q.width/2,q.top+q.height/2,"#c58bff");render();save()}
+const rbGain=()=>S.own[9]>0?1:0;
+function rebirth(){const g=rbGain();if(g<1)return;
+if(!confirm("Rebirth for 1 Li Point? This resets your Jaydens, buildings and upgrades. You keep Li Points, your rebirth tree and your total earned."))return;
+S.lp+=g;S.lpt+=g;S.rbs++;S.n=hr("r4")?5000:0;S.rt=0;S.own=B.map(()=>0);S.up={};if(hr("r10")){S.own[0]=10;S.own[1]=5}
+wave("#c58bff");toast("Reborn! +1 Li Point");render();save()}
+$("rebtn").onclick=rebirth;
 function render(){
-$("n").textContent=fmt(Math.floor(S.n));$("cps").textContent=fmt(cps());$("cv").textContent=fmt(cv());document.title=fmt(Math.floor(S.n))+" Jaydens";
-B.forEach((b,i)=>{const el=bb[i],c=cost(i),can=S.n>=c;el.classList.toggle("hide",!(S.t>=b[2]*.5||S.own[i]>0||i===0));el.classList.toggle("can",can);el.disabled=!can;
-el.innerHTML=`<span class="nm">${b[0]} ${b[1]}</span> <span class="lv">(${S.own[i]})</span><small>Makes ${fmt(b[3]*mult(i)*G())}/s each · ${fmt(S.own[i]*b[3]*mult(i)*G())}/s total<br>Cost: ${fmt(c)} Jaydens</small><span class="bar"><i style="width:${Math.min(100,S.n/c*100)}%"></i></span>`});
+const cp=cps();
+sc("n",fmt(Math.floor(S.n)));sc("cps",fmt(cp));sc("cv",fmt(cv()));sc("lp",fmt(S.lp||0));
+const ti=fmt(Math.floor(S.n))+" Jaydens";if(C.t!==ti){C.t=ti;document.title=ti}
+tg("s4","hide",!(S.lpt>0||S.rbs>0));
+B.forEach((b,i)=>{const r=bb[i],c=cost(i),can=S.n>=c,m=b[3]*mult(i)*G();
+rf(r,"h",!(S.t>=b[2]*.5||S.own[i]>0||i===0),"hide");rf(r,"c",can,"can");rd(r,can);
+ro(r,"lv","("+S.own[i]+")");ro(r,"sm","Makes "+fmt(m)+"/s each · "+fmt(S.own[i]*m)+"/s total\nCost: "+fmt(c)+" Jaydens");rw(r,Math.min(100,S.n/c*100)|0)});
 let any=false;
-UP.forEach(u=>{const el=ub[u.id],show=!S.up[u.id]&&S.own[u.i]>=u.own,can=S.n>=u.cost;el.classList.toggle("hide",!show);if(!show)return;any=true;el.classList.toggle("can",can);el.disabled=!can;
-el.innerHTML=`<span class="nm">${B[u.i][0]} ${u.name}</span><small>Doubles output${u.i===0?' and click power':''}<br>Cost: ${fmt(u.cost)} Jaydens</small><span class="bar"><i style="width:${Math.min(100,S.n/u.cost*100)}%"></i></span>`});
-$("h-u").classList.toggle("hide",!any)}
+UP.forEach(u=>{const r=ub[u.id],show=!S.up[u.id]&&S.own[u.i]>=u.own,can=S.n>=u.cost;rf(r,"h",!show,"hide");if(!show)return;any=true;rf(r,"c",can,"can");rd(r,can);rw(r,Math.min(100,S.n/u.cost*100)|0)});
+tg("h-u","hide",!any);
+const un=S.own[9]>0||S.rbs>0||S.lpt>0;tg("rbsec","hide",!un);
+if(un){const g=rbGain();
+sc("rbn",g?"Rebirth: +1 Li Point":"Rebirth (needs an Alchemist Li)");
+sc("rbs",g?"Resets Jaydens, buildings and upgrades. Keeps your Li Points, tree and total earned.":"Buy an Alchemist Li to be able to rebirth. Each rebirth gives exactly 1 Li Point.");
+const w=g?100:Math.min(100,(S.rt||0)/B[9][2]*100)|0;if(C.rw!==w){C.rw=w;$("rbbar").style.width=w+"%"}
+tg("rebtn","can",g>=1);$("rebtn").disabled=g<1;
+RK.forEach(k=>{const n=RB[k],r=nodes[k],own=hr(k),open=n[3].every(hr),can=!own&&open&&S.lp>=n[2],st=own?"own":can?"can":open?"av":"lock";
+if(r.st!==st){r.st=st;r.el.className="node "+st;r.el.disabled=st!=="can";r.cst.textContent=own?"Unlocked":"Cost: "+n[2]+" LP"+(open?"":" (needs "+n[3].map(x=>RB[x][0]).join(" + ")+")")}})}}
 let last=performance.now();
-setInterval(()=>{const now=performance.now(),dt=(now-last)/1000;last=now;const g=cps()*dt;S.n+=g;S.t+=g;render()},100);
+setInterval(()=>{const now=performance.now(),dt=(now-last)/1000;last=now;const g=cps()*dt;S.n+=g;S.t+=g;S.rt+=g;if(!document.hidden)render()},100);
 let user=null,TOKEN="";
 try{TOKEN=localStorage.getItem("jlc2-token")||""}catch(e){}
 const setStatus=m=>$("status").textContent=m;
@@ -238,7 +291,7 @@ function closeAdm(){ov.classList.add("hide")}
 $("pwr").onclick=openAdm;$("a-close").onclick=closeAdm;
 ov.addEventListener("click",e=>{if(e.target===ov)closeAdm()});
 addEventListener("keydown",e=>{if(e.key==="Escape")closeAdm()});
-function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent="";eList();if(user&&user!=="guest"&&!$("eu").value)$("eu").value=user}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
+function tryPin(){if($("pin").value==="1234"){closeAdm();S.n+=1e9;S.t+=1e9;S.rt+=1e9;toast("+1B Jaydens!");wave("#7be0a4");sparks(innerWidth/2,innerHeight/2,"#7be0a4");render()}else if($("pin").value===PIN){pv.classList.add("hide");av.classList.remove("hide");$("amsg").textContent="";eList();if(user&&user!=="guest"&&!$("eu").value)$("eu").value=user}else{$("pmsg").textContent="Wrong PIN";const b=$("pbox");b.classList.remove("shk");void b.offsetWidth;b.classList.add("shk");$("pin").value=""}}
 $("pgo").onclick=tryPin;$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")tryPin()});
 $("pno").onclick=()=>{closeAdm();if(S.pb){toast("2x clicks already claimed")}else{S.pb=1;S.cb=(S.cb||1)*2;toast("No PIN? Enjoy 2x clicks instead.");wave("#6aa6ff")}render()};
 ["lsel","lsel2"].forEach(id=>$(id).innerHTML=B.map((b,i)=>`<option value="${i}">${b[0]} ${b[1]}</option>`).join(""));
@@ -246,10 +299,10 @@ const num=id=>{const v=Number($(id).value);return isFinite(v)&&v>0?v:null};
 const say=m=>{$("amsg").textContent=m;render()};
 function maxLi(i){S.own[i]=Math.max(S.own[i],500);UP.forEach(u=>{if(u.i===i)S.up[u.id]=1})}
 $("a-reset").onclick=()=>{if(confirm("Reset ALL data?")){S=fresh();if(user==="guest"){try{localStorage.removeItem("jlc2")}catch(e){}}else if(user)saveCloud();say("Data reset")}};
-$("a-max").onclick=()=>{B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);say("Everything maxed")};
+$("a-max").onclick=()=>{B.forEach((b,i)=>maxLi(i));S.n=Math.max(S.n,1e60);S.t=Math.max(S.t,1e60);S.rt=Math.max(S.rt||0,1e60);say("Everything maxed")};
 $("a-maxli").onclick=()=>{const i=+$("lsel").value;maxLi(i);S.t=Math.max(S.t,B[i][2]);say(B[i][1]+" maxed")};
 $("a-mult").onclick=()=>{const v=num("mult");if(!v)return say("Enter a valid multiplier");S.gm=v;say("Multiplier set to x"+fmt(v))};
-$("a-clicks").onclick=()=>{const v=num("clk");if(!v)return say("Enter a valid amount");const g=v*cv();S.n+=g;S.t+=g;S.c+=v;say("Added "+fmt(v)+" clicks ("+fmt(g)+" Jaydens)")};
+$("a-clicks").onclick=()=>{const v=num("clk");if(!v)return say("Enter a valid amount");const g=v*cv();S.n+=g;S.t+=g;S.rt+=g;S.c+=v;say("Added "+fmt(v)+" clicks ("+fmt(g)+" Jaydens)")};
 $("a-give").onclick=()=>{const i=+$("lsel2").value,v=Math.floor(num("amt")||0);if(!v)return say("Enter a valid amount");S.own[i]+=v;S.t=Math.max(S.t,B[i][2]);say("Gave "+fmt(v)+" "+B[i][1])};
 const LB_URL="https://lb.moonscripts.live"; // leaderboard backend; endpoints are /api/leaderboard and /api/score
 const lbOv=$("lb"),NOLB=LB_URL.includes("YOUR-");
@@ -294,12 +347,16 @@ let d={};try{d=await r.json()}catch(e){}
 if(r.status===401&&TOKEN&&!/login|register/.test(path)){setToken("");user=null;showAuth("Session expired. Please log in again.")}
 if(!r.ok)throw new Error(d.error||"Request failed ("+r.status+")");return d}
 async function saveCloud(){if(!user||user==="guest")return;try{S.ts=Date.now();await call("/api/save",{state:S});setStatus("Saved online at "+new Date().toLocaleTimeString())}catch(e){setStatus("Online save failed: "+e.message.slice(0,100))}}
-function loadState(st){S=st&&st.own&&st.own.length===B.length?Object.assign(fresh(),st):fresh();render()}
+function loadState(st,off){S=st&&st.own&&st.own.length===B.length?Object.assign(fresh(),st):fresh();
+if(st&&st.rt===undefined)S.rt=S.t||0;if(!S.rb)S.rb={};
+if(off&&st&&st.ts){const away=Math.min(Math.max((Date.now()-st.ts)/1000,0),14400),gain=cps()*away*(hr("r12")?1:.5);
+if(away>60&&gain>0){S.n+=gain;S.t+=gain;S.rt+=gain;toast("Welcome back! +"+fmt(gain)+" Jaydens while you were away")}}
+S.ts=Date.now();render()}
 const applyMode=()=>{$("acbtn").textContent="👤 "+(user==="guest"?"Guest":user||"Account")};
 let reg=false;
 function tab(r){reg=r;$("tab-l").classList.toggle("on",!r);$("tab-r").classList.toggle("on",r);$("ago").textContent=r?"Create account":"Log in";$("ap").autocomplete=r?"new-password":"current-password";$("imp").checked=r;$("aerr").textContent=""}
 function showAuth(msg,closable){$("auth").classList.remove("hide");$("aerr").textContent=msg||"";$("aclose").classList.toggle("hide",!closable);$("impw").classList.toggle("hide",!guestData());$("imp").checked=reg}
-function enter(name,token,state,g){user=name;setToken(token);$("auth").classList.add("hide");applyMode();loadState(g||state);if(g)saveCloud();setStatus("Logged in as "+name)}
+function enter(name,token,state,g){user=name;setToken(token);$("auth").classList.add("hide");applyMode();loadState(g||state,!g);if(g)saveCloud();setStatus("Logged in as "+name)}
 $("tab-l").onclick=()=>tab(false);$("tab-r").onclick=()=>tab(true);$("aclose").onclick=()=>$("auth").classList.add("hide");
 $("ago").onclick=async()=>{
 const u=$("au").value.trim().toLowerCase(),p=$("ap").value,e=$("aerr");
@@ -310,7 +367,13 @@ if(g&&!reg&&!confirm("This replaces the progress saved on this account with your
 e.textContent=reg?"Creating account...":"Logging in...";
 try{const d=await call(reg?"/api/register":"/api/login",{username:u,password:p});$("ap").value="";enter(d.username,d.token,d.state,g)}catch(er){e.textContent=er.message}};
 $("ap").addEventListener("keydown",e=>{if(e.key==="Enter")$("ago").click()});
-$("aguest").onclick=()=>{user="guest";$("auth").classList.add("hide");applyMode();loadState(guestData())};
+$("atokbtn").onclick=()=>$("atokrow").classList.toggle("hide");
+$("atokgo").onclick=async()=>{const t=$("atok").value.trim();if(!t)return;
+$("aerr").textContent="Checking token...";
+try{const d=await call("/api/login-token",{token:t});$("atok").value="";enter(d.username,d.token,d.state)}
+catch(e){$("aerr").textContent=e.message}};
+$("atok").addEventListener("keydown",e=>{if(e.key==="Enter")$("atokgo").click()});
+$("aguest").onclick=()=>{user="guest";$("auth").classList.add("hide");applyMode();loadState(guestData(),true)};
 $("acbtn").onclick=()=>{const g=user==="guest";$("acc").classList.remove("hide");$("acmsg").textContent="";
 $("ainfo").textContent=g?"Playing as guest. Progress is saved on this device only, and guests can't join the leaderboard.":"Logged in as "+user+". Progress saves online automatically.";
 ["a-cloud","a-pull","a-out"].forEach(id=>$(id).classList.toggle("hide",g));$("a-imp").classList.toggle("hide",g||!guestData());$("a-login").classList.toggle("hide",!g)};
@@ -320,7 +383,7 @@ $("a-pull").onclick=async()=>{try{const d=await call("/api/me");loadState(d.stat
 $("a-imp").onclick=async()=>{const g=guestData();if(!g)return;if(!confirm("This replaces your online progress with your guest progress. Continue?"))return;loadState(g);await saveCloud();$("acmsg").textContent="Guest progress imported"};
 $("a-login").onclick=()=>{saveLocal();$("acc").classList.add("hide");tab(false);showAuth("",true)};
 $("a-out").onclick=async()=>{await saveCloud();try{await call("/api/logout",{})}catch(e){}setToken("");user=null;S=fresh();render();$("acc").classList.add("hide");tab(false);applyMode();showAuth("")};
-document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)save();else render()});
 (async()=>{if(TOKEN){try{const d=await call("/api/me");enter(d.username,TOKEN,d.state);return}catch(e){}showAuth("Couldn't restore your session.");return}showAuth("")})();
 let ni=0;setInterval(()=>{ni=(ni+1)%NEWS.length;$("news").textContent=NEWS[ni]},6000);
 render();
